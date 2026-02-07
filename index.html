@@ -180,8 +180,6 @@
       font-size: 15px;
       display: none;
     }
-
-    /* Стили для приветственного поп-апа */
     #welcome-modal {
       display: none;
       position: fixed;
@@ -219,7 +217,6 @@
     #welcome-close:hover {
       color: #222;
     }
-
     @media (max-width:360px) {
       .card { padding: 24px 18px; border-radius: 20px; }
       h2 { font-size: 22px; }
@@ -260,7 +257,6 @@
   </div>
 </div>
 
-<!-- Приветственное окно при первом запуске -->
 <div id="welcome-modal">
   <div id="welcome-box">
     <div id="welcome-close">✕</div>
@@ -291,11 +287,20 @@ const elements = {
   welcomeClose: document.getElementById('welcome-close')
 };
 
-let recipesData = null;
+let loadedRecipes = {};           // кэш загруженных категорий
 let currentCategory = null;
 let recipeIndices = {};
 
-// Показываем приветственное окно только при первом запуске
+const categoryNames = {
+  breakfast: "Завтрак",
+  lunch:     "Обед",
+  dinner:    "Ужин",
+  soups:     "Супы",
+  dessert:   "Десерт"
+};
+
+const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23F0F0F0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото блюда</text></svg>';
+
 function showWelcomeIfFirstTime() {
   if (!localStorage.getItem('hasSeenWelcome')) {
     elements.welcomeModal.style.display = 'flex';
@@ -307,37 +312,43 @@ function closeWelcome() {
   elements.welcomeModal.style.display = 'none';
 }
 
-const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23F0F0F0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото блюда</text></svg>';
+async function loadCategoryRecipes(category) {
+  if (loadedRecipes[category]) {
+    return loadedRecipes[category];
+  }
 
-async function loadRecipes() {
   try {
     elements.loader.style.display = 'block';
-    const res = await fetch('recipes.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    recipesData = await res.json();
+    elements.error.style.display = 'none';
+
+    const response = await fetch(`recipes/${category}.json`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} — файл recipes/${category}.json`);
+    }
+
+    const data = await response.json();
+    loadedRecipes[category] = data;
     elements.loader.style.display = 'none';
-    preloadAllImages();
+    return data;
+
   } catch (err) {
     elements.loader.style.display = 'none';
-    elements.error.textContent = 'Не удалось загрузить рецепты • ' + err.message;
+    elements.error.textContent = `Не удалось загрузить рецепты (${category}): ${err.message}`;
     elements.error.style.display = 'block';
+    return [];
   }
 }
 
-function preloadAllImages() {
-  if (!recipesData) return;
-  const photos = new Set();
-  Object.values(recipesData).flat().forEach(r => {
-    if (r.photo) photos.add(r.photo);
-  });
-  photos.forEach(src => {
-    const img = new Image();
-    img.src = src;
-  });
+function openModal() {
+  elements.modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
 }
 
-function openModal() { elements.modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-function closeModal() { elements.modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
+function closeModal() {
+  elements.modal.style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
 
 function selectCategory(cat) {
   currentCategory = cat;
@@ -345,31 +356,36 @@ function selectCategory(cat) {
   generateRecipe();
 }
 
-function getNextRecipe(cat) {
-  const recipes = recipesData?.[cat];
-  if (!recipes?.length) return null;
-  let idx = recipeIndices[cat] || 0;
-  const recipe = recipes[idx];
-  recipeIndices[cat] = (idx + 1) % recipes.length;
-  return recipe;
+function getNextRecipeIndex(category, recipes) {
+  let idx = recipeIndices[category] || 0;
+  recipeIndices[category] = (idx + 1) % recipes.length;
+  return idx;
 }
 
-function generateRecipe() {
-  if (!recipesData) return;
-  if (!currentCategory) return openModal();
-  const recipe = getNextRecipe(currentCategory);
-  if (!recipe) {
-    elements.error.textContent = 'Рецепты в этой категории закончились';
+async function generateRecipe() {
+  if (!currentCategory) {
+    return openModal();
+  }
+
+  const recipes = await loadCategoryRecipes(currentCategory);
+
+  if (!recipes?.length) {
+    elements.error.textContent = 'Рецепты в этой категории отсутствуют или не загрузились';
     elements.error.style.display = 'block';
+    elements.refreshBtn.style.display = 'none';
     return;
   }
+
+  const idx = getNextRecipeIndex(currentCategory, recipes);
+  const recipe = recipes[idx];
+
   updateUI(recipe);
   elements.refreshBtn.style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateUI(r) {
-  elements.category.textContent = currentCategory.toUpperCase();
+  elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
   elements.photo.src = r.photo || fallbackImage;
   elements.photo.alt = r.title || 'Рецепт';
@@ -379,26 +395,18 @@ function updateUI(r) {
 
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
-    const title = document.createElement('div');
-    title.className = 'section-title';
-    title.textContent = 'Ингредиенты:';
-    elements.ingredients.appendChild(title);
-    const content = document.createElement('div');
-    content.className = 'plain-list';
-    content.innerHTML = r.ingredients.map(item => item.trim()).join('<br>');
-    elements.ingredients.appendChild(content);
+    elements.ingredients.innerHTML = `
+      <div class="section-title">Ингредиенты:</div>
+      <div class="plain-list">${r.ingredients.map(item => item.trim()).join('<br>')}</div>
+    `;
   }
 
   elements.steps.innerHTML = '';
   if (Array.isArray(r.steps) && r.steps.length) {
-    const title = document.createElement('div');
-    title.className = 'section-title';
-    title.textContent = 'Приготовление:';
-    elements.steps.appendChild(title);
-    const content = document.createElement('div');
-    content.className = 'plain-list';
-    content.innerHTML = r.steps.map((step, i) => `${i + 1}. ${step.trim()}`).join('<br>');
-    elements.steps.appendChild(content);
+    elements.steps.innerHTML = `
+      <div class="section-title">Приготовление:</div>
+      <div class="plain-list">${r.steps.map((step, i) => `${i + 1}. ${step.trim()}`).join('<br>')}</div>
+    `;
   }
 
   elements.time.innerHTML = `<strong>Время приготовления:</strong> ${r.time || '—'}`;
@@ -415,30 +423,29 @@ function updateUI(r) {
 document.addEventListener('DOMContentLoaded', () => {
   elements.title.textContent = 'Выберите категорию';
   elements.photo.src = fallbackImage;
-  loadRecipes();
 
   elements.mainBtn.onclick = openModal;
   elements.refreshBtn.onclick = generateRecipe;
   elements.closeBtn.onclick = closeModal;
 
-  document.querySelectorAll('.choice').forEach(b => {
-    b.onclick = () => selectCategory(b.dataset.category);
+  document.querySelectorAll('.choice').forEach(btn => {
+    btn.onclick = () => selectCategory(btn.dataset.category);
   });
 
-  elements.modal.onclick = e => { if (e.target === elements.modal) closeModal(); };
+  elements.modal.onclick = e => {
+    if (e.target === elements.modal) closeModal();
+  };
+
   document.onkeydown = e => {
     if (e.key === 'Escape' && elements.modal.style.display === 'flex') closeModal();
   };
 
-  // Обработчики приветственного окна
   elements.welcomeClose.onclick = closeWelcome;
   elements.welcomeModal.onclick = e => {
     if (e.target === elements.welcomeModal) closeWelcome();
   };
 
-  // Показываем приветствие при первом запуске
   showWelcomeIfFirstTime();
-
   elements.refreshBtn.style.display = 'none';
 });
 </script>
