@@ -1,454 +1,446 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ТАЙМЕР ДОСТИГАТОРА</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Генератор рецептов</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      color: #222;
+      padding: 30px;
+    }
+    .card {
+      width: 100%;
+      max-width: 540px;
+      background: rgba(255,255,255,.96);
+      border-radius: 26px;
+      padding: 32px 28px;
+      text-align: center;
+      box-shadow: 0 30px 70px rgba(0,0,0,.18);
+      margin: 0 auto;
+    }
+    button {
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      border: none;
+      border-radius: 40px;
+      font-weight: 600;
+      transition: all .3s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .main-btn {
+      padding: 20px 35px;
+      background: linear-gradient(135deg,#f6d365,#fda085);
+      font-size: 18px;
+      color: #222;
+      width: 100%;
+    }
+    .main-btn:hover, .main-btn:active {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,.15);
+    }
+    .refresh {
+      display: none;
+      margin-top: 15px;
+      padding: 18px 30px;
+      background: linear-gradient(135deg,#ff6a00,#ee0979);
+      color: #fff;
+      font-size: 17px;
+      width: 100%;
+    }
+    .refresh:hover, .refresh:active {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(238,9,121,.3);
+    }
+    .category {
+      margin-top: 25px;
+      font-size: 15px;
+      letter-spacing: 2px;
+      font-weight: 600;
+      color: #c7903d;
+      text-transform: uppercase;
+    }
+    h2 {
+      margin: 15px 0 20px;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    #photo {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 16px;
+      display: none;
+      margin: 12px 0 20px;
+      max-height: 40vh;
+      background: #f0f0f0;
+      transition: opacity 0.4s ease;
+    }
+    #photo.loaded { opacity: 1; }
+    .section-title {
+      text-align: left;
+      font-size: 17px;
+      font-weight: 600;
+      color: #333;
+      margin: 24px 0 12px;
+    }
+    .plain-list {
+      text-align: left;
+      font-size: 16px;
+      line-height: 1.65;
+      color: #333;
+      margin: 0 0 24px 0;
+      white-space: pre-wrap;
+    }
+    .note {
+      text-align: left;
+      margin-top: 20px;
+      font-size: 15.5px;
+      color: #555;
+      font-style: italic;
+      padding: 14px 16px;
+      background: #fdfaf7;
+      border-left: 4px solid #f4a261;
+      border-radius: 8px;
+      line-height: 1.6;
+    }
+    .note strong { color: #d35400; font-style: normal; }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(6px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-box {
+      background: #fff;
+      padding: 32px 28px;
+      border-radius: 22px;
+      width: 100%;
+      max-width: 380px;
+      position: relative;
+      animation: modalAppear 0.3s ease;
+    }
+    @keyframes modalAppear {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .close {
+      position: absolute;
+      top: 12px; right: 14px;
+      font-size: 26px;
+      cursor: pointer;
+      opacity: .6;
+      transition: opacity 0.2s;
+      width: 36px; height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .close:hover { opacity: 1; }
+    .choice {
+      width: 100%;
+      margin-top: 18px;
+      padding: 20px 15px;
+      background: #f8f9fa;
+      font-size: 17px;
+      border-radius: 16px;
+      transition: all 0.28s ease;
+      text-align: left;
+      border: 1px solid #eee;
+    }
+    .choice:hover {
+      background: #f0f4f8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .loader { display: none; text-align: center; padding: 30px; color: #666; font-size: 16px; }
+    .error {
+      color: #d32f2f;
+      background: #ffebee;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-top: 12px;
+      font-size: 15px;
+      display: none;
+    }
 
-        body {
-            background: linear-gradient(135deg, #0c0c0c, #1a1a2e);
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+    /* Стили для приветственного поп-апа */
+    #welcome-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1100;
+      padding: 20px;
+    }
+    #welcome-box {
+      background: #ffffff;
+      padding: 28px 24px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    }
+    #welcome-text {
+      font-size: 16px;
+      line-height: 1.55;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    #welcome-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #777;
+    }
+    #welcome-close:hover {
+      color: #222;
+    }
 
-        .container {
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        h1 {
-            margin-bottom: 25px;
-            font-weight: 300;
-            letter-spacing: 2px;
-            color: #e0e0e0;
-            font-size: 2.2rem;
-        }
-
-        .task-input {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .task-input input {
-            width: 100%;
-            padding: 15px 20px;
-            font-size: 1.1rem;
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(100, 255, 218, 0.3);
-            border-radius: 10px;
-            color: #fff;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        .task-input input:focus {
-            border-color: #64ffda;
-            box-shadow: 0 0 10px rgba(100, 255, 218, 0.3);
-        }
-
-        .task-input input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .current-task {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            color: #64ffda;
-            font-weight: 500;
-            min-height: 30px;
-        }
-
-        .timer-display {
-            font-size: 5rem;
-            font-weight: 300;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 30px 20px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            letter-spacing: 3px;
-            color: #64ffda;
-            text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .time-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 15px 25px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .time-btn {
-            flex: 1;
-            background: rgba(41, 98, 255, 0.1);
-            color: #2962ff;
-            border: 1px solid rgba(41, 98, 255, 0.3);
-        }
-
-        .time-btn:hover {
-            background: rgba(41, 98, 255, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(41, 98, 255, 0.2);
-        }
-
-        .start-btn {
-            background: linear-gradient(135deg, #00c853, #64dd17);
-            color: white;
-            box-shadow: 0 5px 15px rgba(0, 200, 83, 0.3);
-        }
-
-        .start-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 200, 83, 0.4);
-        }
-
-        .pause-btn {
-            background: linear-gradient(135deg, #ff9100, #ffab00);
-            color: white;
-            box-shadow: 0 5px 15px rgba(255, 145, 0, 0.3);
-        }
-
-        .pause-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 145, 0, 0.4);
-        }
-
-        .reset-btn {
-            background: linear-gradient(135deg, #ff1744, #f50057);
-            color: white;
-            box-shadow: 0 5px 15px rgba(255, 23, 68, 0.3);
-        }
-
-        .reset-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 23, 68, 0.4);
-        }
-
-        .finished {
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                color: #64ffda;
-                text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
-            }
-            50% {
-                color: #ff1744;
-                text-shadow: 0 0 15px rgba(255, 23, 68, 0.7);
-            }
-            100% {
-                color: #64ffda;
-                text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
-            }
-        }
-
-        .task-history {
-            margin-top: 30px;
-            text-align: left;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .task-history h3 {
-            margin-bottom: 15px;
-            color: #e0e0e0;
-            font-weight: 400;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 8px;
-        }
-
-        .task-item {
-            padding: 10px;
-            margin-bottom: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .task-item.completed {
-            opacity: 0.7;
-            text-decoration: line-through;
-        }
-
-        .task-item .time {
-            font-size: 0.9rem;
-            color: #64ffda;
-        }
-
-        @media (max-width: 480px) {
-            .timer-display {
-                font-size: 3.5rem;
-                padding: 20px 15px;
-            }
-            
-            .time-buttons {
-                flex-direction: column;
-            }
-            
-            button {
-                padding: 12px 20px;
-            }
-            
-            .container {
-                padding: 20px;
-            }
-        }
-    </style>
+    @media (max-width:360px) {
+      .card { padding: 24px 18px; border-radius: 20px; }
+      h2 { font-size: 22px; }
+      img { height: 200px; }
+    }
+    @media (min-width:768px) {
+      body { align-items: center; padding: 50px 30px; }
+      .card { padding: 40px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1><i class="fas fa-clock"></i> ТАЙМЕР</h1>
-        
-        <div class="task-input">
-            <input type="text" id="taskInput" placeholder="Введите вашу задачу...">
-        </div>
-        
-        <div class="current-task" id="currentTask"></div>
-        
-        <div class="timer-display" id="timer">25:00</div>
-        
-        <div class="time-buttons">
-            <button class="time-btn" id="add5"><i class="fas fa-plus"></i> 5 мин</button>
-            <button class="time-btn" id="add10"><i class="fas fa-plus"></i> 10 мин</button>
-            <button class="time-btn" id="add15"><i class="fas fa-plus"></i> 15 мин</button>
-        </div>
-        
-        <div class="controls">
-            <button class="start-btn" id="start"><i class="fas fa-play"></i> Старт</button>
-            <button class="pause-btn" id="pause"><i class="fas fa-pause"></i> Пауза</button>
-            <button class="reset-btn" id="reset"><i class="fas fa-redo"></i> Сброс</button>
-        </div>
-    </div>
 
-    <script>
-        // Элементы DOM
-        const timer = document.getElementById('timer');
-        const startBtn = document.getElementById('start');
-        const pauseBtn = document.getElementById('pause');
-        const resetBtn = document.getElementById('reset');
-        const add5Btn = document.getElementById('add5');
-        const add10Btn = document.getElementById('add10');
-        const add15Btn = document.getElementById('add15');
-        const taskInput = document.getElementById('taskInput');
-        const currentTask = document.getElementById('currentTask');
-        const taskList = document.getElementById('taskList');
-        
-        // Переменные таймера
-        let timeLeft = 5 * 60; // 25 минут по умолчанию
-        let timerInterval = null;
-        let isRunning = false;
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-        
-        // Обновление отображения таймера
-        function updateDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            
-            const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-            const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
-            
-            timer.textContent = `${formattedMinutes}:${formattedSeconds}`;
-            
-            if (timeLeft === 0 && isRunning) {
-                timer.classList.add('finished');
-                clearInterval(timerInterval);
-                isRunning = false;
-                startBtn.innerHTML = '<i class="fas fa-play"></i> Старт';
-                
-                // Помечаем текущую задачу как выполненную
-                if (currentTask.textContent !== '') {
-                    addToHistory(currentTask.textContent, true);
-                    currentTask.textContent = '';
-                }
-                
-                // Воспроизводим звук завершения
-                playNotificationSound();
-            } else {
-                timer.classList.remove('finished');
-            }
-        }
-        
-        // Воспроизведение звука уведомления
-        function playNotificationSound() {
-            try {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
-                
-                gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.3);
-            } catch (e) {
-                console.log("Аудио не поддерживается");
-            }
-        }
-        
-        // Запуск таймера
-        function startTimer() {
-            if (timeLeft > 0 && !isRunning) {
-                isRunning = true;
-                startBtn.innerHTML = '<i class="fas fa-play"></i> Возобновить';
-                timerInterval = setInterval(() => {
-                    timeLeft--;
-                    updateDisplay();
-                }, 1000);
-            }
-        }
-        
-        // Пауза таймера
-        function pauseTimer() {
-            if (isRunning) {
-                clearInterval(timerInterval);
-                isRunning = false;
-                startBtn.innerHTML = '<i class="fas fa-play"></i> Возобновить';
-            }
-        }
-        
-        // Сброс таймера
-        function resetTimer() {
-            clearInterval(timerInterval);
-            timeLeft = 5 * 60;
-            isRunning = false;
-            startBtn.innerHTML = '<i class="fas fa-play"></i> Старт';
-            updateDisplay();
-        }
-        
-        // Добавление времени
-        function addTime(minutes) {
-            timeLeft += minutes * 60;
-            updateDisplay();
-            
-            // Если таймер не запущен, автоматически запускаем его при добавлении времени
-            if (!isRunning && timeLeft > 0) {
-                startTimer();
-            }
-        }
-        
-        // Установка задачи
-        function setTask() {
-            const taskText = taskInput.value.trim();
-            if (taskText) {
-                currentTask.textContent = taskText;
-                taskInput.value = '';
-                
-                // Если задача новая, добавляем в историю
-                if (!tasks.some(task => task.text === taskText && !task.completed)) {
-                    addToHistory(taskText, false);
-                }
-            }
-        }
-        
-        // Добавление задачи в историю
-        function addToHistory(taskText, completed) {
-            const task = {
-                text: taskText,
-                completed: completed,
-                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            };
-            
-            tasks.unshift(task);
-            
-            // Сохраняем только последние 5 задач
-            if (tasks.length > 5) {
-                tasks = tasks.slice(0, 5);
-            }
-            
-            // Сохраняем в localStorage
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-            
-            // Обновляем отображение
-            renderTaskHistory();
-        }
-        
-        // Отрисовка истории задач
-        function renderTaskHistory() {
-            taskList.innerHTML = '';
-            
-            tasks.forEach(task => {
-                const taskItem = document.createElement('div');
-                taskItem.className = `task-item ${task.completed ? 'completed' : ''}`;
-                
-                taskItem.innerHTML = `
-                    <span>${task.text}</span>
-                    <span class="time">${task.time}</span>
-                `;
-                
-                taskList.appendChild(taskItem);
-            });
-        }
-        
-        // Назначаем обработчики событий
-        startBtn.addEventListener('click', startTimer);
-        pauseBtn.addEventListener('click', pauseTimer);
-        resetBtn.addEventListener('click', resetTimer);
-        add5Btn.addEventListener('click', () => addTime(5));
-        add10Btn.addEventListener('click', () => addTime(10));
-        add15Btn.addEventListener('click', () => addTime(15));
-        
-        taskInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                setTask();
-            }
-        });
-        
-        // Инициализация
-        updateDisplay();
-        renderTaskHistory();
-    </script>
+<div class="card">
+  <button class="main-btn" id="mainBtn">Случайный рецепт</button>
+  <button class="refresh" id="refreshBtn">Обновить рецепт 🔄</button>
+  <div class="loader" id="loader">Загрузка рецептов...</div>
+  <div class="error" id="error"></div>
+  <div class="category" id="category"></div>
+  <h2 id="title">Выберите категорию</h2>
+  <img id="photo" alt="Фото рецепта" loading="lazy">
+  <div id="ingredients"></div>
+  <div id="steps"></div>
+  <div id="time"></div>
+  <div id="calories"></div>
+  <div id="note"></div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="close" id="closeBtn">✕</div>
+    <h3 style="margin-bottom:22px;font-size:22px">Выберите категорию</h3>
+    <button class="choice" data-category="breakfast">Завтрак</button>
+    <button class="choice" data-category="lunch">Обед</button>
+    <button class="choice" data-category="dinner">Ужин</button>
+    <button class="choice" data-category="soups">Супы</button>
+    <button class="choice" data-category="dessert">Десерт</button>
+  </div>
+</div>
+
+<!-- Приветственное окно при первом запуске -->
+<div id="welcome-modal">
+  <div id="welcome-box">
+    <div id="welcome-close">✕</div>
+    <div id="welcome-text">
+      При первом запуске картинки могут подгружаться дольше.<br><br>
+      Выберите другую случайную категорию или обновите страницу) 🙂
+    </div>
+  </div>
+</div>
+
+<script>
+const elements = {
+  modal: document.getElementById('modal'),
+  mainBtn: document.getElementById('mainBtn'),
+  refreshBtn: document.getElementById('refreshBtn'),
+  closeBtn: document.getElementById('closeBtn'),
+  loader: document.getElementById('loader'),
+  error: document.getElementById('error'),
+  category: document.getElementById('category'),
+  title: document.getElementById('title'),
+  photo: document.getElementById('photo'),
+  ingredients: document.getElementById('ingredients'),
+  steps: document.getElementById('steps'),
+  time: document.getElementById('time'),
+  calories: document.getElementById('calories'),
+  note: document.getElementById('note'),
+  welcomeModal: document.getElementById('welcome-modal'),
+  welcomeClose: document.getElementById('welcome-close')
+};
+
+let recipesData = null;
+let currentCategory = null;
+let recipeIndices = {};
+
+// Показываем приветственное окно только при первом запуске
+function showWelcomeIfFirstTime() {
+  if (!localStorage.getItem('hasSeenWelcome')) {
+    elements.welcomeModal.style.display = 'flex';
+    localStorage.setItem('hasSeenWelcome', 'true');
+  }
+}
+
+function closeWelcome() {
+  elements.welcomeModal.style.display = 'none';
+}
+
+const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23F0F0F0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото блюда</text></svg>';
+
+async function loadRecipes() {
+  try {
+    elements.loader.style.display = 'block';
+    const res = await fetch('recipes.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    recipesData = await res.json();
+    elements.loader.style.display = 'none';
+    preloadAllImages();
+  } catch (err) {
+    elements.loader.style.display = 'none';
+    elements.error.textContent = 'Не удалось загрузить рецепты • ' + err.message;
+    elements.error.style.display = 'block';
+  }
+}
+
+function preloadAllImages() {
+  if (!recipesData) return;
+  const photos = new Set();
+  Object.values(recipesData).flat().forEach(r => {
+    if (r.photo) photos.add(r.photo);
+  });
+  photos.forEach(src => {
+    const img = new Image();
+    img.src = src;
+  });
+}
+
+function openModal() { elements.modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function closeModal() { elements.modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+function selectCategory(cat) {
+  currentCategory = cat;
+  closeModal();
+  generateRecipe();
+}
+
+function getNextRecipe(cat) {
+  const recipes = recipesData?.[cat];
+  if (!recipes?.length) return null;
+  let idx = recipeIndices[cat] || 0;
+  const recipe = recipes[idx];
+  recipeIndices[cat] = (idx + 1) % recipes.length;
+  return recipe;
+}
+
+function generateRecipe() {
+  if (!recipesData) return;
+  if (!currentCategory) return openModal();
+  const recipe = getNextRecipe(currentCategory);
+  if (!recipe) {
+    elements.error.textContent = 'Рецепты в этой категории закончились';
+    elements.error.style.display = 'block';
+    return;
+  }
+  updateUI(recipe);
+  elements.refreshBtn.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateUI(r) {
+  elements.category.textContent = currentCategory.toUpperCase();
+  elements.title.textContent = (r.title || 'Без названия').trim();
+  elements.photo.src = r.photo || fallbackImage;
+  elements.photo.alt = r.title || 'Рецепт';
+  elements.photo.style.display = 'block';
+  elements.photo.classList.remove('loaded');
+  elements.photo.onload = () => elements.photo.classList.add('loaded');
+
+  elements.ingredients.innerHTML = '';
+  if (Array.isArray(r.ingredients) && r.ingredients.length) {
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = 'Ингредиенты:';
+    elements.ingredients.appendChild(title);
+    const content = document.createElement('div');
+    content.className = 'plain-list';
+    content.innerHTML = r.ingredients.map(item => item.trim()).join('<br>');
+    elements.ingredients.appendChild(content);
+  }
+
+  elements.steps.innerHTML = '';
+  if (Array.isArray(r.steps) && r.steps.length) {
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = 'Приготовление:';
+    elements.steps.appendChild(title);
+    const content = document.createElement('div');
+    content.className = 'plain-list';
+    content.innerHTML = r.steps.map((step, i) => `${i + 1}. ${step.trim()}`).join('<br>');
+    elements.steps.appendChild(content);
+  }
+
+  elements.time.innerHTML = `<strong>Время приготовления:</strong> ${r.time || '—'}`;
+  elements.calories.innerHTML = `<strong>Калорийность:</strong> ${r.calories || '—'} ккал`;
+
+  if (r.note) {
+    elements.note.innerHTML = `<strong>Примечание:</strong><br>${r.note.trim()}`;
+    elements.note.style.display = 'block';
+  } else {
+    elements.note.style.display = 'none';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  elements.title.textContent = 'Выберите категорию';
+  elements.photo.src = fallbackImage;
+  loadRecipes();
+
+  elements.mainBtn.onclick = openModal;
+  elements.refreshBtn.onclick = generateRecipe;
+  elements.closeBtn.onclick = closeModal;
+
+  document.querySelectorAll('.choice').forEach(b => {
+    b.onclick = () => selectCategory(b.dataset.category);
+  });
+
+  elements.modal.onclick = e => { if (e.target === elements.modal) closeModal(); };
+  document.onkeydown = e => {
+    if (e.key === 'Escape' && elements.modal.style.display === 'flex') closeModal();
+  };
+
+  // Обработчики приветственного окна
+  elements.welcomeClose.onclick = closeWelcome;
+  elements.welcomeModal.onclick = e => {
+    if (e.target === elements.welcomeModal) closeWelcome();
+  };
+
+  // Показываем приветствие при первом запуске
+  showWelcomeIfFirstTime();
+
+  elements.refreshBtn.style.display = 'none';
+});
+</script>
 </body>
 </html>
