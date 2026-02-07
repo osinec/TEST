@@ -2,12 +2,17 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Генератор рецептов</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Предзагрузка самых популярных картинок (ускоряет первый показ) -->
+  <link rel="preload" href="pics/грибной_омлет.webp" as="image" fetchpriority="high">
+  <link rel="preload" href="pics/куриная_запеканка.webp" as="image" fetchpriority="high">
+  <link rel="preload" href="pics/ленивые_пирожки.webp" as="image" fetchpriority="high">
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -85,7 +90,7 @@
       display: none;
       margin: 12px 0 20px;
       max-height: 40vh;
-      background: #f0f0f0;
+      background: #f0f0f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23ddd"/></svg>') center/cover no-repeat;
       transition: opacity 0.4s ease;
     }
     #photo.loaded { opacity: 1; }
@@ -220,7 +225,7 @@
     @media (max-width:360px) {
       .card { padding: 24px 18px; border-radius: 20px; }
       h2 { font-size: 22px; }
-      img { height: 200px; }
+      #photo { height: 200px; }
     }
     @media (min-width:768px) {
       body { align-items: center; padding: 50px 30px; }
@@ -229,6 +234,7 @@
   </style>
 </head>
 <body>
+
 <div class="card">
   <button class="main-btn" id="mainBtn">Случайный рецепт</button>
   <button class="refresh" id="refreshBtn">Обновить рецепт 🔄</button>
@@ -236,13 +242,14 @@
   <div class="error" id="error"></div>
   <div class="category" id="category"></div>
   <h2 id="title">Выберите категорию</h2>
-  <img id="photo" alt="Фото рецепта" loading="lazy">
+  <img id="photo" alt="Фото рецепта" loading="lazy" decoding="async" fetchpriority="low">
   <div id="ingredients"></div>
   <div id="steps"></div>
   <div id="time"></div>
   <div id="calories"></div>
   <div id="note"></div>
 </div>
+
 <div class="modal" id="modal">
   <div class="modal-box">
     <div class="close" id="closeBtn">✕</div>
@@ -254,16 +261,17 @@
     <button class="choice" data-category="dessert">Десерт</button>
   </div>
 </div>
-<!-- Приветственное окно при первом запуске -->
+
 <div id="welcome-modal">
   <div id="welcome-box">
     <div id="welcome-close">✕</div>
     <div id="welcome-text">
       При первом запуске картинки могут подгружаться дольше.<br><br>
-      Выберите другую случайную категорию или обновите страницу) 🙂
+      Если загрузка медленная — попробуйте обновить страницу или выбрать другую категорию 🙂
     </div>
   </div>
 </div>
+
 <script>
 const elements = {
   modal: document.getElementById('modal'),
@@ -283,7 +291,8 @@ const elements = {
   welcomeModal: document.getElementById('welcome-modal'),
   welcomeClose: document.getElementById('welcome-close')
 };
-let loadedRecipes = {}; // кэш загруженных категорий
+
+let loadedRecipes = {};           // кэш: { breakfast: [рецепты], ... }
 let currentCategory = null;
 let recipeIndices = {};
 
@@ -303,94 +312,138 @@ function showWelcomeIfFirstTime() {
     localStorage.setItem('hasSeenWelcome', 'true');
   }
 }
+
 function closeWelcome() {
   elements.welcomeModal.style.display = 'none';
 }
+
 async function loadCategoryRecipes(category) {
   if (loadedRecipes[category]) {
+    console.log(`[CACHE] ${category}: ${loadedRecipes[category].length} рецептов из кэша`);
     return loadedRecipes[category];
   }
 
+  const url = `recipes/${category}.json`;
+  console.log(`[LOAD] Загружаем: ${url}`);
+
   try {
     elements.loader.style.display = 'block';
-    const res = await fetch(`recipes/${category}.json`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    elements.error.style.display = 'none';
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const data = await response.json();
+    if (!Array.isArray(data)) throw new Error('Данные не являются массивом');
+
     loadedRecipes[category] = data;
+    console.log(`[SUCCESS] ${category}: ${data.length} рецептов загружено`);
+
     elements.loader.style.display = 'none';
     return data;
   } catch (err) {
+    console.error(`[ERROR] ${category}:`, err);
     elements.loader.style.display = 'none';
-    elements.error.textContent = 'Не удалось загрузить рецепты • ' + err.message;
+    elements.error.textContent = `Не удалось загрузить ${categoryNames[category] || category}: ${err.message}`;
     elements.error.style.display = 'block';
     return [];
   }
 }
-function openModal() { elements.modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-function closeModal() { elements.modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+function openModal() {
+  elements.modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  elements.modal.style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
 function selectCategory(cat) {
   currentCategory = cat;
+  console.log(`[SELECT] Категория: ${cat} (${categoryNames[cat] || 'неизвестно'})`);
   closeModal();
   generateRecipe();
 }
-function getNextRecipe(cat, recipes) {
-  let idx = recipeIndices[cat] || 0;
-  recipeIndices[cat] = (idx + 1) % recipes.length;
-  return idx;
-}
+
 async function generateRecipe() {
   if (!currentCategory) return openModal();
+
   const recipes = await loadCategoryRecipes(currentCategory);
+
   if (!recipes?.length) {
     elements.error.textContent = 'Рецепты в этой категории отсутствуют или не загрузились';
     elements.error.style.display = 'block';
+    elements.refreshBtn.style.display = 'none';
     return;
   }
-  const idx = getNextRecipe(currentCategory, recipes);
+
+  let idx = recipeIndices[currentCategory] || 0;
+  recipeIndices[currentCategory] = (idx + 1) % recipes.length;
+
   const recipe = recipes[idx];
+  console.log(`[SHOW] Рецепт ${idx + 1}/${recipes.length}: ${recipe.title}`);
+
   updateUI(recipe);
   elements.refreshBtn.style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
 function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
 
+  // ────────────────────────────────────────────────
+  // Оптимизированная загрузка изображения
+  // ────────────────────────────────────────────────
   const photoName = r.photo ? r.photo.replace(/\.(png|jpg|jpeg)$/i, '') : '';
-  const photoWebP = photoName ? `pics/${photoName}.webp` : fallbackImage;
-  const photoOrig = r.photo ? `pics/${r.photo}` : fallbackImage;
+  const webpPath = photoName ? `pics/${photoName}.webp` : fallbackImage;
+  const origPath = r.photo ? `pics/${r.photo}` : fallbackImage;
 
-  elements.photo.src = photoWebP;
-  elements.photo.srcset = `${photoWebP} 1x, ${photoOrig} 1x`; // fallback
+  elements.photo.src = webpPath;                    // основной — WebP
+  elements.photo.srcset = `${webpPath} 1x, ${origPath} 2x`; // fallback + retina
   elements.photo.sizes = "(max-width: 540px) 100vw, 540px";
   elements.photo.alt = r.title || 'Рецепт';
+  elements.photo.loading = "lazy";
+  elements.photo.decoding = "async";
+  elements.photo.fetchpriority = "low";
   elements.photo.style.display = 'block';
   elements.photo.classList.remove('loaded');
-  elements.photo.onload = () => elements.photo.classList.add('loaded');
+
+  elements.photo.onload = () => {
+    elements.photo.classList.add('loaded');
+    console.log(`[IMG OK] ${elements.photo.currentSrc}`);
+  };
+
+  elements.photo.onerror = () => {
+    console.warn(`[IMG FAIL] ${elements.photo.src} → fallback`);
+    elements.photo.src = fallbackImage;
+    elements.photo.srcset = '';
+  };
+
+  // ────────────────────────────────────────────────
+  // Остальные секции без изменений
+  // ────────────────────────────────────────────────
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
-    const title = document.createElement('div');
-    title.className = 'section-title';
-    title.textContent = 'Ингредиенты:';
-    elements.ingredients.appendChild(title);
-    const content = document.createElement('div');
-    content.className = 'plain-list';
-    content.innerHTML = r.ingredients.map(item => item.trim()).join('<br>');
-    elements.ingredients.appendChild(content);
+    elements.ingredients.innerHTML = `
+      <div class="section-title">Ингредиенты:</div>
+      <div class="plain-list">${r.ingredients.map(item => item.trim()).join('<br>')}</div>
+    `;
   }
+
   elements.steps.innerHTML = '';
   if (Array.isArray(r.steps) && r.steps.length) {
-    const title = document.createElement('div');
-    title.className = 'section-title';
-    title.textContent = 'Приготовление:';
-    elements.steps.appendChild(title);
-    const content = document.createElement('div');
-    content.className = 'plain-list';
-    content.innerHTML = r.steps.map((step, i) => `${i + 1}. ${step.trim()}`).join('<br>');
-    elements.steps.appendChild(content);
+    elements.steps.innerHTML = `
+      <div class="section-title">Приготовление:</div>
+      <div class="plain-list">${r.steps.map((step, i) => `${i + 1}. ${step.trim()}`).join('<br>')}</div>
+    `;
   }
+
   elements.time.innerHTML = `<strong>Время приготовления:</strong> ${r.time || '—'}`;
   elements.calories.innerHTML = `<strong>Калорийность:</strong> ${r.calories || '—'} ккал`;
+
   if (r.note) {
     elements.note.innerHTML = `<strong>Примечание:</strong><br>${r.note.trim()}`;
     elements.note.style.display = 'block';
@@ -398,27 +451,36 @@ function updateUI(r) {
     elements.note.style.display = 'none';
   }
 }
+
 document.addEventListener('DOMContentLoaded', () => {
   elements.title.textContent = 'Выберите категорию';
   elements.photo.src = fallbackImage;
+
   elements.mainBtn.onclick = openModal;
   elements.refreshBtn.onclick = generateRecipe;
   elements.closeBtn.onclick = closeModal;
-  document.querySelectorAll('.choice').forEach(b => {
-    b.onclick = () => selectCategory(b.dataset.category);
+
+  document.querySelectorAll('.choice').forEach(btn => {
+    btn.onclick = () => selectCategory(btn.dataset.category);
   });
-  elements.modal.onclick = e => { if (e.target === elements.modal) closeModal(); };
+
+  elements.modal.onclick = e => {
+    if (e.target === elements.modal) closeModal();
+  };
+
   document.onkeydown = e => {
     if (e.key === 'Escape' && elements.modal.style.display === 'flex') closeModal();
   };
-  // Обработчики приветственного окна
+
   elements.welcomeClose.onclick = closeWelcome;
   elements.welcomeModal.onclick = e => {
     if (e.target === elements.welcomeModal) closeWelcome();
   };
-  // Показываем приветствие при первом запуске
+
   showWelcomeIfFirstTime();
   elements.refreshBtn.style.display = 'none';
+
+  console.log("[INIT] Сайт загружен. Готов к работе.");
 });
 </script>
 </body>
