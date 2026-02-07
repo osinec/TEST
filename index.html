@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Генератор рецептов</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -228,7 +229,6 @@
   </style>
 </head>
 <body>
-
 <div class="card">
   <button class="main-btn" id="mainBtn">Случайный рецепт</button>
   <button class="refresh" id="refreshBtn">Обновить рецепт 🔄</button>
@@ -243,7 +243,6 @@
   <div id="calories"></div>
   <div id="note"></div>
 </div>
-
 <div class="modal" id="modal">
   <div class="modal-box">
     <div class="close" id="closeBtn">✕</div>
@@ -255,17 +254,16 @@
     <button class="choice" data-category="dessert">Десерт</button>
   </div>
 </div>
-
+<!-- Приветственное окно при первом запуске -->
 <div id="welcome-modal">
   <div id="welcome-box">
     <div id="welcome-close">✕</div>
     <div id="welcome-text">
       При первом запуске картинки могут подгружаться дольше.<br><br>
-      Если ничего не загружается — проверьте консоль (F12) и наличие файлов в папке recipes/
+      Выберите другую случайную категорию или обновите страницу) 🙂
     </div>
   </div>
 </div>
-
 <script>
 const elements = {
   modal: document.getElementById('modal'),
@@ -285,8 +283,7 @@ const elements = {
   welcomeModal: document.getElementById('welcome-modal'),
   welcomeClose: document.getElementById('welcome-close')
 };
-
-let loadedRecipes = {};           // кэш загруженных категорий: { breakfast: [...], ... }
+let loadedRecipes = {}; // кэш загруженных категорий
 let currentCategory = null;
 let recipeIndices = {};
 
@@ -298,14 +295,6 @@ const categoryNames = {
   dessert:   "Десерт"
 };
 
-const categoryFiles = {
-  breakfast: "breakfast.json",
-  lunch:     "lunch.json",
-  dinner:    "dinner.json",
-  soups:     "soups.json",
-  dessert:   "dessert.json"
-};
-
 const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23F0F0F0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото блюда</text></svg>';
 
 function showWelcomeIfFirstTime() {
@@ -314,144 +303,94 @@ function showWelcomeIfFirstTime() {
     localStorage.setItem('hasSeenWelcome', 'true');
   }
 }
-
 function closeWelcome() {
   elements.welcomeModal.style.display = 'none';
 }
-
 async function loadCategoryRecipes(category) {
-  console.log(`[ЗАГРУЗКА] Запрос категории: ${category}`);
-
-  if (!categoryFiles[category]) {
-    console.error(`Категория "${category}" не найдена в списке categoryFiles`);
-    return [];
-  }
-
   if (loadedRecipes[category]) {
-    console.log(`[КЭШ] Рецепты для ${category} уже загружены (${loadedRecipes[category].length} шт.)`);
     return loadedRecipes[category];
   }
 
-  const url = `recipes/${categoryFiles[category]}`;
-  console.log(`[FETCH] Пытаемся загрузить: ${url}`);
-
   try {
     elements.loader.style.display = 'block';
-    elements.error.style.display = 'none';
-
-    const response = await fetch(url);
-
-    console.log(`[FETCH] Статус: ${response.status} ${response.ok ? '(OK)' : '(ERROR)'}`);
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status} — файл ${url} не найден или недоступен`);
-    }
-
-    const data = await response.json();
-
-    if (!Array.isArray(data)) {
-      throw new Error(`Данные не являются массивом рецептов (получен ${typeof data})`);
-    }
-
-    console.log(`[УСПЕХ] Загружено ${data.length} рецептов для ${category}`);
-
+    const res = await fetch(`recipes/${category}.json`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
     loadedRecipes[category] = data;
     elements.loader.style.display = 'none';
     return data;
-
   } catch (err) {
-    console.error(`[ОШИБКА] ${category}:`, err);
     elements.loader.style.display = 'none';
-    elements.error.textContent = `Не удалось загрузить ${categoryNames[category] || category}: ${err.message}`;
+    elements.error.textContent = 'Не удалось загрузить рецепты • ' + err.message;
     elements.error.style.display = 'block';
     return [];
   }
 }
-
-function openModal() {
-  elements.modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-  elements.modal.style.display = 'none';
-  document.body.style.overflow = 'auto';
-}
-
+function openModal() { elements.modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function closeModal() { elements.modal.style.display = 'none'; document.body.style.overflow = 'auto'; }
 function selectCategory(cat) {
   currentCategory = cat;
-  console.log(`[ВЫБОР] Выбрана категория: ${cat} (${categoryNames[cat] || 'неизвестно'})`);
   closeModal();
   generateRecipe();
 }
-
+function getNextRecipe(cat, recipes) {
+  let idx = recipeIndices[cat] || 0;
+  recipeIndices[cat] = (idx + 1) % recipes.length;
+  return idx;
+}
 async function generateRecipe() {
-  if (!currentCategory) {
-    console.log("[ГЕНЕРАЦИЯ] Категория не выбрана → открываем модалку");
-    return openModal();
-  }
-
+  if (!currentCategory) return openModal();
   const recipes = await loadCategoryRecipes(currentCategory);
-
   if (!recipes?.length) {
-    console.warn(`[ГЕНЕРАЦИЯ] Нет рецептов для ${currentCategory}`);
     elements.error.textContent = 'Рецепты в этой категории отсутствуют или не загрузились';
     elements.error.style.display = 'block';
-    elements.refreshBtn.style.display = 'none';
-    elements.title.textContent = 'Нет рецептов';
     return;
   }
-
-  let idx = recipeIndices[currentCategory] || 0;
+  const idx = getNextRecipe(currentCategory, recipes);
   const recipe = recipes[idx];
-
-  recipeIndices[currentCategory] = (idx + 1) % recipes.length;
-
-  console.log(`[ПОКАЗ] Показываем рецепт #${idx + 1} из ${recipes.length} (${recipe.title})`);
-
   updateUI(recipe);
   elements.refreshBtn.style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
 function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
 
-  // Картинка теперь из папки pics/
-  const photoPath = r.photo ? `pics/${r.photo}` : fallbackImage;
-  elements.photo.src = photoPath;
+  const photoName = r.photo ? r.photo.replace(/\.(png|jpg|jpeg)$/i, '') : '';
+  const photoWebP = photoName ? `pics/${photoName}.webp` : fallbackImage;
+  const photoOrig = r.photo ? `pics/${r.photo}` : fallbackImage;
+
+  elements.photo.src = photoWebP;
+  elements.photo.srcset = `${photoWebP} 1x, ${photoOrig} 1x`; // fallback
+  elements.photo.sizes = "(max-width: 540px) 100vw, 540px";
   elements.photo.alt = r.title || 'Рецепт';
   elements.photo.style.display = 'block';
   elements.photo.classList.remove('loaded');
-  elements.photo.onload = () => {
-    elements.photo.classList.add('loaded');
-    console.log(`[ИЗОБРАЖЕНИЕ] Успешно загружено: ${photoPath}`);
-  };
-  elements.photo.onerror = () => {
-    console.warn(`[ИЗОБРАЖЕНИЕ] Не удалось загрузить: ${photoPath}`);
-    elements.photo.src = fallbackImage;
-  };
-
+  elements.photo.onload = () => elements.photo.classList.add('loaded');
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
-    elements.ingredients.innerHTML = `
-      <div class="section-title">Ингредиенты:</div>
-      <div class="plain-list">${r.ingredients.map(item => item.trim()).join('<br>')}</div>
-    `;
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = 'Ингредиенты:';
+    elements.ingredients.appendChild(title);
+    const content = document.createElement('div');
+    content.className = 'plain-list';
+    content.innerHTML = r.ingredients.map(item => item.trim()).join('<br>');
+    elements.ingredients.appendChild(content);
   }
-
   elements.steps.innerHTML = '';
   if (Array.isArray(r.steps) && r.steps.length) {
-    elements.steps.innerHTML = `
-      <div class="section-title">Приготовление:</div>
-      <div class="plain-list">${r.steps.map((step, i) => `${i + 1}. ${step.trim()}`).join('<br>')}</div>
-    `;
+    const title = document.createElement('div');
+    title.className = 'section-title';
+    title.textContent = 'Приготовление:';
+    elements.steps.appendChild(title);
+    const content = document.createElement('div');
+    content.className = 'plain-list';
+    content.innerHTML = r.steps.map((step, i) => `${i + 1}. ${step.trim()}`).join('<br>');
+    elements.steps.appendChild(content);
   }
-
   elements.time.innerHTML = `<strong>Время приготовления:</strong> ${r.time || '—'}`;
   elements.calories.innerHTML = `<strong>Калорийность:</strong> ${r.calories || '—'} ккал`;
-
   if (r.note) {
     elements.note.innerHTML = `<strong>Примечание:</strong><br>${r.note.trim()}`;
     elements.note.style.display = 'block';
@@ -459,36 +398,27 @@ function updateUI(r) {
     elements.note.style.display = 'none';
   }
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   elements.title.textContent = 'Выберите категорию';
   elements.photo.src = fallbackImage;
-
   elements.mainBtn.onclick = openModal;
   elements.refreshBtn.onclick = generateRecipe;
   elements.closeBtn.onclick = closeModal;
-
-  document.querySelectorAll('.choice').forEach(btn => {
-    btn.onclick = () => selectCategory(btn.dataset.category);
+  document.querySelectorAll('.choice').forEach(b => {
+    b.onclick = () => selectCategory(b.dataset.category);
   });
-
-  elements.modal.onclick = e => {
-    if (e.target === elements.modal) closeModal();
-  };
-
+  elements.modal.onclick = e => { if (e.target === elements.modal) closeModal(); };
   document.onkeydown = e => {
     if (e.key === 'Escape' && elements.modal.style.display === 'flex') closeModal();
   };
-
+  // Обработчики приветственного окна
   elements.welcomeClose.onclick = closeWelcome;
   elements.welcomeModal.onclick = e => {
     if (e.target === elements.welcomeModal) closeWelcome();
   };
-
+  // Показываем приветствие при первом запуске
   showWelcomeIfFirstTime();
   elements.refreshBtn.style.display = 'none';
-
-  console.log("[INIT] Сайт загружен. Доступные категории:", Object.keys(categoryFiles));
 });
 </script>
 </body>
