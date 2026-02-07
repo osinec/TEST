@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -45,6 +44,10 @@
       font-size: 18px;
       color: #222;
       width: 100%;
+      margin: 0 0 20px 0;          /* ← здесь увеличен отступ снизу */
+    }
+    .main-btn:last-child {
+      margin-bottom: 0;             /* у последней кнопки убираем лишний отступ снизу */
     }
     .main-btn:hover, .main-btn:active {
       transform: translateY(-2px);
@@ -229,11 +232,11 @@
   </style>
 </head>
 <body>
-
 <div class="card">
   <button class="main-btn" id="mainBtn">Случайный рецепт</button>
   <button class="main-btn" onclick="window.location.href='menu.html'" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);">
-  Меню на неделю → </button>
+    Меню на неделю →
+  </button>
   <button class="refresh" id="refreshBtn">Обновить рецепт 🔄</button>
   <div class="loader" id="loader">Загрузка рецептов...</div>
   <div class="error" id="error"></div>
@@ -292,14 +295,14 @@ const elements = {
 let loadedRecipes = {};
 let currentCategory = null;
 let recipeIndices = {};
-let allPhotos = new Set(); // сюда собираем все пути к картинкам
+let allPhotos = new Set();
 
 const categoryNames = {
   breakfast: "Завтрак",
-  lunch:     "Обед",
-  dinner:    "Ужин",
-  soups:     "Супы",
-  dessert:   "Десерт"
+  lunch: "Обед",
+  dinner: "Ужин",
+  soups: "Супы",
+  dessert: "Десерт"
 };
 
 const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23F0F0F0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото блюда</text></svg>';
@@ -317,15 +320,12 @@ function closeWelcome() {
 
 async function loadCategoryRecipes(category) {
   if (loadedRecipes[category]) return loadedRecipes[category];
-
   try {
     elements.loader.style.display = 'block';
     const response = await fetch(`recipes/${category}.json`);
     if (!response.ok) throw new Error();
     const data = await response.json();
     loadedRecipes[category] = data;
-
-    // Собираем все пути к картинкам (webp + оригинал)
     data.forEach(r => {
       if (r.photo) {
         const base = r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '');
@@ -333,7 +333,6 @@ async function loadCategoryRecipes(category) {
         allPhotos.add(`pics/${base}.png`);
       }
     });
-
     elements.loader.style.display = 'none';
     return data;
   } catch {
@@ -344,7 +343,6 @@ async function loadCategoryRecipes(category) {
   }
 }
 
-// Предзагрузка всех собранных картинок (делается один раз после первой категории)
 function preloadAllImages() {
   console.log(`Предзагружаем ${allPhotos.size} картинок...`);
   allPhotos.forEach(src => {
@@ -372,19 +370,15 @@ function selectCategory(cat) {
 
 async function generateRecipe() {
   if (!currentCategory) return openModal();
-
   const recipes = await loadCategoryRecipes(currentCategory);
-
   if (!recipes?.length) {
     elements.error.textContent = 'Рецепты в этой категории отсутствуют или не загрузились';
     elements.error.style.display = 'block';
     elements.refreshBtn.style.display = 'none';
     return;
   }
-
   let idx = recipeIndices[currentCategory] || 0;
   recipeIndices[currentCategory] = (idx + 1) % recipes.length;
-
   updateUI(recipes[idx]);
   elements.refreshBtn.style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -393,23 +387,19 @@ async function generateRecipe() {
 function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
-
   const baseName = r.photo ? r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '') : '';
   const webpPath = baseName ? `pics/${baseName}.webp` : fallbackImage;
-  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;  // ← если оригиналы .jpg — замени .png на .jpg
-
+  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;
   elements.photo.src = webpPath;
   elements.photo.alt = r.title || 'Рецепт';
   elements.photo.loading = "lazy";
   elements.photo.decoding = "async";
   elements.photo.style.display = 'block';
   elements.photo.classList.remove('loaded');
-
   elements.photo.onerror = () => {
     elements.photo.src = origPath;
     elements.photo.onerror = () => elements.photo.src = fallbackImage;
   };
-
   elements.photo.onload = () => elements.photo.classList.add('loaded');
 
   elements.ingredients.innerHTML = '';
@@ -442,32 +432,25 @@ function updateUI(r) {
 document.addEventListener('DOMContentLoaded', () => {
   elements.title.textContent = 'Выберите категорию';
   elements.photo.src = fallbackImage;
-
   elements.mainBtn.onclick = openModal;
   elements.refreshBtn.onclick = generateRecipe;
   elements.closeBtn.onclick = closeModal;
-
   document.querySelectorAll('.choice').forEach(btn => {
     btn.onclick = () => selectCategory(btn.dataset.category);
   });
-
   elements.modal.onclick = e => {
     if (e.target === elements.modal) closeModal();
   };
-
   document.onkeydown = e => {
     if (e.key === 'Escape' && elements.modal.style.display === 'flex') closeModal();
   };
-
   elements.welcomeClose.onclick = closeWelcome;
   elements.welcomeModal.onclick = e => {
     if (e.target === elements.welcomeModal) closeWelcome();
   };
-
   showWelcomeIfFirstTime();
   elements.refreshBtn.style.display = 'none';
 
-  // Запускаем предзагрузку всех картинок после первой успешной загрузки любой категории
   const preloadCheck = setInterval(() => {
     if (Object.keys(loadedRecipes).length > 0) {
       preloadAllImages();
