@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Меню на неделю</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,66 +11,119 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', system-ui, sans-serif;
-      background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
       min-height: 100vh;
       color: #222;
-      padding: 20px 16px;
+      padding: 30px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
     }
-    .container {
-      max-width: 720px;
+    .card {
+      width: 100%;
+      max-width: 640px;
+      background: rgba(255,255,255,.96);
+      border-radius: 26px;
+      padding: 32px 28px;
+      box-shadow: 0 30px 70px rgba(0,0,0,.18);
       margin: 0 auto;
-      background: rgba(255,255,255,0.96);
-      border-radius: 20px;
-      padding: 28px 24px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
     }
     h1 {
       text-align: center;
-      margin-bottom: 24px;
+      font-size: 26px;
+      font-weight: 700;
       color: #c7903d;
-      font-size: 28px;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
       margin-bottom: 28px;
-      justify-content: center;
+      line-height: 1.3;
     }
     button {
-      font-family: inherit;
-      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
       border: none;
       border-radius: 40px;
-      padding: 14px 28px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.25s;
+      font-weight: 600;
+      transition: all .3s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .btn-primary {
-      background: linear-gradient(135deg, #f6d365, #fda085);
+    .main-btn {
+      padding: 18px 32px;
+      background: linear-gradient(135deg,#f6d365,#fda085);
+      font-size: 17px;
       color: #222;
+      width: 100%;
+      margin: 12px 0;
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(253,160,133,0.4); }
-
-    .btn-secondary {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
+    .main-btn:hover, .main-btn:active {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,.15);
     }
-    .btn-clear {
-      background: linear-gradient(135deg, #ff6a00, #ee0979);
-      color: white;
+    .back-btn {
+      background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+      color: #222;
+      font-size: 16px;
     }
-
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin: 28px 0 16px;
+    }
+    .settings {
+      background: #fdfaf7;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    .meal-choices {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .meal-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 2px solid #eee;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      user-select: none;
+      font-size: 15px;
+      font-weight: 500;
+      color: #444;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .meal-option:hover {
+      border-color: #f4a261;
+      box-shadow: 0 6px 16px rgba(244,162,97,0.15);
+      transform: translateY(-1px);
+    }
+    .meal-option.selected {
+      background: linear-gradient(135deg, #fffaf0, #ffe8d1);
+      border-color: #f4a261;
+      color: #c7903d;
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(244,162,97,0.2);
+    }
+    .meal-option input[type="checkbox"] {
+      display: none;
+    }
+    .meal-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 16px 0 32px;
+      margin: 20px 0;
       font-size: 15px;
       background: white;
-      border-radius: 12px;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
     th, td {
       padding: 12px 10px;
@@ -88,66 +141,73 @@
     .meal-type {
       font-weight: 600;
       color: #444;
-      min-width: 100px;
       background: #f9f9f9;
+      min-width: 110px;
     }
-    .empty { color: #999; font-style: italic; }
-
-    .settings {
-      background: #f8f9fa;
-      padding: 20px;
-      border-radius: 16px;
-      margin-bottom: 24px;
+    .loader {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-size: 16px;
     }
-    .settings label {
-      display: block;
-      margin: 12px 0 8px;
-      font-weight: 600;
-      color: #555;
+    .error {
+      color: #d32f2f;
+      background: #ffebee;
+      padding: 16px;
+      border-radius: 10px;
+      margin: 20px 0;
+      text-align: center;
     }
-    .checkbox-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px 24px;
-    }
-    .checkbox-group label {
-      font-weight: normal;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .empty {
+      text-align: center;
+      padding: 60px 0;
+      color: #777;
+      font-size: 16px;
+      font-style: italic;
     }
 
-    .loader { text-align: center; padding: 40px; color: #777; font-size: 16px; }
-    .error  { color: #d32f2f; text-align: center; padding: 20px; }
-
-    @media (max-width: 520px) {
+    @media (max-width: 480px) {
+      .card { padding: 24px 20px; }
+      h1 { font-size: 24px; }
+      .meal-choices { grid-template-columns: 1fr; }
       table { font-size: 14px; }
-      th, td { padding: 10px 6px; }
-      .meal-type { min-width: 80px; }
-      .controls { flex-direction: column; }
+      th, td { padding: 10px 8px; }
+      .meal-type { min-width: 90px; }
     }
   </style>
 </head>
 <body>
 
-<div class="container">
+<div class="card">
   <h1>Меню на неделю</h1>
 
   <div class="settings">
-    <label>Приёмы пищи:</label>
-    <div class="checkbox-group">
-      <label><input type="checkbox" id="chk-breakfast" checked> Завтрак</label>
-      <label><input type="checkbox" id="chk-soups" checked> Первое (суп)</label>
-      <label><input type="checkbox" id="chk-lunch" checked> Второе (обед)</label>
-      <label><input type="checkbox" id="chk-dinner" checked> Ужин</label>
+    <div class="section-title">Приёмы пищи</div>
+    <div class="meal-choices">
+      <label class="meal-option" id="label-breakfast">
+        <input type="checkbox" id="chk-breakfast">
+        <span class="meal-icon">☕</span> Завтрак
+      </label>
+
+      <label class="meal-option" id="label-soups">
+        <input type="checkbox" id="chk-soups">
+        <span class="meal-icon">🥣</span> Первое
+      </label>
+
+      <label class="meal-option" id="label-lunch">
+        <input type="checkbox" id="chk-lunch">
+        <span class="meal-icon">🍲</span> Второе
+      </label>
+
+      <label class="meal-option" id="label-dinner">
+        <input type="checkbox" id="chk-dinner">
+        <span class="meal-icon">🌙</span> Ужин
+      </label>
     </div>
   </div>
 
-  <div class="controls">
-    <button class="btn-primary" id="generateBtn">Сгенерировать / Обновить меню</button>
-    <button class="btn-clear" id="clearBtn">Очистить меню</button>
-    <button class="btn-secondary" onclick="window.location.href='index.html'">← Назад к рецептам</button>
-  </div>
+  <button class="main-btn" id="generateBtn">Сгенерировать / Обновить меню</button>
+  <button class="main-btn back-btn" onclick="window.location.href='index.html'">← Назад к рецептам</button>
 
   <div id="loader" class="loader" style="display:none">Загрузка рецептов...</div>
   <div id="error" class="error" style="display:none"></div>
@@ -156,13 +216,27 @@
 </div>
 
 <script>
+// Обработка красивых чекбоксов
+document.querySelectorAll('.meal-option').forEach(label => {
+  const checkbox = label.querySelector('input[type="checkbox"]');
+  const update = () => {
+    if (checkbox.checked) {
+      label.classList.add('selected');
+    } else {
+      label.classList.remove('selected');
+    }
+  };
+  checkbox.addEventListener('change', update);
+  update(); // начальное состояние
+});
+
 const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
 
 const MEAL_TYPES = [
-  { key: "breakfast", title: "Завтрак", file: "breakfast" },
-  { key: "soups",     title: "Первое",   file: "soups"     },
-  { key: "lunch",     title: "Второе",   file: "lunch"     },
-  { key: "dinner",    title: "Ужин",     file: "dinner"    }
+  { key: "breakfast", title: "Завтрак",     file: "breakfast" },
+  { key: "soups",     title: "Первое",      file: "soups"     },
+  { key: "lunch",     title: "Второе",      file: "lunch"     },
+  { key: "dinner",    title: "Ужин",        file: "dinner"    }
 ];
 
 let loadedRecipes = {};
@@ -172,13 +246,13 @@ async function loadCategory(file) {
   try {
     document.getElementById("loader").style.display = "block";
     const res = await fetch(`recipes/${file}.json`);
-    if (!res.ok) throw new Error("Не удалось загрузить " + file);
+    if (!res.ok) throw new Error();
     const data = await res.json();
     loadedRecipes[file] = data;
     return data;
   } catch (err) {
     console.error(err);
-    document.getElementById("error").textContent = "Ошибка загрузки рецептов";
+    document.getElementById("error").textContent = "Не удалось загрузить рецепты";
     document.getElementById("error").style.display = "block";
     return [];
   } finally {
@@ -187,8 +261,8 @@ async function loadCategory(file) {
 }
 
 async function preloadNeededCategories() {
-  const activeMeals = MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
-  for (const meal of activeMeals) {
+  const active = MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
+  for (const meal of active) {
     await loadCategory(meal.file);
   }
 }
@@ -202,7 +276,7 @@ function generateMenu() {
   const activeMeals = getActiveMealTypes();
 
   if (activeMeals.length === 0) {
-    document.getElementById("menuTable").innerHTML = '<p class="empty" style="text-align:center;padding:40px;">Выберите хотя бы один приём пищи</p>';
+    document.getElementById("menuTable").innerHTML = '<div class="empty">Выберите хотя бы один приём пищи</div>';
     return;
   }
 
@@ -245,42 +319,27 @@ function renderMenu(menu, activeMeals) {
 function loadSavedMenu() {
   const saved = localStorage.getItem("weeklyMenu");
   if (!saved) return null;
-  try {
-    return JSON.parse(saved);
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(saved); }
+  catch { return null; }
 }
 
-function clearMenu() {
-  if (!confirm("Очистить меню полностью?")) return;
-  localStorage.removeItem("weeklyMenu");
-  document.getElementById("menuTable").innerHTML = '<p class="empty" style="text-align:center;padding:40px;">Меню очищено</p>';
-}
-
-// ─── Инициализация ───────────────────────────────────────
+// ─── Инициализация ───────────────────────────────────────────────
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Предзагрузка всех нужных категорий при открытии страницы
-  await preloadNeededCategories();
-
   const savedMenu = loadSavedMenu();
   const activeMeals = getActiveMealTypes();
 
-  if (savedMenu) {
+  if (savedMenu && activeMeals.length > 0) {
     renderMenu(savedMenu, activeMeals);
   } else {
-    document.getElementById("menuTable").innerHTML = '<p style="text-align:center;padding:40px;color:#777;">Нажмите «Сгенерировать / Обновить меню»</p>';
+    document.getElementById("menuTable").innerHTML = '<div class="empty">Выберите приёмы пищи и нажмите «Сгенерировать / Обновить меню»</div>';
   }
 
   document.getElementById("generateBtn").onclick = async () => {
-    await preloadNeededCategories(); // на случай, если пользователь включил новую категорию
+    await preloadNeededCategories();
     generateMenu();
   };
 
-  document.getElementById("clearBtn").onclick = clearMenu;
-
-  // При изменении чекбоксов — перерисовываем таблицу (если есть сохранённое меню)
   MEAL_TYPES.forEach(m => {
     document.getElementById(`chk-${m.key}`).onchange = () => {
       const saved = loadSavedMenu();
