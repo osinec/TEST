@@ -8,10 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Предзагрузка самых популярных картинок (ускоряет первый показ) -->
-  <link rel="preload" href="pics/грибной_омлет.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="pics/куриная_запеканка.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="pics/ленивые_пирожки.webp" as="image" fetchpriority="high">
+  <!-- Предзагрузка 1–2 самых частых картинок (можно добавить ещё) -->
+  <link rel="preload" href="pics/грибной_омлет.webp" as="image">
+  <link rel="preload" href="pics/куриная_запеканка.webp" as="image">
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -90,7 +89,7 @@
       display: none;
       margin: 12px 0 20px;
       max-height: 40vh;
-      background: #f0f0f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23ddd"/></svg>') center/cover no-repeat;
+      background: #f0f0f0;
       transition: opacity 0.4s ease;
     }
     #photo.loaded { opacity: 1; }
@@ -242,7 +241,7 @@
   <div class="error" id="error"></div>
   <div class="category" id="category"></div>
   <h2 id="title">Выберите категорию</h2>
-  <img id="photo" alt="Фото рецепта" loading="lazy" decoding="async" fetchpriority="low">
+  <img id="photo" alt="Фото рецепта" loading="lazy" decoding="async">
   <div id="ingredients"></div>
   <div id="steps"></div>
   <div id="time"></div>
@@ -267,7 +266,7 @@
     <div id="welcome-close">✕</div>
     <div id="welcome-text">
       При первом запуске картинки могут подгружаться дольше.<br><br>
-      Если загрузка медленная — попробуйте обновить страницу или выбрать другую категорию 🙂
+      Если картинки не грузятся — проверь консоль (F12) и обнови страницу.
     </div>
   </div>
 </div>
@@ -292,7 +291,7 @@ const elements = {
   welcomeClose: document.getElementById('welcome-close')
 };
 
-let loadedRecipes = {};           // кэш: { breakfast: [рецепты], ... }
+let loadedRecipes = {};
 let currentCategory = null;
 let recipeIndices = {};
 
@@ -319,26 +318,22 @@ function closeWelcome() {
 
 async function loadCategoryRecipes(category) {
   if (loadedRecipes[category]) {
-    console.log(`[CACHE] ${category}: ${loadedRecipes[category].length} рецептов из кэша`);
+    console.log(`[CACHE] ${category}: уже в кэше (${loadedRecipes[category].length} шт)`);
     return loadedRecipes[category];
   }
 
   const url = `recipes/${category}.json`;
-  console.log(`[LOAD] Загружаем: ${url}`);
+  console.log(`[FETCH] Загружаем: ${url}`);
 
   try {
     elements.loader.style.display = 'block';
-    elements.error.style.display = 'none';
-
     const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
+    if (!response.ok) throw new Error(`HTTP ${response.status} — ${url}`);
     const data = await response.json();
-    if (!Array.isArray(data)) throw new Error('Данные не являются массивом');
-
+    if (!Array.isArray(data)) throw new Error('Данные не массив');
+    
     loadedRecipes[category] = data;
-    console.log(`[SUCCESS] ${category}: ${data.length} рецептов загружено`);
-
+    console.log(`[OK] ${category}: ${data.length} рецептов`);
     elements.loader.style.display = 'none';
     return data;
   } catch (err) {
@@ -350,19 +345,19 @@ async function loadCategoryRecipes(category) {
   }
 }
 
-function openModal() {
-  elements.modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
+function openModal() { 
+  elements.modal.style.display = 'flex'; 
+  document.body.style.overflow = 'hidden'; 
 }
 
-function closeModal() {
-  elements.modal.style.display = 'none';
-  document.body.style.overflow = 'auto';
+function closeModal() { 
+  elements.modal.style.display = 'none'; 
+  document.body.style.overflow = 'auto'; 
 }
 
 function selectCategory(cat) {
   currentCategory = cat;
-  console.log(`[SELECT] Категория: ${cat} (${categoryNames[cat] || 'неизвестно'})`);
+  console.log(`[SELECT] Выбрана категория: ${cat}`);
   closeModal();
   generateRecipe();
 }
@@ -383,7 +378,7 @@ async function generateRecipe() {
   recipeIndices[currentCategory] = (idx + 1) % recipes.length;
 
   const recipe = recipes[idx];
-  console.log(`[SHOW] Рецепт ${idx + 1}/${recipes.length}: ${recipe.title}`);
+  console.log(`[SHOW] Рецепт #${idx+1}/${recipes.length}: ${recipe.title}`);
 
   updateUI(recipe);
   elements.refreshBtn.style.display = 'block';
@@ -394,37 +389,40 @@ function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
 
-  // ────────────────────────────────────────────────
-  // Оптимизированная загрузка изображения
-  // ────────────────────────────────────────────────
-  const photoName = r.photo ? r.photo.replace(/\.(png|jpg|jpeg)$/i, '') : '';
-  const webpPath = photoName ? `pics/${photoName}.webp` : fallbackImage;
-  const origPath = r.photo ? `pics/${r.photo}` : fallbackImage;
+  // ────────────────────────────────────────────────────────────────
+  // БЛОК С КАРТИНКОЙ — САМЫЙ ВАЖНЫЙ ФИКС
+  // ────────────────────────────────────────────────────────────────
+  const baseName = r.photo ? r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '') : '';
+  const webpPath = baseName ? `pics/${baseName}.webp` : fallbackImage;
+  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;   // ← поменяй на .jpg, если оригиналы jpg
 
-  elements.photo.src = webpPath;                    // основной — WebP
-  elements.photo.srcset = `${webpPath} 1x, ${origPath} 2x`; // fallback + retina
-  elements.photo.sizes = "(max-width: 540px) 100vw, 540px";
+  console.log(`[IMG TRY] Сначала пробуем: ${webpPath}`);
+
+  elements.photo.src = webpPath;
   elements.photo.alt = r.title || 'Рецепт';
   elements.photo.loading = "lazy";
   elements.photo.decoding = "async";
-  elements.photo.fetchpriority = "low";
   elements.photo.style.display = 'block';
   elements.photo.classList.remove('loaded');
 
+  // Если webp не загрузился — сразу переходим на оригинал
+  elements.photo.onerror = function() {
+    console.warn(`[IMG FAIL] WebP не найден: ${webpPath} → берём оригинал ${origPath}`);
+    this.src = origPath;
+    this.onerror = () => {
+      console.error(`[IMG FAIL] Даже оригинал не загрузился: ${origPath}`);
+      this.src = fallbackImage;
+    };
+  };
+
   elements.photo.onload = () => {
     elements.photo.classList.add('loaded');
-    console.log(`[IMG OK] ${elements.photo.currentSrc}`);
+    console.log(`[IMG OK] Загружена: ${this.currentSrc}`);
   };
 
-  elements.photo.onerror = () => {
-    console.warn(`[IMG FAIL] ${elements.photo.src} → fallback`);
-    elements.photo.src = fallbackImage;
-    elements.photo.srcset = '';
-  };
-
-  // ────────────────────────────────────────────────
-  // Остальные секции без изменений
-  // ────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────────
+  // Остальные блоки без изменений
+  // ────────────────────────────────────────────────────────────────
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
     elements.ingredients.innerHTML = `
@@ -480,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
   showWelcomeIfFirstTime();
   elements.refreshBtn.style.display = 'none';
 
-  console.log("[INIT] Сайт загружен. Готов к работе.");
+  console.log("[INIT] Сайт загружен. Готов к выбору категории.");
 });
 </script>
 </body>
