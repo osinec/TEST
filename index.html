@@ -8,12 +8,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Предзагрузка 5 самых популярных картинок — они появляются мгновенно -->
+  <!-- Предзагрузка топ-5 картинок — они появляются мгновенно -->
   <link rel="preload" href="pics/грибной_омлет.webp" as="image" fetchpriority="high">
   <link rel="preload" href="pics/куриная_запеканка.webp" as="image" fetchpriority="high">
   <link rel="preload" href="pics/ленивые_пирожки.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="pics/овсяноблин_банан.webp" as="image" fetchpriority="high">
   <link rel="preload" href="pics/бутерброды_из_отрубей.webp" as="image" fetchpriority="high">
+  <link rel="preload" href="pics/овсяноблин_банан.webp" as="image" fetchpriority="high">
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -92,8 +92,8 @@
       display: none;
       margin: 12px 0 20px;
       max-height: 40vh;
-      background: #f0f0f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23ddd"/></svg>') center/cover no-repeat;
-      transition: opacity 0.4s ease;
+      background: #f0f0f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23e0e0e0"/></svg>') center/cover no-repeat;
+      transition: opacity 0.3s ease;
     }
     #photo.loaded { opacity: 1; }
     .section-title {
@@ -269,7 +269,7 @@
     <div id="welcome-close">✕</div>
     <div id="welcome-text">
       При первом запуске картинки могут подгружаться дольше.<br><br>
-      Если картинки не грузятся — обновите страницу (Ctrl + Shift + R)
+      Для максимальной скорости обновите страницу (Ctrl + Shift + R)
     </div>
   </div>
 </div>
@@ -320,27 +320,19 @@ function closeWelcome() {
 }
 
 async function loadCategoryRecipes(category) {
-  if (loadedRecipes[category]) {
-    console.log(`[CACHE] ${category}: ${loadedRecipes[category].length} рецептов из кэша`);
-    return loadedRecipes[category];
-  }
-
-  const url = `recipes/${category}.json`;
-  console.log(`[FETCH] Загружаем: ${url}`);
+  if (loadedRecipes[category]) return loadedRecipes[category];
 
   try {
     elements.loader.style.display = 'block';
-    const response = await fetch(url);
+    const response = await fetch(`recipes/${category}.json`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
     loadedRecipes[category] = data;
-    console.log(`[OK] ${category}: ${data.length} рецептов`);
     elements.loader.style.display = 'none';
     return data;
   } catch (err) {
-    console.error(`[ERROR] ${category}:`, err);
     elements.loader.style.display = 'none';
-    elements.error.textContent = `Не удалось загрузить ${categoryNames[category] || category}: ${err.message}`;
+    elements.error.textContent = `Не удалось загрузить ${categoryNames[category] || category}`;
     elements.error.style.display = 'block';
     return [];
   }
@@ -358,7 +350,6 @@ function closeModal() {
 
 function selectCategory(cat) {
   currentCategory = cat;
-  console.log(`[SELECT] Категория: ${cat}`);
   closeModal();
   generateRecipe();
 }
@@ -369,7 +360,7 @@ async function generateRecipe() {
   const recipes = await loadCategoryRecipes(currentCategory);
 
   if (!recipes?.length) {
-    elements.error.textContent = 'Рецепты в этой категории отсутствуют или не загрузились';
+    elements.error.textContent = 'Рецепты отсутствуют или не загрузились';
     elements.error.style.display = 'block';
     elements.refreshBtn.style.display = 'none';
     return;
@@ -378,10 +369,7 @@ async function generateRecipe() {
   let idx = recipeIndices[currentCategory] || 0;
   recipeIndices[currentCategory] = (idx + 1) % recipes.length;
 
-  const recipe = recipes[idx];
-  console.log(`[SHOW] Рецепт: ${recipe.title}`);
-
-  updateUI(recipe);
+  updateUI(recipes[idx]);
   elements.refreshBtn.style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -395,9 +383,7 @@ function updateUI(r) {
   // ────────────────────────────────────────────────────────────────
   const baseName = r.photo ? r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '') : '';
   const webpPath = baseName ? `pics/${baseName}.webp` : fallbackImage;
-  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;   // ← если у тебя jpg — замени .png на .jpg
-
-  console.log(`[IMG TRY] Сначала webp: ${webpPath}`);
+  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;  // ← если оригиналы .jpg, замени на .jpg
 
   elements.photo.src = webpPath;
   elements.photo.alt = r.title || 'Рецепт';
@@ -406,23 +392,13 @@ function updateUI(r) {
   elements.photo.style.display = 'block';
   elements.photo.classList.remove('loaded');
 
-  // Если webp не загрузился — мгновенно переключаемся на оригинал
-  elements.photo.onerror = function() {
-    console.log(`[IMG FAIL] WebP не найден → оригинал: ${origPath}`);
-    this.src = origPath;
-    this.onerror = () => {
-      console.error(`[IMG FAIL] Даже оригинал не загрузился`);
-      this.src = fallbackImage;
-    };
+  elements.photo.onerror = () => {
+    elements.photo.src = origPath;
+    elements.photo.onerror = () => elements.photo.src = fallbackImage;
   };
 
-  elements.photo.onload = () => {
-    elements.photo.classList.add('loaded');
-    console.log(`[IMG OK] Загружена: ${this.currentSrc}`);
-  };
+  elements.photo.onload = () => elements.photo.classList.add('loaded');
 
-  // ────────────────────────────────────────────────────────────────
-  // Остальные блоки
   // ────────────────────────────────────────────────────────────────
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
@@ -478,8 +454,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   showWelcomeIfFirstTime();
   elements.refreshBtn.style.display = 'none';
-
-  console.log("[INIT] Сайт готов. Картинки оптимизированы.");
 });
 </script>
 </body>
