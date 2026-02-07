@@ -20,19 +20,25 @@
       color: #222;
       padding: 30px;
     }
-    .card {
+    .start-screen, .card {
       width: 100%;
       max-width: 540px;
       background: rgba(255,255,255,.96);
       border-radius: 26px;
-      padding: 32px 28px;
+      padding: 40px 28px;
       text-align: center;
       box-shadow: 0 30px 70px rgba(0,0,0,.18);
-      margin: 0 auto;
-      opacity: 0;
-      transition: opacity 0.5s ease;
     }
-    .card.loaded { opacity: 1; }
+    .start-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 50vh;
+    }
+    .card {
+      display: none;
+    }
     button {
       font-family: 'Inter', sans-serif;
       cursor: pointer;
@@ -44,9 +50,11 @@
     .main-btn {
       padding: 20px 35px;
       background: linear-gradient(135deg,#f6d365,#fda085);
-      font-size: 18px;
+      font-size: 20px;
       color: #222;
       width: 100%;
+      max-width: 320px;
+      margin: 20px 0;
     }
     .main-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,.15); }
     .refresh {
@@ -153,7 +161,7 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
-    .loader { display: none; text-align: center; padding: 30px; color: #666; font-size: 16px; }
+    .loader { text-align: center; padding: 40px; color: #666; font-size: 18px; }
     .error {
       color: #d32f2f;
       background: #ffebee;
@@ -182,39 +190,39 @@
       max-width: 400px;
       position: relative;
       box-shadow: 0 20px 50px rgba(0,0,0,.25);
+      text-align: center;
     }
     #welcome-text {
-      font-size: 16px;
-      line-height: 1.55;
+      font-size: 18px;
+      line-height: 1.5;
       color: #333;
       margin-bottom: 20px;
     }
-    #welcome-close {
-      position: absolute;
-      top: 12px;
-      right: 16px;
-      font-size: 28px;
-      cursor: pointer;
-      color: #777;
-    }
-    #welcome-close:hover { color: #222; }
     @media (max-width:360px) {
-      .card { padding: 24px 18px; border-radius: 20px; }
+      .card, .start-screen { padding: 24px 18px; border-radius: 20px; }
       h2 { font-size: 22px; }
       #photo { height: 180px; }
     }
     @media (min-width:768px) {
       body { align-items: center; padding: 50px 30px; }
-      .card { padding: 40px; }
+      .card, .start-screen { padding: 40px; }
     }
   </style>
 </head>
 <body>
 
+<!-- Стартовый экран с кнопкой -->
+<div class="start-screen" id="startScreen">
+  <h1 style="margin-bottom: 30px; font-size: 32px; color: #d35400;">Генератор рецептов</h1>
+  <button class="main-btn" id="startBtn">Случайный рецепт</button>
+  <p style="margin-top: 20px; color: #555; font-size: 15px;">Нажмите, чтобы начать</p>
+</div>
+
+<!-- Основная карточка (скрыта до нажатия) -->
 <div class="card" id="mainCard">
   <button class="main-btn" id="mainBtn">Случайный рецепт</button>
   <button class="refresh" id="refreshBtn">Обновить рецепт 🔄</button>
-  <div class="loader" id="loader">Предзагрузка картинок...</div>
+  <div class="loader" id="loader">Загрузка...</div>
   <div class="error" id="error"></div>
   <div class="category" id="category"></div>
   <h2 id="title">Выберите категорию</h2>
@@ -238,20 +246,23 @@
   </div>
 </div>
 
+<!-- Окно предзагрузки (без крестика) -->
 <div id="welcome-modal">
   <div id="welcome-box">
-    <div id="welcome-close">✕</div>
     <div id="welcome-text">
-      Идёт предзагрузка всех картинок (это займёт 2–5 секунд).<br><br>
-      После этого всё будет работать мгновенно.
+      Идёт предзагрузка всех картинок...<br><br>
+      Это займёт несколько секунд только один раз
     </div>
   </div>
 </div>
 
 <script>
 const elements = {
+  startScreen: document.getElementById('startScreen'),
+  mainCard: document.getElementById('mainCard'),
   modal: document.getElementById('modal'),
   mainBtn: document.getElementById('mainBtn'),
+  startBtn: document.getElementById('startBtn'),
   refreshBtn: document.getElementById('refreshBtn'),
   closeBtn: document.getElementById('closeBtn'),
   loader: document.getElementById('loader'),
@@ -264,15 +275,14 @@ const elements = {
   time: document.getElementById('time'),
   calories: document.getElementById('calories'),
   note: document.getElementById('note'),
-  welcomeModal: document.getElementById('welcome-modal'),
-  welcomeClose: document.getElementById('welcome-close'),
-  mainCard: document.getElementById('mainCard')
+  welcomeModal: document.getElementById('welcome-modal')
 };
 
 let loadedRecipes = {};
 let currentCategory = null;
 let recipeIndices = {};
 let allPhotos = new Set();
+let isPreloadingDone = false;
 
 const categoryNames = {
   breakfast: "Завтрак",
@@ -283,17 +293,6 @@ const categoryNames = {
 };
 
 const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23F0F0F0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото блюда</text></svg>';
-
-function showWelcomeIfFirstTime() {
-  if (!localStorage.getItem('hasSeenWelcome')) {
-    elements.welcomeModal.style.display = 'flex';
-    localStorage.setItem('hasSeenWelcome', 'true');
-  }
-}
-
-function closeWelcome() {
-  elements.welcomeModal.style.display = 'none';
-}
 
 async function loadCategoryRecipes(category) {
   if (loadedRecipes[category]) return loadedRecipes[category];
@@ -324,14 +323,15 @@ async function loadCategoryRecipes(category) {
 }
 
 function preloadAllImages() {
+  if (isPreloadingDone) return;
+  isPreloadingDone = true;
+
   console.log(`Предзагрузка ${allPhotos.size} картинок...`);
   allPhotos.forEach(src => {
     const img = new Image();
     img.src = src;
   });
   console.log('Предзагрузка завершена');
-  elements.mainCard.classList.add('loaded');
-  elements.loader.style.display = 'none';
 }
 
 function openModal() {
@@ -376,7 +376,7 @@ function updateUI(r) {
 
   const baseName = r.photo ? r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '') : '';
   const webpPath = baseName ? `pics/${baseName}.webp` : fallbackImage;
-  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;  // ← если jpg — замени .png на .jpg
+  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;
 
   elements.photo.src = webpPath;
   elements.photo.alt = r.title || 'Рецепт';
@@ -420,8 +420,16 @@ function updateUI(r) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  elements.title.textContent = 'Загрузка...';
-  elements.photo.src = fallbackImage;
+  // Показываем стартовый экран
+  elements.startScreen.style.display = 'block';
+  elements.mainCard.style.display = 'none';
+
+  // Нажатие на кнопку старта
+  elements.startBtn.onclick = () => {
+    elements.startScreen.style.display = 'none';
+    elements.mainCard.style.display = 'block';
+    openModal(); // сразу открываем выбор категории
+  };
 
   elements.mainBtn.onclick = openModal;
   elements.refreshBtn.onclick = generateRecipe;
@@ -434,15 +442,14 @@ document.addEventListener('DOMContentLoaded', () => {
   elements.modal.onclick = e => { if (e.target === elements.modal) closeModal(); };
   document.onkeydown = e => { if (e.key === 'Escape' && elements.modal.style.display === 'flex') closeModal(); };
 
-  elements.welcomeClose.onclick = closeWelcome;
-  elements.welcomeModal.onclick = e => { if (e.target === elements.welcomeModal) closeWelcome(); };
+  // Окно предзагрузки автоматически пропадает через 4 секунды
+  setTimeout(() => {
+    elements.welcomeModal.style.display = 'none';
+  }, 4000);
 
-  showWelcomeIfFirstTime();
-  elements.refreshBtn.style.display = 'none';
-
-  // Запускаем предзагрузку после первой успешной загрузки любой категории
+  // Запускаем предзагрузку после первой успешной загрузки категории
   const preloadCheck = setInterval(() => {
-    if (Object.keys(loadedRecipes).length > 0) {
+    if (Object.keys(loadedRecipes).length > 0 && !isPreloadingDone) {
       preloadAllImages();
       clearInterval(preloadCheck);
     }
