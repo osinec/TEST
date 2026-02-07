@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Меню на неделю</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+      min-height: 100vh;
+      color: #222;
+      padding: 20px 16px;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: rgba(255,255,255,0.96);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #c7903d;
+      font-size: 28px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+      justify-content: center;
+    }
+    button {
+      font-family: inherit;
+      font-weight: 600;
+      border: none;
+      border-radius: 40px;
+      padding: 14px 28px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      color: #222;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(253,160,133,0.4); }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+    .btn-clear {
+      background: linear-gradient(135deg, #ff6a00, #ee0979);
+      color: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 32px;
+      font-size: 15px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    th, td {
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    th {
+      background: #fdfaf7;
+      color: #c7903d;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+      text-align: center;
+    }
+    .meal-type {
+      font-weight: 600;
+      color: #444;
+      min-width: 100px;
+      background: #f9f9f9;
+    }
+    .empty { color: #999; font-style: italic; }
+
+    .settings {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+    .settings label {
+      display: block;
+      margin: 12px 0 8px;
+      font-weight: 600;
+      color: #555;
+    }
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px 24px;
+    }
+    .checkbox-group label {
+      font-weight: normal;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .loader { text-align: center; padding: 40px; color: #777; font-size: 16px; }
+    .error  { color: #d32f2f; text-align: center; padding: 20px; }
+
+    @media (max-width: 520px) {
+      table { font-size: 14px; }
+      th, td { padding: 10px 6px; }
+      .meal-type { min-width: 80px; }
+      .controls { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Меню на неделю</h1>
+
+  <div class="settings">
+    <label>Приёмы пищи:</label>
+    <div class="checkbox-group">
+      <label><input type="checkbox" id="chk-breakfast" checked> Завтрак</label>
+      <label><input type="checkbox" id="chk-soups" checked> Первое (суп)</label>
+      <label><input type="checkbox" id="chk-lunch" checked> Второе (обед)</label>
+      <label><input type="checkbox" id="chk-dinner" checked> Ужин</label>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-primary" id="generateBtn">Сгенерировать / Обновить меню</button>
+    <button class="btn-clear" id="clearBtn">Очистить меню</button>
+    <button class="btn-secondary" onclick="window.location.href='index.html'">← Назад к рецептам</button>
+  </div>
+
+  <div id="loader" class="loader" style="display:none">Загрузка рецептов...</div>
+  <div id="error" class="error" style="display:none"></div>
+
+  <div id="menuTable"></div>
+</div>
+
+<script>
+const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+
+const MEAL_TYPES = [
+  { key: "breakfast", title: "Завтрак", file: "breakfast" },
+  { key: "soups",     title: "Первое",   file: "soups"     },
+  { key: "lunch",     title: "Второе",   file: "lunch"     },
+  { key: "dinner",    title: "Ужин",     file: "dinner"    }
+];
+
+let loadedRecipes = {};
+
+async function loadCategory(file) {
+  if (loadedRecipes[file]) return loadedRecipes[file];
+  try {
+    document.getElementById("loader").style.display = "block";
+    const res = await fetch(`recipes/${file}.json`);
+    if (!res.ok) throw new Error("Не удалось загрузить " + file);
+    const data = await res.json();
+    loadedRecipes[file] = data;
+    return data;
+  } catch (err) {
+    console.error(err);
+    document.getElementById("error").textContent = "Ошибка загрузки рецептов";
+    document.getElementById("error").style.display = "block";
+    return [];
+  } finally {
+    document.getElementById("loader").style.display = "none";
+  }
+}
+
+async function preloadNeededCategories() {
+  const activeMeals = MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
+  for (const meal of activeMeals) {
+    await loadCategory(meal.file);
+  }
+}
+
+function getActiveMealTypes() {
+  return MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
+}
+
+function generateMenu() {
+  const menu = {};
+  const activeMeals = getActiveMealTypes();
+
+  if (activeMeals.length === 0) {
+    document.getElementById("menuTable").innerHTML = '<p class="empty" style="text-align:center;padding:40px;">Выберите хотя бы один приём пищи</p>';
+    return;
+  }
+
+  DAYS.forEach(day => {
+    menu[day] = {};
+    activeMeals.forEach(meal => {
+      const recipes = loadedRecipes[meal.file] || [];
+      if (recipes.length > 0) {
+        const idx = Math.floor(Math.random() * recipes.length);
+        menu[day][meal.key] = recipes[idx].title || "—";
+      } else {
+        menu[day][meal.key] = "—";
+      }
+    });
+  });
+
+  localStorage.setItem("weeklyMenu", JSON.stringify(menu));
+  renderMenu(menu, activeMeals);
+}
+
+function renderMenu(menu, activeMeals) {
+  let html = '<table><thead><tr><th></th>';
+  DAYS.forEach(d => html += `<th>${d.slice(0,3)}</th>`);
+  html += '</tr></thead><tbody>';
+
+  activeMeals.forEach(meal => {
+    html += `<tr><td class="meal-type">${meal.title}</td>`;
+    DAYS.forEach(day => {
+      const title = menu[day]?.[meal.key] || "—";
+      html += `<td>${title}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+
+  document.getElementById("menuTable").innerHTML = html;
+}
+
+function loadSavedMenu() {
+  const saved = localStorage.getItem("weeklyMenu");
+  if (!saved) return null;
+  try {
+    return JSON.parse(saved);
+  } catch {
+    return null;
+  }
+}
+
+function clearMenu() {
+  if (!confirm("Очистить меню полностью?")) return;
+  localStorage.removeItem("weeklyMenu");
+  document.getElementById("menuTable").innerHTML = '<p class="empty" style="text-align:center;padding:40px;">Меню очищено</p>';
+}
+
+// ─── Инициализация ───────────────────────────────────────
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Предзагрузка всех нужных категорий при открытии страницы
+  await preloadNeededCategories();
+
+  const savedMenu = loadSavedMenu();
+  const activeMeals = getActiveMealTypes();
+
+  if (savedMenu) {
+    renderMenu(savedMenu, activeMeals);
+  } else {
+    document.getElementById("menuTable").innerHTML = '<p style="text-align:center;padding:40px;color:#777;">Нажмите «Сгенерировать / Обновить меню»</p>';
+  }
+
+  document.getElementById("generateBtn").onclick = async () => {
+    await preloadNeededCategories(); // на случай, если пользователь включил новую категорию
+    generateMenu();
+  };
+
+  document.getElementById("clearBtn").onclick = clearMenu;
+
+  // При изменении чекбоксов — перерисовываем таблицу (если есть сохранённое меню)
+  MEAL_TYPES.forEach(m => {
+    document.getElementById(`chk-${m.key}`).onchange = () => {
+      const saved = loadSavedMenu();
+      if (saved) renderMenu(saved, getActiveMealTypes());
+    };
+  });
+});
+</script>
+</body>
+</html>
