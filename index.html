@@ -2,7 +2,6 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Генератор рецептов</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -262,7 +261,7 @@
     <div id="welcome-close">✕</div>
     <div id="welcome-text">
       При первом запуске картинки могут подгружаться дольше.<br><br>
-      Выберите другую случайную категорию или обновите страницу) 🙂
+      Если ничего не загружается — проверьте консоль (F12) и наличие файлов в папке recipes/
     </div>
   </div>
 </div>
@@ -287,7 +286,7 @@ const elements = {
   welcomeClose: document.getElementById('welcome-close')
 };
 
-let loadedRecipes = {};           // кэш загруженных категорий
+let loadedRecipes = {};           // кэш загруженных категорий: { breakfast: [...], ... }
 let currentCategory = null;
 let recipeIndices = {};
 
@@ -297,6 +296,14 @@ const categoryNames = {
   dinner:    "Ужин",
   soups:     "Супы",
   dessert:   "Десерт"
+};
+
+const categoryFiles = {
+  breakfast: "breakfast.json",
+  lunch:     "lunch.json",
+  dinner:    "dinner.json",
+  soups:     "soups.json",
+  dessert:   "dessert.json"
 };
 
 const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23F0F0F0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото блюда</text></svg>';
@@ -313,28 +320,49 @@ function closeWelcome() {
 }
 
 async function loadCategoryRecipes(category) {
+  console.log(`[ЗАГРУЗКА] Запрос категории: ${category}`);
+
+  if (!categoryFiles[category]) {
+    console.error(`Категория "${category}" не найдена в списке categoryFiles`);
+    return [];
+  }
+
   if (loadedRecipes[category]) {
+    console.log(`[КЭШ] Рецепты для ${category} уже загружены (${loadedRecipes[category].length} шт.)`);
     return loadedRecipes[category];
   }
+
+  const url = `recipes/${categoryFiles[category]}`;
+  console.log(`[FETCH] Пытаемся загрузить: ${url}`);
 
   try {
     elements.loader.style.display = 'block';
     elements.error.style.display = 'none';
 
-    const response = await fetch(`recipes/${category}.json`);
+    const response = await fetch(url);
+
+    console.log(`[FETCH] Статус: ${response.status} ${response.ok ? '(OK)' : '(ERROR)'}`);
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status} — файл recipes/${category}.json`);
+      throw new Error(`HTTP ${response.status} — файл ${url} не найден или недоступен`);
     }
 
     const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      throw new Error(`Данные не являются массивом рецептов (получен ${typeof data})`);
+    }
+
+    console.log(`[УСПЕХ] Загружено ${data.length} рецептов для ${category}`);
+
     loadedRecipes[category] = data;
     elements.loader.style.display = 'none';
     return data;
 
   } catch (err) {
+    console.error(`[ОШИБКА] ${category}:`, err);
     elements.loader.style.display = 'none';
-    elements.error.textContent = `Не удалось загрузить рецепты (${category}): ${err.message}`;
+    elements.error.textContent = `Не удалось загрузить ${categoryNames[category] || category}: ${err.message}`;
     elements.error.style.display = 'block';
     return [];
   }
@@ -352,32 +380,34 @@ function closeModal() {
 
 function selectCategory(cat) {
   currentCategory = cat;
+  console.log(`[ВЫБОР] Выбрана категория: ${cat} (${categoryNames[cat] || 'неизвестно'})`);
   closeModal();
   generateRecipe();
 }
 
-function getNextRecipeIndex(category, recipes) {
-  let idx = recipeIndices[category] || 0;
-  recipeIndices[category] = (idx + 1) % recipes.length;
-  return idx;
-}
-
 async function generateRecipe() {
   if (!currentCategory) {
+    console.log("[ГЕНЕРАЦИЯ] Категория не выбрана → открываем модалку");
     return openModal();
   }
 
   const recipes = await loadCategoryRecipes(currentCategory);
 
   if (!recipes?.length) {
+    console.warn(`[ГЕНЕРАЦИЯ] Нет рецептов для ${currentCategory}`);
     elements.error.textContent = 'Рецепты в этой категории отсутствуют или не загрузились';
     elements.error.style.display = 'block';
     elements.refreshBtn.style.display = 'none';
+    elements.title.textContent = 'Нет рецептов';
     return;
   }
 
-  const idx = getNextRecipeIndex(currentCategory, recipes);
+  let idx = recipeIndices[currentCategory] || 0;
   const recipe = recipes[idx];
+
+  recipeIndices[currentCategory] = (idx + 1) % recipes.length;
+
+  console.log(`[ПОКАЗ] Показываем рецепт #${idx + 1} из ${recipes.length} (${recipe.title})`);
 
   updateUI(recipe);
   elements.refreshBtn.style.display = 'block';
@@ -387,11 +417,21 @@ async function generateRecipe() {
 function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
-  elements.photo.src = r.photo || fallbackImage;
+
+  // Картинка теперь из папки pics/
+  const photoPath = r.photo ? `pics/${r.photo}` : fallbackImage;
+  elements.photo.src = photoPath;
   elements.photo.alt = r.title || 'Рецепт';
   elements.photo.style.display = 'block';
   elements.photo.classList.remove('loaded');
-  elements.photo.onload = () => elements.photo.classList.add('loaded');
+  elements.photo.onload = () => {
+    elements.photo.classList.add('loaded');
+    console.log(`[ИЗОБРАЖЕНИЕ] Успешно загружено: ${photoPath}`);
+  };
+  elements.photo.onerror = () => {
+    console.warn(`[ИЗОБРАЖЕНИЕ] Не удалось загрузить: ${photoPath}`);
+    elements.photo.src = fallbackImage;
+  };
 
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
@@ -447,6 +487,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   showWelcomeIfFirstTime();
   elements.refreshBtn.style.display = 'none';
+
+  console.log("[INIT] Сайт загружен. Доступные категории:", Object.keys(categoryFiles));
 });
 </script>
 </body>
