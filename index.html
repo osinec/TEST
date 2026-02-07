@@ -8,12 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Предзагрузка самых популярных картинок (они появляются почти мгновенно) -->
-  <link rel="preload" href="pics/грибной_омлет.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="pics/куриная_запеканка.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="pics/ленивые_пирожки.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="pics/бутерброды_из_отрубей.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="pics/овсяноблин_банан.webp" as="image" fetchpriority="high">
+  <!-- Предзагрузка 3 самых популярных картинок (можно добавить ещё) -->
+  <link rel="preload" href="pics/грибной_омлет.webp" as="image">
+  <link rel="preload" href="pics/куриная_запеканка.webp" as="image">
+  <link rel="preload" href="pics/ленивые_пирожки.webp" as="image">
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -269,7 +267,7 @@
     <div id="welcome-close">✕</div>
     <div id="welcome-text">
       При первом запуске картинки могут подгружаться дольше.<br><br>
-      Для максимальной скорости обновите страницу (Ctrl + Shift + R)
+      Если ничего не видно — обновите страницу жёстко (Ctrl + Shift + R)
     </div>
   </div>
 </div>
@@ -320,9 +318,7 @@ function closeWelcome() {
 }
 
 async function loadCategoryRecipes(category) {
-  if (loadedRecipes[category]) {
-    return loadedRecipes[category];
-  }
+  if (loadedRecipes[category]) return loadedRecipes[category];
 
   try {
     elements.loader.style.display = 'block';
@@ -380,9 +376,10 @@ function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
 
+  // Самая надёжная загрузка картинки
   const baseName = r.photo ? r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '') : '';
   const webpPath = baseName ? `pics/${baseName}.webp` : fallbackImage;
-  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;  // ← если оригиналы .jpg — замени .png на .jpg
+  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;  // ← если у тебя .jpg — замени .png на .jpg
 
   elements.photo.src = webpPath;
   elements.photo.alt = r.title || 'Рецепт';
@@ -391,13 +388,17 @@ function updateUI(r) {
   elements.photo.style.display = 'block';
   elements.photo.classList.remove('loaded');
 
+  // Если webp не нашёлся — мгновенно переходим на оригинал
   elements.photo.onerror = () => {
     elements.photo.src = origPath;
-    elements.photo.onerror = () => elements.photo.src = fallbackImage;
+    elements.photo.onerror = () => {
+      elements.photo.src = fallbackImage;
+    };
   };
 
   elements.photo.onload = () => elements.photo.classList.add('loaded');
 
+  // Ингредиенты
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
     elements.ingredients.innerHTML = `
@@ -406,6 +407,7 @@ function updateUI(r) {
     `;
   }
 
+  // Шаги
   elements.steps.innerHTML = '';
   if (Array.isArray(r.steps) && r.steps.length) {
     elements.steps.innerHTML = `
@@ -414,9 +416,11 @@ function updateUI(r) {
     `;
   }
 
+  // Время и калории
   elements.time.innerHTML = `<strong>Время приготовления:</strong> ${r.time || '—'}`;
   elements.calories.innerHTML = `<strong>Калорийность:</strong> ${r.calories || '—'} ккал`;
 
+  // Примечание
   if (r.note) {
     elements.note.innerHTML = `<strong>Примечание:</strong><br>${r.note.trim()}`;
     elements.note.style.display = 'block';
