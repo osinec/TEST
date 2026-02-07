@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Предзагрузка топ-5 картинок — они появляются мгновенно -->
+  <!-- Предзагрузка самых популярных картинок (они появляются почти мгновенно) -->
   <link rel="preload" href="pics/грибной_омлет.webp" as="image" fetchpriority="high">
   <link rel="preload" href="pics/куриная_запеканка.webp" as="image" fetchpriority="high">
   <link rel="preload" href="pics/ленивые_пирожки.webp" as="image" fetchpriority="high">
@@ -86,14 +86,14 @@
     }
     #photo {
       width: 100%;
-      height: 250px;
+      height: 220px;
       object-fit: cover;
       border-radius: 16px;
       display: none;
       margin: 12px 0 20px;
-      max-height: 40vh;
+      max-height: 35vh;
       background: #f0f0f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23e0e0e0"/></svg>') center/cover no-repeat;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.25s ease;
     }
     #photo.loaded { opacity: 1; }
     .section-title {
@@ -227,7 +227,7 @@
     @media (max-width:360px) {
       .card { padding: 24px 18px; border-radius: 20px; }
       h2 { font-size: 22px; }
-      #photo { height: 200px; }
+      #photo { height: 180px; }
     }
     @media (min-width:768px) {
       body { align-items: center; padding: 50px 30px; }
@@ -320,19 +320,21 @@ function closeWelcome() {
 }
 
 async function loadCategoryRecipes(category) {
-  if (loadedRecipes[category]) return loadedRecipes[category];
+  if (loadedRecipes[category]) {
+    return loadedRecipes[category];
+  }
 
   try {
     elements.loader.style.display = 'block';
     const response = await fetch(`recipes/${category}.json`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) throw new Error();
     const data = await response.json();
     loadedRecipes[category] = data;
     elements.loader.style.display = 'none';
     return data;
-  } catch (err) {
+  } catch {
     elements.loader.style.display = 'none';
-    elements.error.textContent = `Не удалось загрузить ${categoryNames[category] || category}`;
+    elements.error.textContent = 'Не удалось загрузить рецепты';
     elements.error.style.display = 'block';
     return [];
   }
@@ -360,7 +362,7 @@ async function generateRecipe() {
   const recipes = await loadCategoryRecipes(currentCategory);
 
   if (!recipes?.length) {
-    elements.error.textContent = 'Рецепты отсутствуют или не загрузились';
+    elements.error.textContent = 'Рецепты в этой категории отсутствуют или не загрузились';
     elements.error.style.display = 'block';
     elements.refreshBtn.style.display = 'none';
     return;
@@ -378,12 +380,9 @@ function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
 
-  // ────────────────────────────────────────────────────────────────
-  // МАКСИМАЛЬНО БЫСТРАЯ ЗАГРУЗКА КАРТИНКИ
-  // ────────────────────────────────────────────────────────────────
   const baseName = r.photo ? r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '') : '';
   const webpPath = baseName ? `pics/${baseName}.webp` : fallbackImage;
-  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;  // ← если оригиналы .jpg, замени на .jpg
+  const origPath = baseName ? `pics/${baseName}.png` : fallbackImage;  // ← если оригиналы .jpg — замени .png на .jpg
 
   elements.photo.src = webpPath;
   elements.photo.alt = r.title || 'Рецепт';
@@ -399,7 +398,6 @@ function updateUI(r) {
 
   elements.photo.onload = () => elements.photo.classList.add('loaded');
 
-  // ────────────────────────────────────────────────────────────────
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
     elements.ingredients.innerHTML = `
