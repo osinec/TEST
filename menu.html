@@ -7,6 +7,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- html2canvas для сохранения таблицы как картинки -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -33,13 +37,13 @@
       font-size: 26px;
       font-weight: 700;
       color: #c7903d;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
     .controls {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
-      margin-bottom: 32px;
+      margin: 24px 0 32px;
       justify-content: center;
     }
     button {
@@ -49,22 +53,22 @@
       border-radius: 40px;
       font-weight: 600;
       transition: all .3s;
-      padding: 16px 32px;
-      font-size: 16px;
+      padding: 14px 28px;
+      font-size: 15px;
     }
     .main-btn {
       background: linear-gradient(135deg, #f6d365, #fda085);
       color: #222;
-      min-width: 220px;
+      min-width: 200px;
     }
     .main-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(0,0,0,.15);
     }
-    .back-btn {
+    .save-btn {
       background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
       color: #222;
-      min-width: 220px;
+      min-width: 200px;
     }
     .section-title {
       font-size: 18px;
@@ -76,7 +80,7 @@
       background: #fdfaf7;
       border-radius: 16px;
       padding: 24px;
-      margin-bottom: 48px;
+      margin-bottom: 40px;
     }
     .meal-grid {
       display: grid;
@@ -173,15 +177,15 @@
     .menu-wrapper {
       overflow-x: auto;
       margin: 20px 0;
+      background: white;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
     table {
       width: 100%;
       min-width: 600px;
       border-collapse: collapse;
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     }
     th, td {
       padding: 12px 10px;
@@ -266,7 +270,6 @@
       object-fit: cover;
       border-radius: 16px;
       margin: 12px 0 20px;
-      background: #f0f0f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23e0e0e0"/></svg>') center/cover no-repeat;
     }
     .recipe-title {
       font-size: 24px;
@@ -306,7 +309,7 @@
       h1 { font-size: 24px; }
       .controls { flex-direction: column; }
       button { width: 100%; min-width: auto; }
-      .meal-choices { grid-template-columns: 1fr; }
+      .meal-grid { grid-template-columns: 1fr; }
       th, td { font-size: 14px; padding: 10px 8px; }
     }
   </style>
@@ -314,9 +317,10 @@
 <body>
 <div class="card">
   <h1>Меню на неделю</h1>
+
   <div class="settings">
     <div class="section-title">Приёмы пищи</div>
-    <div class="meal-choices meal-grid">
+    <div class="meal-grid">
       <!-- Завтрак -->
       <div class="meal-box" id="box-breakfast">
         <label class="meal-header" for="chk-breakfast">
@@ -330,6 +334,7 @@
           <div class="frequency-value" id="value-breakfast">7 раз</div>
         </div>
       </div>
+
       <!-- Первое -->
       <div class="meal-box" id="box-soups">
         <label class="meal-header" for="chk-soups">
@@ -343,6 +348,7 @@
           <div class="frequency-value" id="value-soups">3 раза</div>
         </div>
       </div>
+
       <!-- Второе -->
       <div class="meal-box" id="box-lunch">
         <label class="meal-header" for="chk-lunch">
@@ -356,6 +362,7 @@
           <div class="frequency-value" id="value-lunch">4 раза</div>
         </div>
       </div>
+
       <!-- Ужин -->
       <div class="meal-box" id="box-dinner">
         <label class="meal-header" for="chk-dinner">
@@ -371,13 +378,17 @@
       </div>
     </div>
   </div>
+
   <div class="controls">
     <button class="main-btn" id="generateBtn">Сгенерировать / Обновить меню</button>
+    <button class="save-btn" id="saveAsImageBtn">Сохранить как картинку</button>
     <button class="main-btn back-btn" onclick="window.location.href='index.html'">← Назад к рецептам</button>
   </div>
+
   <div id="loader" class="loader" style="display:none">Загрузка рецептов...</div>
   <div id="error" class="error" style="display:none"></div>
-  <div class="menu-wrapper">
+
+  <div class="menu-wrapper" id="menuCaptureArea">
     <div id="menuTable"></div>
   </div>
 </div>
@@ -387,7 +398,7 @@
   <div class="recipe-modal-box">
     <div class="close-recipe" id="closeRecipeBtn">✕</div>
     <h2 class="recipe-title" id="recipeTitle"></h2>
-    <img id="recipePhoto" class="recipe-photo" alt="Фото рецепта" loading="lazy" decoding="async">
+    <img id="recipePhoto" class="recipe-photo" alt="Фото рецепта" loading="lazy">
     <div id="recipeIngredients"></div>
     <div id="recipeSteps"></div>
     <div id="recipeTime"></div>
@@ -397,7 +408,7 @@
 </div>
 
 <script>
-// ─── Управление чекбоксами и слайдерами ────────────────────────────────
+// ─── Управление чекбоксами и ползунками ────────────────────────────────
 document.querySelectorAll('.meal-box').forEach(box => {
   const checkbox = box.querySelector('input[type="checkbox"]');
   const freqControl = box.querySelector('.frequency-control');
@@ -413,7 +424,6 @@ document.querySelectorAll('.meal-box').forEach(box => {
     const isChecked = checkbox.checked;
     box.classList.toggle('active', isChecked);
     freqControl.style.display = isChecked ? 'block' : 'none';
-
     if (!isChecked) {
       slider.value = 0;
       updateSliderText();
@@ -421,19 +431,14 @@ document.querySelectorAll('.meal-box').forEach(box => {
   };
 
   checkbox.addEventListener('change', update);
-
-  // Моментальное обновление при любом движении ползунка
   slider.addEventListener('input', updateSliderText);
-
-  // Дополнительно обновляем при отпускании (на всякий случай)
   slider.addEventListener('change', updateSliderText);
 
-  // Инициализация
   update();
   updateSliderText();
 });
 
-// ─── Генерация меню ────────────────────────────────────────────────────
+// ─── Логика меню ───────────────────────────────────────────────────────
 const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
 const SHORT_DAYS = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
 const MEAL_TYPES = [
@@ -466,9 +471,7 @@ async function loadCategory(file) {
 
 async function preloadNeededCategories() {
   const active = MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
-  for (const meal of active) {
-    await loadCategory(meal.file);
-  }
+  for (const meal of active) await loadCategory(meal.file);
 }
 
 function getActiveMealTypes() {
@@ -486,9 +489,7 @@ function generateMenu() {
 
   DAYS.forEach(day => {
     menu[day] = {};
-    activeMeals.forEach(meal => {
-      menu[day][meal.key] = "—";
-    });
+    activeMeals.forEach(meal => menu[day][meal.key] = "—");
   });
 
   activeMeals.forEach(meal => {
@@ -544,21 +545,44 @@ function renderMenu(menu, activeMeals) {
     link.addEventListener('click', (e) => {
       const title = e.target.dataset.title.trim();
       const mealKey = e.target.dataset.meal;
-      if (title && title !== "—") {
-        showRecipe(title, mealKey);
-      }
+      if (title && title !== "—") showRecipe(title, mealKey);
     });
   });
 }
 
+// ─── Сохранение как картинка ───────────────────────────────────────────
+document.getElementById("saveAsImageBtn")?.addEventListener("click", () => {
+  const element = document.getElementById("menuCaptureArea");
+
+  if (!element.innerHTML.trim() || element.innerHTML.includes("empty")) {
+    alert("Сначала сгенерируйте меню");
+    return;
+  }
+
+  html2canvas(element, {
+    scale: 2,               // лучшее качество
+    useCORS: true,
+    backgroundColor: "#ffffff",
+    logging: false
+  }).then(canvas => {
+    const link = document.createElement("a");
+    link.download = "меню-на-неделю.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }).catch(err => {
+    console.error("Ошибка при создании изображения:", err);
+    alert("Не удалось сохранить картинку. Попробуйте ещё раз.");
+  });
+});
+
+// ─── Остальные функции (showRecipe, closeRecipeModal и т.д.) без изменений ──
 function showRecipe(title, mealKey) {
   const recipes = loadedRecipes[mealKey] || [];
   const recipe = recipes.find(r => (r.title || '').trim() === title);
-  if (!recipe) {
-    alert('Рецепт не найден');
-    return;
-  }
+  if (!recipe) return alert('Рецепт не найден');
+
   document.getElementById('recipeTitle').textContent = recipe.title || 'Без названия';
+
   const photoEl = document.getElementById('recipePhoto');
   photoEl.src = fallbackImage;
   if (recipe.photo) {
@@ -570,12 +594,10 @@ function showRecipe(title, mealKey) {
   photoEl.onerror = () => photoEl.src = fallbackImage;
 
   document.getElementById('recipeIngredients').innerHTML = recipe.ingredients?.length
-    ? `<div class="recipe-section-title">Ингредиенты:</div><div class="recipe-plain-list">${recipe.ingredients.map(i => i.trim()).join('<br>')}</div>`
-    : '';
+    ? `<div class="recipe-section-title">Ингредиенты:</div><div class="recipe-plain-list">${recipe.ingredients.map(i => i.trim()).join('<br>')}</div>` : '';
 
   document.getElementById('recipeSteps').innerHTML = recipe.steps?.length
-    ? `<div class="recipe-section-title">Приготовление:</div><div class="recipe-plain-list">${recipe.steps.map((s,i) => `${i+1}. ${s.trim()}`).join('<br>')}</div>`
-    : '';
+    ? `<div class="recipe-section-title">Приготовление:</div><div class="recipe-plain-list">${recipe.steps.map((s,i) => `${i+1}. ${s.trim()}`).join('<br>')}</div>` : '';
 
   document.getElementById('recipeTime').innerHTML = `<strong>Время приготовления:</strong> ${recipe.time || '—'}`;
   document.getElementById('recipeCalories').innerHTML = `<strong>Калорийность:</strong> ${recipe.calories || '—'} ккал`;
