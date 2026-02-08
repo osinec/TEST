@@ -366,16 +366,6 @@ function getActiveMealTypes() {
   return MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
 }
 
-// Функция перемешивания массива (Fisher-Yates)
-function shuffle(array) {
-  const newArray = [...array];
-  for (let i = newArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-  }
-  return newArray;
-}
-
 function generateMenu() {
   const menu = {};
   const activeMeals = getActiveMealTypes();
@@ -385,28 +375,13 @@ function generateMenu() {
     return;
   }
 
-  // Для каждой категории готовим перемешанный список рецептов
-  const categoryShuffled = {};
-  activeMeals.forEach(meal => {
-    const recipes = loadedRecipes[meal.file] || [];
-    if (recipes.length > 0) {
-      categoryShuffled[meal.key] = shuffle(recipes);
-    } else {
-      categoryShuffled[meal.key] = [];
-    }
-  });
-
-  DAYS.forEach((day, dayIndex) => {
+  DAYS.forEach(day => {
     menu[day] = {};
     activeMeals.forEach(meal => {
-      const shuffled = categoryShuffled[meal.key];
-      if (shuffled.length > 0) {
-        // Берём рецепт по индексу дня (циклически, если рецептов меньше 7)
-        const idx = dayIndex % shuffled.length;
-        menu[day][meal.key] = shuffled[idx].title || "—";
-      } else {
-        menu[day][meal.key] = "—";
-      }
+      const recipes = loadedRecipes[meal.file] || [];
+      menu[day][meal.key] = recipes.length > 0
+        ? recipes[Math.floor(Math.random() * recipes.length)].title.trim() || "—"
+        : "—";
     });
   });
 
@@ -423,7 +398,7 @@ function renderMenu(menu, activeMeals) {
     html += `<tr><td class="meal-row">${meal.title}</td>`;
     DAYS.forEach(day => {
       const title = menu[day]?.[meal.key] || "—";
-      html += `<td><span class="recipe-link" data-title="${title.replace(/"/g,'&quot;')}" data-meal="${meal.key}">${title}</span></td>`;
+      html += `<td><span class="recipe-link" data-title="${title}" data-meal="${meal.key}">${title}</span></td>`;
     });
     html += '</tr>';
   });
@@ -434,7 +409,7 @@ function renderMenu(menu, activeMeals) {
   // Обработчики клика по названиям блюд
   document.querySelectorAll('.recipe-link').forEach(link => {
     link.addEventListener('click', (e) => {
-      const title = e.target.dataset.title;
+      const title = e.target.dataset.title.trim();
       const mealKey = e.target.dataset.meal;
       if (title && title !== "—") {
         showRecipe(title, mealKey);
@@ -445,12 +420,22 @@ function renderMenu(menu, activeMeals) {
 
 function showRecipe(title, mealKey) {
   const recipes = loadedRecipes[mealKey] || [];
-  const recipe = recipes.find(r => r.title && r.title.trim() === title.trim());
+  console.log(`Ищем рецепт "${title}" в категории "${mealKey}" — всего рецептов: ${recipes.length}`);
+
+  // Ищем рецепт, игнорируя лишние пробелы и регистр
+  const recipe = recipes.find(r => {
+    const recipeTitle = (r.title || '').trim().toLowerCase();
+    const searchTitle = title.toLowerCase();
+    return recipeTitle === searchTitle;
+  });
 
   if (!recipe) {
-    alert('Рецепт не найден в загруженных данных');
+    console.error(`Рецепт "${title}" НЕ НАЙДЕН в категории ${mealKey}`);
+    alert('Рецепт не найден в загруженных данных. Проверьте консоль (F12).');
     return;
   }
+
+  console.log(`Рецепт найден: "${recipe.title}"`);
 
   document.getElementById('recipeTitle').textContent = recipe.title || 'Без названия';
 
