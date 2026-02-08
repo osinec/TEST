@@ -130,34 +130,45 @@
     }
     input[type="range"] {
       width: 100%;
-      height: 6px;
+      height: 8px;
       background: #ffe082;
-      border-radius: 3px;
+      border-radius: 4px;
       outline: none;
       -webkit-appearance: none;
+      transition: background 0.2s;
+    }
+    input[type="range"]:active {
+      background: #ffca28;
     }
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
-      background: #ffb74d;
+      width: 20px;
+      height: 20px;
+      background: #ff9800;
       border-radius: 50%;
-      cursor: pointer;
+      cursor: grabbing;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: transform 0.1s;
+    }
+    input[type="range"]:active::-webkit-slider-thumb {
+      transform: scale(1.15);
     }
     input[type="range"]::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
-      background: #ffb74d;
+      width: 20px;
+      height: 20px;
+      background: #ff9800;
       border-radius: 50%;
-      cursor: pointer;
+      cursor: grabbing;
       border: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     .frequency-value {
       font-size: 13px;
       font-weight: 600;
       color: #ef6c00;
       text-align: center;
-      margin-top: 4px;
+      margin-top: 6px;
+      min-width: 70px;
     }
     .menu-wrapper {
       overflow-x: auto;
@@ -392,25 +403,34 @@ document.querySelectorAll('.meal-box').forEach(box => {
   const freqControl = box.querySelector('.frequency-control');
   const slider = box.querySelector('input[type="range"]');
   const valueEl = box.querySelector('.frequency-value');
+
+  const updateSliderText = () => {
+    const val = parseInt(slider.value);
+    valueEl.textContent = val === 0 ? '0 раз' : (val === 1 ? '1 раз' : `${val} раз`);
+  };
+
   const update = () => {
     const isChecked = checkbox.checked;
     box.classList.toggle('active', isChecked);
-    if (freqControl) {
-      freqControl.style.display = isChecked ? 'block' : 'none';
-      if (!isChecked && slider) {
-        slider.value = 0;
-        if (valueEl) valueEl.textContent = '0 раз';
-      }
+    freqControl.style.display = isChecked ? 'block' : 'none';
+
+    if (!isChecked) {
+      slider.value = 0;
+      updateSliderText();
     }
   };
+
   checkbox.addEventListener('change', update);
-  if (slider && valueEl) {
-    slider.addEventListener('input', () => {
-      const val = parseInt(slider.value);
-      valueEl.textContent = val === 0 ? '0 раз' : (val === 1 ? '1 раз' : `${val} раз`);
-    });
-  }
+
+  // Моментальное обновление при любом движении ползунка
+  slider.addEventListener('input', updateSliderText);
+
+  // Дополнительно обновляем при отпускании (на всякий случай)
+  slider.addEventListener('change', updateSliderText);
+
+  // Инициализация
   update();
+  updateSliderText();
 });
 
 // ─── Генерация меню ────────────────────────────────────────────────────
@@ -464,7 +484,6 @@ function generateMenu() {
     return;
   }
 
-  // Инициализация пустого меню
   DAYS.forEach(day => {
     menu[day] = {};
     activeMeals.forEach(meal => {
@@ -472,7 +491,6 @@ function generateMenu() {
     });
   });
 
-  // Для каждого типа приёма пищи отдельно
   activeMeals.forEach(meal => {
     const slider = document.getElementById(`freq-${meal.key}`);
     const freq = slider ? parseInt(slider.value) : 0;
@@ -481,29 +499,25 @@ function generateMenu() {
     const recipes = loadedRecipes[meal.file] || [];
     if (recipes.length === 0) return;
 
-    // Выбираем freq разных рецептов
     const selectedRecipes = [];
-    const usedIndices = new Set();
-    while (selectedRecipes.length < freq && usedIndices.size < recipes.length) {
+    const used = new Set();
+    while (selectedRecipes.length < freq && used.size < recipes.length) {
       const idx = Math.floor(Math.random() * recipes.length);
-      if (!usedIndices.has(idx)) {
-        usedIndices.add(idx);
+      if (!used.has(idx)) {
+        used.add(idx);
         selectedRecipes.push(recipes[idx].title.trim());
       }
     }
 
-    // Равномерное распределение по дням
     const selectedDays = [];
     for (let i = 0; i < freq; i++) {
       const dayIndex = Math.floor(i * 7 / freq);
       selectedDays.push(dayIndex);
     }
 
-    // Назначаем рецепты на выбранные дни
     selectedDays.forEach((dayIndex, i) => {
       const day = DAYS[dayIndex];
-      const recipeTitle = selectedRecipes[i] || "—";
-      menu[day][meal.key] = recipeTitle;
+      menu[day][meal.key] = selectedRecipes[i] || "—";
     });
   });
 
@@ -555,13 +569,11 @@ function showRecipe(title, mealKey) {
   photoEl.onload = () => photoEl.classList.add('loaded');
   photoEl.onerror = () => photoEl.src = fallbackImage;
 
-  const ing = document.getElementById('recipeIngredients');
-  ing.innerHTML = recipe.ingredients?.length
+  document.getElementById('recipeIngredients').innerHTML = recipe.ingredients?.length
     ? `<div class="recipe-section-title">Ингредиенты:</div><div class="recipe-plain-list">${recipe.ingredients.map(i => i.trim()).join('<br>')}</div>`
     : '';
 
-  const steps = document.getElementById('recipeSteps');
-  steps.innerHTML = recipe.steps?.length
+  document.getElementById('recipeSteps').innerHTML = recipe.steps?.length
     ? `<div class="recipe-section-title">Приготовление:</div><div class="recipe-plain-list">${recipe.steps.map((s,i) => `${i+1}. ${s.trim()}`).join('<br>')}</div>`
     : '';
 
