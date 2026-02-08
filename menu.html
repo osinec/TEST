@@ -76,7 +76,7 @@
       background: #fdfaf7;
       border-radius: 16px;
       padding: 24px;
-      margin-bottom: 48px;
+      margin-bottom: 48px;          /* ← здесь увеличен отступ снизу (было 32px) */
     }
     .meal-choices {
       display: grid;
@@ -214,24 +214,18 @@
 </div>
 
 <script>
-// ─── Исправленная обработка чекбоксов ───────────────────────────────
+// Обработка красивых чекбоксов
 document.querySelectorAll('.meal-option').forEach(label => {
   const checkbox = label.querySelector('input[type="checkbox"]');
-  
-  // Функция обновления стиля
-  const updateStyle = () => {
+  const update = () => {
     if (checkbox.checked) {
       label.classList.add('selected');
     } else {
       label.classList.remove('selected');
     }
   };
-
-  // Слушаем изменение чекбокса
-  checkbox.addEventListener('change', updateStyle);
-  
-  // Принудительно обновляем при загрузке страницы
-  updateStyle();
+  checkbox.addEventListener('change', update);
+  update(); // начальное состояние
 });
 
 const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
