@@ -7,10 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- html2pdf.js (с поддержкой ссылок в некоторых случаях) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -56,18 +52,33 @@
       padding: 14px 28px;
       font-size: 15px;
     }
-    .main-btn {
+    .generate-btn {
       background: linear-gradient(135deg, #f6d365, #fda085);
       color: #222;
+      min-width: 240px;
+    }
+    .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,.15); }
+
+    .save-btn {
+      background: linear-gradient(135deg, #66bb6a, #81c784);
+      color: white;
       min-width: 200px;
     }
-    .main-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,.15); }
-    .save-btn {
-      background: linear-gradient(135deg, #81c784, #a5d6a7);
-      color: #222;
-      min-width: 220px;
+    .save-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102,187,106,0.4); }
+
+    .clear-btn {
+      background: linear-gradient(135deg, #ef5350, #e57373);
+      color: white;
+      min-width: 180px;
     }
-    .save-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,.15); }
+    .clear-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(239,83,80,0.4); }
+
+    .back-btn {
+      background: linear-gradient(135deg, #78909c, #90a4ae);
+      color: white;
+    }
+    .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(120,144,156,0.4); }
+
     .section-title {
       font-size: 18px;
       font-weight: 600;
@@ -187,10 +198,7 @@
       font-weight: 500;
       transition: color 0.2s;
     }
-    .recipe-link:hover {
-      color: #ef6c00;
-      text-decoration: underline;
-    }
+    .recipe-link:hover { color: #ef6c00; text-decoration: underline; }
     .empty {
       text-align: center;
       padding: 60px 20px;
@@ -293,7 +301,6 @@
   <div class="settings">
     <div class="section-title">Приёмы пищи</div>
     <div class="meal-grid">
-      <!-- Завтрак -->
       <div class="meal-box" id="box-breakfast">
         <label class="meal-header" for="chk-breakfast">
           <input type="checkbox" id="chk-breakfast" style="display:none;">
@@ -307,7 +314,6 @@
         </div>
       </div>
 
-      <!-- Первое -->
       <div class="meal-box" id="box-soups">
         <label class="meal-header" for="chk-soups">
           <input type="checkbox" id="chk-soups" style="display:none;">
@@ -321,7 +327,6 @@
         </div>
       </div>
 
-      <!-- Второе -->
       <div class="meal-box" id="box-lunch">
         <label class="meal-header" for="chk-lunch">
           <input type="checkbox" id="chk-lunch" style="display:none;">
@@ -335,7 +340,6 @@
         </div>
       </div>
 
-      <!-- Ужин -->
       <div class="meal-box" id="box-dinner">
         <label class="meal-header" for="chk-dinner">
           <input type="checkbox" id="chk-dinner" style="display:none;">
@@ -352,15 +356,16 @@
   </div>
 
   <div class="controls">
-    <button class="main-btn" id="generateBtn">Сгенерировать / Обновить меню</button>
-    <button class="save-btn" id="savePdfBtn">Сохранить как PDF (с кликабельными ссылками)</button>
-    <button class="main-btn back-btn" onclick="window.location.href='index.html'">← Назад к рецептам</button>
+    <button class="generate-btn" id="generateBtn">Сгенерировать / Обновить меню</button>
+    <button class="save-btn" id="saveMenuBtn">Сохранить меню</button>
+    <button class="clear-btn" id="clearMenuBtn">Очистить меню</button>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Назад к рецептам</button>
   </div>
 
   <div id="loader" class="loader" style="display:none">Загрузка рецептов...</div>
   <div id="error" class="error" style="display:none"></div>
 
-  <div class="menu-wrapper" id="menuCaptureArea">
+  <div class="menu-wrapper">
     <div id="menuTable"></div>
   </div>
 </div>
@@ -380,7 +385,7 @@
 </div>
 
 <script>
-// ─── Управление чекбоксами и ползунками ────────────────────────────────
+// Управление чекбоксами и слайдерами
 document.querySelectorAll('.meal-box').forEach(box => {
   const checkbox = box.querySelector('input[type="checkbox"]');
   const freqControl = box.querySelector('.frequency-control');
@@ -410,7 +415,7 @@ document.querySelectorAll('.meal-box').forEach(box => {
   updateSliderText();
 });
 
-// ─── Логика меню ───────────────────────────────────────────────────────
+// Константы
 const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
 const SHORT_DAYS = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
 const MEAL_TYPES = [
@@ -422,6 +427,7 @@ const MEAL_TYPES = [
 let loadedRecipes = {};
 const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото не найдено</text></svg>';
 
+// Загрузка рецептов
 async function loadCategory(file) {
   if (loadedRecipes[file]) return loadedRecipes[file];
   try {
@@ -432,8 +438,8 @@ async function loadCategory(file) {
     loadedRecipes[file] = data;
     return data;
   } catch (err) {
-    console.error(`Ошибка загрузки категории ${file}:`, err);
-    document.getElementById("error").textContent = "Не удалось загрузить некоторые рецепты";
+    console.error(err);
+    document.getElementById("error").textContent = "Не удалось загрузить рецепты";
     document.getElementById("error").style.display = "block";
     return [];
   } finally {
@@ -450,6 +456,7 @@ function getActiveMealTypes() {
   return MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
 }
 
+// Генерация меню (БЕЗ автосохранения)
 function generateMenu() {
   const menu = {};
   const activeMeals = getActiveMealTypes();
@@ -494,10 +501,46 @@ function generateMenu() {
     });
   });
 
-  localStorage.setItem("weeklyMenu", JSON.stringify(menu));
   renderMenu(menu, activeMeals);
+  // !!! Здесь больше нет автоматического сохранения !!!
 }
 
+// Сохранение текущего меню по кнопке
+function saveCurrentMenu() {
+  const table = document.getElementById("menuTable");
+  if (!table.innerHTML.trim() || table.innerHTML.includes("empty")) {
+    alert("Нет меню для сохранения");
+    return;
+  }
+
+  const menu = {};
+  DAYS.forEach(day => menu[day] = {});
+
+  const rows = table.querySelectorAll("tbody tr");
+  rows.forEach(row => {
+    const mealTitle = row.querySelector("td.meal-row").textContent.trim();
+    const mealKey = MEAL_TYPES.find(m => m.title === mealTitle)?.key;
+    if (!mealKey) return;
+
+    const cells = row.querySelectorAll("td:not(.meal-row)");
+    cells.forEach((cell, i) => {
+      const title = cell.textContent.trim();
+      menu[DAYS[i]][mealKey] = title === "—" ? "—" : title;
+    });
+  });
+
+  localStorage.setItem("weeklyMenu", JSON.stringify(menu));
+  alert("Меню сохранено в памяти браузера!");
+}
+
+// Очистка меню
+function clearMenu() {
+  if (!confirm("Удалить сохранённое меню?")) return;
+  localStorage.removeItem("weeklyMenu");
+  document.getElementById("menuTable").innerHTML = '<div class="empty">Меню очищено</div>';
+}
+
+// Отрисовка меню
 function renderMenu(menu, activeMeals) {
   let html = '<table><thead><tr><th></th>';
   SHORT_DAYS.forEach(d => html += `<th>${d}</th>`);
@@ -506,22 +549,15 @@ function renderMenu(menu, activeMeals) {
     html += `<tr><td class="meal-row">${meal.title}</td>`;
     DAYS.forEach(day => {
       const title = menu[day]?.[meal.key] || "—";
-      if (title !== "—") {
-        // Делаем ссылку кликабельной в PDF (html2pdf поддерживает a href)
-        html += `<td><a href="#${encodeURIComponent(title)}" class="recipe-link" data-title="${title}" data-meal="${meal.key}">${title}</a></td>`;
-      } else {
-        html += `<td>—</td>`;
-      }
+      html += `<td><span class="recipe-link" data-title="${title}" data-meal="${meal.key}">${title}</span></td>`;
     });
     html += '</tr>';
   });
   html += '</tbody></table>';
   document.getElementById("menuTable").innerHTML = html;
 
-  // Обработчики кликов по ссылкам (для модального окна)
   document.querySelectorAll('.recipe-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault(); // предотвращаем переход по #якорю
+    link.addEventListener('click', e => {
       const title = e.target.dataset.title.trim();
       const mealKey = e.target.dataset.meal;
       if (title && title !== "—") showRecipe(title, mealKey);
@@ -529,31 +565,7 @@ function renderMenu(menu, activeMeals) {
   });
 }
 
-// ─── Сохранение в PDF с попыткой сохранить кликабельность ссылок ───────
-document.getElementById("savePdfBtn")?.addEventListener("click", () => {
-  const element = document.getElementById("menuCaptureArea");
-
-  if (!element.innerHTML.trim() || element.innerHTML.includes("empty")) {
-    alert("Сначала сгенерируйте меню");
-    return;
-  }
-
-  const opt = {
-    margin:       1,
-    filename:     'меню-на-неделю.pdf',
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true, logging: false },
-    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
-    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
-  };
-
-  html2pdf().set(opt).from(element).save().catch(err => {
-    console.error("Ошибка при создании PDF:", err);
-    alert("Не удалось сохранить PDF. Попробуйте в другом браузере или уменьшите количество рецептов.");
-  });
-});
-
-// ─── Остальные функции без изменений ───────────────────────────────────
+// Показ рецепта
 function showRecipe(title, mealKey) {
   const recipes = loadedRecipes[mealKey] || [];
   const recipe = recipes.find(r => (r.title || '').trim() === title);
@@ -584,9 +596,7 @@ function showRecipe(title, mealKey) {
   if (recipe.note) {
     noteEl.innerHTML = `<strong>Примечание:</strong><br>${recipe.note.trim()}`;
     noteEl.style.display = 'block';
-  } else {
-    noteEl.style.display = 'none';
-  }
+  } else noteEl.style.display = 'none';
 
   document.getElementById('recipeModal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
@@ -599,7 +609,8 @@ function closeRecipeModal() {
 
 function loadSavedMenu() {
   try {
-    return JSON.parse(localStorage.getItem("weeklyMenu"));
+    const saved = localStorage.getItem("weeklyMenu");
+    return saved ? JSON.parse(saved) : null;
   } catch {
     return null;
   }
@@ -609,15 +620,50 @@ function loadSavedMenu() {
 document.addEventListener("DOMContentLoaded", () => {
   const savedMenu = loadSavedMenu();
   const activeMeals = getActiveMealTypes();
+
   if (savedMenu && activeMeals.length > 0) {
     renderMenu(savedMenu, activeMeals);
   } else {
-    document.getElementById("menuTable").innerHTML = '<div class="empty">Выберите приёмы пищи и нажмите «Сгенерировать / Обновить меню»</div>';
+    document.getElementById("menuTable").innerHTML = '<div class="empty">Сгенерируйте меню</div>';
   }
 
   document.getElementById("generateBtn").onclick = async () => {
     await preloadNeededCategories();
     generateMenu();
+  };
+
+  document.getElementById("saveMenuBtn").onclick = () => {
+    const currentMenu = {}; // Собираем текущее отображаемое меню
+    const table = document.getElementById("menuTable");
+    if (!table.innerHTML.trim() || table.innerHTML.includes("empty")) {
+      alert("Нет меню для сохранения");
+      return;
+    }
+
+    DAYS.forEach(day => currentMenu[day] = {});
+
+    const rows = table.querySelectorAll("tbody tr");
+    rows.forEach(row => {
+      const mealTitle = row.querySelector("td.meal-row").textContent.trim();
+      const mealKey = MEAL_TYPES.find(m => m.title === mealTitle)?.key;
+      if (!mealKey) return;
+
+      const cells = row.querySelectorAll("td:not(.meal-row)");
+      cells.forEach((cell, i) => {
+        const title = cell.textContent.trim();
+        currentMenu[DAYS[i]][mealKey] = title === "—" ? "—" : title;
+      });
+    });
+
+    localStorage.setItem("weeklyMenu", JSON.stringify(currentMenu));
+    alert("Меню сохранено!");
+  };
+
+  document.getElementById("clearMenuBtn").onclick = () => {
+    if (confirm("Удалить сохранённое меню?")) {
+      localStorage.removeItem("weeklyMenu");
+      document.getElementById("menuTable").innerHTML = '<div class="empty">Меню очищено</div>';
+    }
   };
 
   document.getElementById("closeRecipeBtn").onclick = closeRecipeModal;
@@ -627,12 +673,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   MEAL_TYPES.forEach(m => {
     const chk = document.getElementById(`chk-${m.key}`);
-    if (chk) {
-      chk.onchange = () => {
-        const saved = loadSavedMenu();
-        if (saved) renderMenu(saved, getActiveMealTypes());
-      };
-    }
+    if (chk) chk.onchange = () => {};
   });
 });
 </script>
