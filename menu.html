@@ -171,7 +171,7 @@
       font-style: italic;
     }
 
-    /* Модальное окно для рецепта */
+    /* Модальное окно рецепта */
     .recipe-modal {
       display: none;
       position: fixed;
@@ -196,23 +196,20 @@
     }
     .close-recipe {
       position: absolute;
-      top: 12px;
-      right: 14px;
+      top: 12px; right: 14px;
       font-size: 26px;
       cursor: pointer;
-      opacity: 0.6;
+      opacity: .6;
       transition: opacity 0.2s;
     }
-    .close-recipe:hover {
-      opacity: 1;
-    }
+    .close-recipe:hover { opacity: 1; }
     .recipe-photo {
       width: 100%;
-      height: 220px;
+      max-height: 280px;
       object-fit: cover;
       border-radius: 16px;
       margin: 12px 0 20px;
-      max-height: 35vh;
+      background: #f0f0f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23e0e0e0"/></svg>') center/cover no-repeat;
     }
     .recipe-title {
       font-size: 24px;
@@ -255,8 +252,6 @@
       button { width: 100%; min-width: auto; }
       .meal-choices { grid-template-columns: 1fr; }
       th, td { font-size: 14px; padding: 10px 8px; }
-      .recipe-modal-box { padding: 24px 20px; }
-      .recipe-photo { height: 180px; }
     }
   </style>
 </head>
@@ -303,7 +298,7 @@
   </div>
 </div>
 
-<!-- Модальное окно для рецепта -->
+<!-- Модальное окно рецепта -->
 <div class="recipe-modal" id="recipeModal">
   <div class="recipe-modal-box">
     <div class="close-recipe" id="closeRecipeBtn">✕</div>
@@ -318,18 +313,14 @@
 </div>
 
 <script>
-// ─── Обработка чекбоксов ───────────────────────────────
+// Обработка чекбоксов
 document.querySelectorAll('.meal-option').forEach(label => {
   const checkbox = label.querySelector('input[type="checkbox"]');
   const update = () => {
-    if (checkbox.checked) {
-      label.classList.add('selected');
-    } else {
-      label.classList.remove('selected');
-    }
+    label.classList.toggle('selected', checkbox.checked);
   };
   checkbox.addEventListener('change', update);
-  update();
+  update(); // начальное состояние
 });
 
 const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
@@ -343,19 +334,20 @@ const MEAL_TYPES = [
 ];
 
 let loadedRecipes = {};
+const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото не найдено</text></svg>';
 
 async function loadCategory(file) {
   if (loadedRecipes[file]) return loadedRecipes[file];
   try {
     document.getElementById("loader").style.display = "block";
     const res = await fetch(`recipes/${file}.json`);
-    if (!res.ok) throw new Error();
+    if (!res.ok) throw new Error(`Не удалось загрузить ${file}.json`);
     const data = await res.json();
     loadedRecipes[file] = data;
     return data;
   } catch (err) {
-    console.error(err);
-    document.getElementById("error").textContent = "Не удалось загрузить рецепты";
+    console.error(`Ошибка загрузки категории ${file}:`, err);
+    document.getElementById("error").textContent = "Не удалось загрузить некоторые рецепты";
     document.getElementById("error").style.display = "block";
     return [];
   } finally {
@@ -387,12 +379,9 @@ function generateMenu() {
     menu[day] = {};
     activeMeals.forEach(meal => {
       const recipes = loadedRecipes[meal.file] || [];
-      if (recipes.length > 0) {
-        const idx = Math.floor(Math.random() * recipes.length);
-        menu[day][meal.key] = recipes[idx].title || "—";
-      } else {
-        menu[day][meal.key] = "—";
-      }
+      menu[day][meal.key] = recipes.length > 0
+        ? recipes[Math.floor(Math.random() * recipes.length)].title || "—"
+        : "—";
     });
   });
 
@@ -409,102 +398,103 @@ function renderMenu(menu, activeMeals) {
     html += `<tr><td class="meal-row">${meal.title}</td>`;
     DAYS.forEach(day => {
       const title = menu[day]?.[meal.key] || "—";
-      html += `<td><span class="recipe-link" data-title="${title}" data-meal="${meal.key}">${title}</span></td>`;
+      html += `<td><span class="recipe-link" data-title="${title.replace(/"/g,'&quot;')}" data-meal="${meal.key}">${title}</span></td>`;
     });
     html += '</tr>';
   });
 
   html += '</tbody></table>';
-
   document.getElementById("menuTable").innerHTML = html;
 
-  // Добавляем обработчики кликов на ссылки рецептов
+  // Обработчики клика по названиям блюд
   document.querySelectorAll('.recipe-link').forEach(link => {
     link.addEventListener('click', (e) => {
       const title = e.target.dataset.title;
       const mealKey = e.target.dataset.meal;
-      if (title !== "—") showRecipe(title, mealKey);
+      if (title && title !== "—") {
+        showRecipe(title, mealKey);
+      }
     });
   });
 }
 
 function showRecipe(title, mealKey) {
   const recipes = loadedRecipes[mealKey] || [];
-  const recipe = recipes.find(r => r.title.trim() === title.trim());
+  const recipe = recipes.find(r => r.title && r.title.trim() === title.trim());
 
   if (!recipe) {
-    alert('Рецепт не найден');
+    alert('Рецепт не найден в загруженных данных');
     return;
   }
 
   document.getElementById('recipeTitle').textContent = recipe.title || 'Без названия';
 
-  // Загрузка фото
-  const baseName = recipe.photo ? recipe.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '') : '';
-  const webpPath = baseName ? `pics/${baseName}.webp` : fallbackImage;
-  const origPath = baseName ? `pics/${recipe.photo}` : fallbackImage;
+  // Фото ────────────────────────────────────────────────────────
+  const photoEl = document.getElementById('recipePhoto');
+  let photoSrc = fallbackImage;
 
-  const photo = document.getElementById('recipePhoto');
-  photo.src = webpPath;
-  photo.onerror = () => {
-    photo.src = origPath;
-    photo.onerror = () => photo.src = fallbackImage;
-  };
+  if (recipe.photo) {
+    const base = recipe.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+    const tryWebp = `pics/${base}.webp`;
+    const tryOrig = `pics/${recipe.photo}`;
+
+    photoEl.src = tryWebp;
+    photoEl.onerror = () => {
+      console.log(`webp не загрузился → пробуем оригинал: ${tryOrig}`);
+      photoEl.src = tryOrig;
+      photoEl.onerror = () => {
+        console.log(`оригинал тоже не загрузился → fallback`);
+        photoEl.src = fallbackImage;
+      };
+    };
+  } else {
+    photoEl.src = fallbackImage;
+  }
 
   // Ингредиенты
-  const ingredients = document.getElementById('recipeIngredients');
-  ingredients.innerHTML = '';
-  if (Array.isArray(recipe.ingredients) && recipe.ingredients.length) {
-    ingredients.innerHTML = `
-      <div class="recipe-section-title">Ингредиенты:</div>
-      <div class="recipe-plain-list">${recipe.ingredients.map(item => item.trim()).join('<br>')}</div>
-    `;
-  }
+  const ing = document.getElementById('recipeIngredients');
+  ing.innerHTML = recipe.ingredients?.length
+    ? `<div class="recipe-section-title">Ингредиенты:</div><div class="recipe-plain-list">${recipe.ingredients.map(i => i.trim()).join('<br>')}</div>`
+    : '';
 
   // Шаги
   const steps = document.getElementById('recipeSteps');
-  steps.innerHTML = '';
-  if (Array.isArray(recipe.steps) && recipe.steps.length) {
-    steps.innerHTML = `
-      <div class="recipe-section-title">Приготовление:</div>
-      <div class="recipe-plain-list">${recipe.steps.map((step, i) => `${i + 1}. ${step.trim()}`).join('<br>')}</div>
-    `;
-  }
+  steps.innerHTML = recipe.steps?.length
+    ? `<div class="recipe-section-title">Приготовление:</div><div class="recipe-plain-list">${recipe.steps.map((s,i) => `${i+1}. ${s.trim()}`).join('<br>')}</div>`
+    : '';
 
   // Время и калории
   document.getElementById('recipeTime').innerHTML = `<strong>Время приготовления:</strong> ${recipe.time || '—'}`;
   document.getElementById('recipeCalories').innerHTML = `<strong>Калорийность:</strong> ${recipe.calories || '—'} ккал`;
 
   // Примечание
-  const note = document.getElementById('recipeNote');
+  const noteEl = document.getElementById('recipeNote');
   if (recipe.note) {
-    note.innerHTML = `<strong>Примечание:</strong><br>${recipe.note.trim()}`;
-    note.style.display = 'block';
+    noteEl.innerHTML = `<strong>Примечание:</strong><br>${recipe.note.trim()}`;
+    noteEl.style.display = 'block';
   } else {
-    note.style.display = 'none';
+    noteEl.style.display = 'none';
   }
 
   // Показываем модалку
-  const modal = document.getElementById('recipeModal');
-  modal.style.display = 'flex';
+  document.getElementById('recipeModal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
 
 function closeRecipeModal() {
-  const modal = document.getElementById('recipeModal');
-  modal.style.display = 'none';
+  document.getElementById('recipeModal').style.display = 'none';
   document.body.style.overflow = 'auto';
 }
 
 function loadSavedMenu() {
-  const saved = localStorage.getItem("weeklyMenu");
-  if (!saved) return null;
-  try { return JSON.parse(saved); }
-  catch { return null; }
+  try {
+    return JSON.parse(localStorage.getItem("weeklyMenu"));
+  } catch {
+    return null;
+  }
 }
 
-// ─── Инициализация ───────────────────────────────────────────────
-
+// Инициализация
 document.addEventListener("DOMContentLoaded", async () => {
   const savedMenu = loadSavedMenu();
   const activeMeals = getActiveMealTypes();
