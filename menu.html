@@ -58,11 +58,6 @@
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(0,0,0,0.12);
     }
-    .back-btn {
-      background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
-      color: #222;
-      min-width: 220px;
-    }
     .section-title {
       font-size: 18px;
       font-weight: 700;
@@ -94,7 +89,7 @@
       transition: all 0.25s ease;
       box-shadow: 0 3px 12px rgba(0,0,0,0.05);
       cursor: pointer;
-      height: 120px; /* фиксированная высота — не растягивается */
+      height: 110px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -121,7 +116,7 @@
       transition: height 0.35s ease;
     }
     .meal-item.active .frequency-wrapper {
-      height: 100px; /* только высота слайдера + отступы */
+      height: 100px;
     }
     .frequency-control {
       display: flex;
@@ -289,9 +284,9 @@
       .card { padding: 24px 18px; }
       h1 { font-size: 24px; }
       .meal-grid { grid-template-columns: 1fr; }
-      .meal-card { height: 110px; padding: 18px; }
-      .meal-header { font-size: 18px; }
-      .meal-icon { font-size: 32px; }
+      .meal-card { height: 100px; padding: 18px; }
+      .meal-header { font-size: 17px; }
+      .meal-icon { font-size: 30px; }
     }
   </style>
 </head>
@@ -301,7 +296,7 @@
   <h1>Меню на неделю</h1>
 
   <div class="settings">
-    <div class="section-title">Выберите приёмы пищи и частоту</div>
+    <div class="section-title">Выберите приёмы пищи и сколько раз в неделю их готовить</div>
     <div class="meal-grid">
       <div class="meal-item">
         <div class="meal-card" id="card-breakfast">
@@ -381,7 +376,7 @@
   <div id="menuTable" style="margin-top:24px;"></div>
 </div>
 
-<!-- Модальное окно (без изменений) -->
+<!-- Модальное окно -->
 <div class="recipe-modal" id="recipeModal">
   <div class="recipe-modal-box">
     <div class="close-recipe" id="closeRecipeBtn">✕</div>
@@ -396,7 +391,7 @@
 </div>
 
 <script>
-// ─── Логика чекбоксов и слайдеров ──────────────────────────────────────
+// ─── Управление чекбоксами и слайдерами ────────────────────────────────
 document.querySelectorAll('.meal-item').forEach(item => {
   const card = item.querySelector('.meal-card');
   const chk = item.querySelector('input[type="checkbox"]');
@@ -407,7 +402,7 @@ document.querySelectorAll('.meal-item').forEach(item => {
   const update = () => {
     const active = chk.checked;
     card.classList.toggle('active', active);
-    wrapper.style.height = active ? '110px' : '0';
+    wrapper.style.height = active ? '100px' : '0';
   };
 
   chk.addEventListener('change', update);
@@ -419,7 +414,7 @@ document.querySelectorAll('.meal-item').forEach(item => {
   update(); // начальное состояние
 });
 
-// ─── Остальная логика (generateMenu, renderMenu, showRecipe и т.д.) ─────
+// ─── Генерация меню с учётом частоты ───────────────────────────────────
 const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
 const SHORT_DAYS = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
 
@@ -468,13 +463,42 @@ function generateMenu() {
     return;
   }
 
+  // Собираем веса (частоту) для каждого приёма
+  const weights = {};
+  activeMeals.forEach(meal => {
+    const slider = document.getElementById(`freq-${meal.key}`);
+    weights[meal.key] = parseInt(slider.value) || 1;
+  });
+
   DAYS.forEach(day => {
     menu[day] = {};
     activeMeals.forEach(meal => {
       const recipes = loadedRecipes[meal.file] || [];
-      menu[day][meal.key] = recipes.length > 0
-        ? recipes[Math.floor(Math.random() * recipes.length)].title.trim() || "—"
-        : "—";
+      if (recipes.length === 0) {
+        menu[day][meal.key] = "—";
+        return;
+      }
+
+      // Чем выше вес — тем больше шанс выбрать этот приём в этот день
+      const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+      let rand = Math.random() * totalWeight;
+      let selectedMeal = null;
+
+      for (const m of activeMeals) {
+        rand -= weights[m.key];
+        if (rand <= 0) {
+          selectedMeal = m;
+          break;
+        }
+      }
+
+      // Если день совпал с выбранным приёмом — выбираем случайный рецепт
+      if (selectedMeal && selectedMeal.key === meal.key) {
+        const idx = Math.floor(Math.random() * recipes.length);
+        menu[day][meal.key] = recipes[idx].title.trim() || "—";
+      } else {
+        menu[day][meal.key] = "—";
+      }
     });
   });
 
@@ -500,7 +524,7 @@ function renderMenu(menu, activeMeals) {
   document.getElementById("menuTable").innerHTML = html;
 
   document.querySelectorAll('.recipe-link').forEach(link => {
-    link.addEventListener('click', e => {
+    link.addEventListener('click', (e) => {
       const title = e.target.dataset.title.trim();
       const mealKey = e.target.dataset.meal;
       if (title !== "—") showRecipe(title, mealKey);
@@ -561,11 +585,6 @@ document.getElementById('generateBtn').onclick = async () => {
   await preloadNeededCategories();
   generateMenu();
 };
-
-// Инициализация при загрузке
-document.addEventListener("DOMContentLoaded", () => {
-  // Можно добавить loadState() если нужно сохранять выборы
-});
 </script>
 </body>
 </html>
