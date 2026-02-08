@@ -327,10 +327,11 @@ async function loadCategoryRecipes(category) {
     const data = await response.json();
     loadedRecipes[category] = data;
 
-    // Собираем пути только .webp (раз все файлы в webp)
+    // Собираем пути только к .webp
     data.forEach(r => {
       if (r.photo) {
-        const base = r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+        const filename = r.photo.split('/').pop();           // берём только имя файла
+        const base = filename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
         allPhotos.add(`pics/${base}.webp`);
       }
     });
@@ -351,8 +352,8 @@ function preloadAllImages() {
   allPhotos.forEach(src => {
     const img = new Image();
     img.src = src;
-    img.onload = () => console.log(`Успешно: ${src}`);
-    img.onerror = () => console.warn(`Не найден: ${src}`);
+    img.onload = () => console.log(`Успешно предзагружено: ${src}`);
+    img.onerror = () => console.warn(`Не удалось предзагрузить: ${src}`);
   });
 }
 
@@ -392,7 +393,7 @@ function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
 
-  // ─── Фото — всегда .webp ────────────────────────────────────────────────
+  // ─── Фото — всегда .webp, без дублирования пути ────────────────────────
   const photoEl = elements.photo;
   photoEl.classList.remove('loaded');
   photoEl.style.display = 'block';
@@ -400,8 +401,11 @@ function updateUI(r) {
   let photoSrc = fallbackImage;
 
   if (r.photo) {
-    const base = r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+    // Берём только имя файла без папки и расширения
+    const filename = r.photo.split('/').pop();               // omelette.webp → omelette.webp
+    const base = filename.replace(/\.(webp|png|jpg|jpeg)$/i, ''); // omelette
     photoSrc = `pics/${base}.webp`;
+
     console.log(`Загружаем для "${r.title}": ${photoSrc}`);
   } else {
     console.log(`Нет photo в рецепте "${r.title}" → fallback`);
