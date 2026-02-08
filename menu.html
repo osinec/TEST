@@ -309,7 +309,7 @@
         <div class="frequency-wrapper" id="freq-wrapper-breakfast">
           <div class="frequency-control">
             <div class="frequency-label">Сколько раз в неделю:</div>
-            <input type="range" id="freq-breakfast" min="1" max="7" value="7" step="1">
+            <input type="range" id="freq-breakfast" min="0" max="7" value="7" step="1">
             <div class="frequency-value" id="value-breakfast">7 раз</div>
           </div>
         </div>
@@ -326,7 +326,7 @@
         <div class="frequency-wrapper" id="freq-wrapper-soups">
           <div class="frequency-control">
             <div class="frequency-label">Сколько раз в неделю:</div>
-            <input type="range" id="freq-soups" min="1" max="7" value="3" step="1">
+            <input type="range" id="freq-soups" min="0" max="7" value="3" step="1">
             <div class="frequency-value" id="value-soups">3 раза</div>
           </div>
         </div>
@@ -343,7 +343,7 @@
         <div class="frequency-wrapper" id="freq-wrapper-lunch">
           <div class="frequency-control">
             <div class="frequency-label">Сколько раз в неделю:</div>
-            <input type="range" id="freq-lunch" min="1" max="7" value="4" step="1">
+            <input type="range" id="freq-lunch" min="0" max="7" value="4" step="1">
             <div class="frequency-value" id="value-lunch">4 раза</div>
           </div>
         </div>
@@ -360,7 +360,7 @@
         <div class="frequency-wrapper" id="freq-wrapper-dinner">
           <div class="frequency-control">
             <div class="frequency-label">Сколько раз в неделю:</div>
-            <input type="range" id="freq-dinner" min="1" max="7" value="5" step="1">
+            <input type="range" id="freq-dinner" min="0" max="7" value="5" step="1">
             <div class="frequency-value" id="value-dinner">5 раз</div>
           </div>
         </div>
@@ -403,16 +403,59 @@ document.querySelectorAll('.meal-item').forEach(item => {
     const active = chk.checked;
     card.classList.toggle('active', active);
     wrapper.style.height = active ? '100px' : '0';
+
+    if (!active) {
+      slider.value = 0;
+      valEl.textContent = '0 раз';
+    }
   };
 
   chk.addEventListener('change', update);
   slider.addEventListener('input', () => {
-    const v = slider.value;
-    valEl.textContent = v === '1' ? '1 раз' : `${v} раз`;
+    const v = parseInt(slider.value);
+    valEl.textContent = v === 0 ? '0 раз' : (v === 1 ? '1 раз' : `${v} раз`);
   });
 
   update(); // начальное состояние
 });
+
+// ─── Сохранение и загрузка состояний ────────────────────────────────────
+function saveState() {
+  const state = {};
+  ['breakfast', 'soups', 'lunch', 'dinner'].forEach(key => {
+    const chk = document.getElementById(`chk-${key}`);
+    const freq = document.getElementById(`freq-${key}`);
+    state[key] = {
+      checked: chk.checked,
+      freq: freq ? parseInt(freq.value) : 0
+    };
+  });
+  localStorage.setItem('mealState', JSON.stringify(state));
+}
+
+function loadState() {
+  const saved = localStorage.getItem('mealState');
+  if (saved) {
+    try {
+      const state = JSON.parse(saved);
+      ['breakfast', 'soups', 'lunch', 'dinner'].forEach(key => {
+        const chk = document.getElementById(`chk-${key}`);
+        const freq = document.getElementById(`freq-${key}`);
+        const valEl = document.getElementById(`value-${key}`);
+        if (chk && freq && valEl && state[key]) {
+          chk.checked = state[key].checked;
+          freq.value = state[key].freq || 0;
+          const v = parseInt(freq.value);
+          valEl.textContent = v === 0 ? '0 раз' : (v === 1 ? '1 раз' : `${v} раз`);
+        }
+      });
+      document.querySelectorAll('.meal-item').forEach(item => {
+        const chk = item.querySelector('input[type="checkbox"]');
+        if (chk) chk.dispatchEvent(new Event('change'));
+      });
+    } catch {}
+  }
+}
 
 // ─── Генерация меню с учётом частоты ───────────────────────────────────
 const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
@@ -463,43 +506,45 @@ function generateMenu() {
     return;
   }
 
-  // Собираем веса (частоту) для каждого приёма
+  // Собираем веса (частоту)
   const weights = {};
+  let totalWeight = 0;
   activeMeals.forEach(meal => {
     const slider = document.getElementById(`freq-${meal.key}`);
-    weights[meal.key] = parseInt(slider.value) || 1;
+    const w = parseInt(slider.value) || 0;
+    weights[meal.key] = w;
+    totalWeight += w;
   });
+
+  if (totalWeight === 0) {
+    document.getElementById("menuTable").innerHTML = '<div class="empty">Установите частоту хотя бы для одного приёма пищи</div>';
+    return;
+  }
 
   DAYS.forEach(day => {
     menu[day] = {};
     activeMeals.forEach(meal => {
-      const recipes = loadedRecipes[meal.file] || [];
-      if (recipes.length === 0) {
-        menu[day][meal.key] = "—";
-        return;
-      }
-
-      // Чем выше вес — тем больше шанс выбрать этот приём в этот день
-      const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
-      let rand = Math.random() * totalWeight;
-      let selectedMeal = null;
-
-      for (const m of activeMeals) {
-        rand -= weights[m.key];
-        if (rand <= 0) {
-          selectedMeal = m;
-          break;
-        }
-      }
-
-      // Если день совпал с выбранным приёмом — выбираем случайный рецепт
-      if (selectedMeal && selectedMeal.key === meal.key) {
-        const idx = Math.floor(Math.random() * recipes.length);
-        menu[day][meal.key] = recipes[idx].title.trim() || "—";
-      } else {
-        menu[day][meal.key] = "—";
-      }
+      menu[day][meal.key] = "—";
     });
+
+    // Выбираем приём с учётом веса
+    let rand = Math.random() * totalWeight;
+    let selectedKey = null;
+    for (const m of activeMeals) {
+      rand -= weights[m.key];
+      if (rand <= 0) {
+        selectedKey = m.key;
+        break;
+      }
+    }
+
+    if (selectedKey) {
+      const recipes = loadedRecipes[selectedKey] || [];
+      if (recipes.length > 0) {
+        const idx = Math.floor(Math.random() * recipes.length);
+        menu[day][selectedKey] = recipes[idx].title.trim() || "—";
+      }
+    }
   });
 
   localStorage.setItem("weeklyMenu", JSON.stringify(menu));
@@ -582,9 +627,15 @@ document.getElementById('recipeModal').onclick = e => {
 };
 
 document.getElementById('generateBtn').onclick = async () => {
+  saveState();
   await preloadNeededCategories();
   generateMenu();
 };
+
+// Инициализация
+document.addEventListener("DOMContentLoaded", () => {
+  loadState();
+});
 </script>
 </body>
 </html>
