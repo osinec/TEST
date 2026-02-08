@@ -305,7 +305,7 @@ const categoryNames = {
   dessert: "Десерт"
 };
 
-const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23f8f1e9"/><text x="50%" y="45%" font-family="Inter" font-size="16" fill="%23997" text-anchor="middle">Фото блюда</text><text x="50%" y="60%" font-family="Inter" font-size="13" fill="%23aaa" text-anchor="middle">(не загружено)</text></svg>';
+const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23f8f1e9"/><text x="50%" y="45%" font-family="Inter" font-size="16" fill="%23997" text-anchor="middle">Фото блюда</text><text x="50%" y="60%" font-family="Inter" font-size="13" fill="%23aaa" text-anchor="middle">(не найдено)</text></svg>';
 
 function showWelcomeIfFirstTime() {
   if (!localStorage.getItem('hasSeenWelcome')) {
@@ -327,14 +327,11 @@ async function loadCategoryRecipes(category) {
     const data = await response.json();
     loadedRecipes[category] = data;
 
-    // Собираем все возможные пути к картинкам
+    // Собираем пути только .webp (раз все файлы в webp)
     data.forEach(r => {
       if (r.photo) {
         const base = r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '');
         allPhotos.add(`pics/${base}.webp`);
-        allPhotos.add(`pics/${base}.png`);
-        allPhotos.add(`pics/${base}.jpg`);
-        allPhotos.add(`pics/${base}.jpeg`);
       }
     });
 
@@ -350,12 +347,12 @@ async function loadCategoryRecipes(category) {
 }
 
 function preloadAllImages() {
-  console.log(`Предзагружаем ${allPhotos.size} изображений...`);
+  console.log(`Предзагружаем ${allPhotos.size} webp-изображений...`);
   allPhotos.forEach(src => {
     const img = new Image();
     img.src = src;
-    img.onload = () => console.log(`Успешно предзагружено: ${src}`);
-    img.onerror = () => console.warn(`Не удалось предзагрузить: ${src}`);
+    img.onload = () => console.log(`Успешно: ${src}`);
+    img.onerror = () => console.warn(`Не найден: ${src}`);
   });
 }
 
@@ -377,7 +374,6 @@ function selectCategory(cat) {
 
 async function generateRecipe() {
   if (!currentCategory) return openModal();
-
   const recipes = await loadCategoryRecipes(currentCategory);
   if (!recipes?.length) {
     elements.error.textContent = 'Рецепты в этой категории отсутствуют';
@@ -385,12 +381,9 @@ async function generateRecipe() {
     elements.refreshBtn.style.display = 'none';
     return;
   }
-
   let idx = recipeIndices[currentCategory] || 0;
   recipeIndices[currentCategory] = (idx + 1) % recipes.length;
-  const recipe = recipes[idx];
-
-  updateUI(recipe);
+  updateUI(recipes[idx]);
   elements.refreshBtn.style.display = 'block';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -399,34 +392,33 @@ function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
 
-  // ─── Улучшенная логика загрузки фото ──────────────────────────────
-  let photoBase = '';
+  // ─── Фото — всегда .webp ────────────────────────────────────────────────
+  const photoEl = elements.photo;
+  photoEl.classList.remove('loaded');
+  photoEl.style.display = 'block';
+
+  let photoSrc = fallbackImage;
+
   if (r.photo) {
-    photoBase = r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+    const base = r.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '');
+    photoSrc = `pics/${base}.webp`;
+    console.log(`Загружаем для "${r.title}": ${photoSrc}`);
+  } else {
+    console.log(`Нет photo в рецепте "${r.title}" → fallback`);
   }
 
-  const tryWebp = photoBase ? `pics/${photoBase}.webp` : fallbackImage;
-  const tryOrig  = photoBase ? `pics/${r.photo}` : fallbackImage;  // берём оригинальное имя из JSON
+  photoEl.src = photoSrc;
 
-  elements.photo.src = tryWebp;
-  elements.photo.alt = r.title || 'Рецепт';
-  elements.photo.style.display = 'block';
-  elements.photo.classList.remove('loaded');
-
-  elements.photo.onerror = function() {
-    console.log(`webp не загрузился → пробуем оригинал: ${tryOrig}`);
-    this.src = tryOrig;
-    this.onerror = function() {
-      console.warn(`Оригинал тоже не загрузился → fallback`);
-      this.src = fallbackImage;
-    };
+  photoEl.onload = () => {
+    console.log(`Успех: ${photoSrc}`);
+    photoEl.classList.add('loaded');
   };
 
-  elements.photo.onload = function() {
-    console.log(`Фото успешно загружено: ${this.src}`);
-    this.classList.add('loaded');
+  photoEl.onerror = () => {
+    console.warn(`Не удалось загрузить: ${photoSrc} → fallback`);
+    photoEl.src = fallbackImage;
   };
-  // ──────────────────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────────────────
 
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
@@ -483,7 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
   showWelcomeIfFirstTime();
   elements.refreshBtn.style.display = 'none';
 
-  // Предзагрузка после первой успешной загрузки категории
   const preloadCheck = setInterval(() => {
     if (Object.keys(loadedRecipes).length > 0) {
       preloadAllImages();
