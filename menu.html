@@ -366,6 +366,16 @@ function getActiveMealTypes() {
   return MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
 }
 
+// Функция перемешивания массива (Fisher-Yates)
+function shuffle(array) {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+}
+
 function generateMenu() {
   const menu = {};
   const activeMeals = getActiveMealTypes();
@@ -375,13 +385,28 @@ function generateMenu() {
     return;
   }
 
-  DAYS.forEach(day => {
+  // Для каждой категории готовим перемешанный список рецептов
+  const categoryShuffled = {};
+  activeMeals.forEach(meal => {
+    const recipes = loadedRecipes[meal.file] || [];
+    if (recipes.length > 0) {
+      categoryShuffled[meal.key] = shuffle(recipes);
+    } else {
+      categoryShuffled[meal.key] = [];
+    }
+  });
+
+  DAYS.forEach((day, dayIndex) => {
     menu[day] = {};
     activeMeals.forEach(meal => {
-      const recipes = loadedRecipes[meal.file] || [];
-      menu[day][meal.key] = recipes.length > 0
-        ? recipes[Math.floor(Math.random() * recipes.length)].title || "—"
-        : "—";
+      const shuffled = categoryShuffled[meal.key];
+      if (shuffled.length > 0) {
+        // Берём рецепт по индексу дня (циклически, если рецептов меньше 7)
+        const idx = dayIndex % shuffled.length;
+        menu[day][meal.key] = shuffled[idx].title || "—";
+      } else {
+        menu[day][meal.key] = "—";
+      }
     });
   });
 
@@ -429,23 +454,17 @@ function showRecipe(title, mealKey) {
 
   document.getElementById('recipeTitle').textContent = recipe.title || 'Без названия';
 
-  // Фото ────────────────────────────────────────────────────────
+  // Фото
   const photoEl = document.getElementById('recipePhoto');
   let photoSrc = fallbackImage;
 
   if (recipe.photo) {
     const base = recipe.photo.replace(/\.(webp|png|jpg|jpeg)$/i, '');
     const tryWebp = `pics/${base}.webp`;
-    const tryOrig = `pics/${recipe.photo}`;
-
     photoEl.src = tryWebp;
     photoEl.onerror = () => {
-      console.log(`webp не загрузился → пробуем оригинал: ${tryOrig}`);
-      photoEl.src = tryOrig;
-      photoEl.onerror = () => {
-        console.log(`оригинал тоже не загрузился → fallback`);
-        photoEl.src = fallbackImage;
-      };
+      console.log(`webp не загрузился → fallback`);
+      photoEl.src = fallbackImage;
     };
   } else {
     photoEl.src = fallbackImage;
