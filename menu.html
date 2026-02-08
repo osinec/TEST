@@ -55,7 +55,7 @@
     .generate-btn {
       background: linear-gradient(135deg, #f6d365, #fda085);
       color: #222;
-      min-width: 240px;
+      min-width: 260px;
     }
     .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,.15); }
 
@@ -66,18 +66,19 @@
     }
     .save-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102,187,106,0.4); }
 
+    .load-btn {
+      background: linear-gradient(135deg, #42a5f5, #64b5f6);
+      color: white;
+      min-width: 220px;
+    }
+    .load-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(66,165,245,0.4); }
+
     .clear-btn {
       background: linear-gradient(135deg, #ef5350, #e57373);
       color: white;
       min-width: 180px;
     }
     .clear-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(239,83,80,0.4); }
-
-    .back-btn {
-      background: linear-gradient(135deg, #78909c, #90a4ae);
-      color: white;
-    }
-    .back-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(120,144,156,0.4); }
 
     .section-title {
       font-size: 18px;
@@ -199,13 +200,14 @@
       transition: color 0.2s;
     }
     .recipe-link:hover { color: #ef6c00; text-decoration: underline; }
-    .empty {
+    .empty, .info {
       text-align: center;
       padding: 60px 20px;
-      color: #777;
+      color: #555;
       font-size: 16px;
       font-style: italic;
     }
+    .info { color: #2e7d32; font-style: normal; font-weight: 500; }
     .loader, .error {
       text-align: center;
       padding: 20px;
@@ -358,6 +360,7 @@
   <div class="controls">
     <button class="generate-btn" id="generateBtn">Сгенерировать / Обновить меню</button>
     <button class="save-btn" id="saveMenuBtn">Сохранить меню</button>
+    <button class="load-btn" id="loadMenuBtn">Открыть моё меню</button>
     <button class="clear-btn" id="clearMenuBtn">Очистить меню</button>
     <button class="back-btn" onclick="window.location.href='index.html'">← Назад к рецептам</button>
   </div>
@@ -456,7 +459,7 @@ function getActiveMealTypes() {
   return MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
 }
 
-// Генерация меню (БЕЗ автосохранения)
+// Генерация меню (без сохранения)
 function generateMenu() {
   const menu = {};
   const activeMeals = getActiveMealTypes();
@@ -502,14 +505,13 @@ function generateMenu() {
   });
 
   renderMenu(menu, activeMeals);
-  // !!! Здесь больше нет автоматического сохранения !!!
 }
 
-// Сохранение текущего меню по кнопке
-function saveCurrentMenu() {
+// Сохранение меню
+function saveMenu() {
   const table = document.getElementById("menuTable");
   if (!table.innerHTML.trim() || table.innerHTML.includes("empty")) {
-    alert("Нет меню для сохранения");
+    alert("Сначала сгенерируйте меню");
     return;
   }
 
@@ -518,7 +520,7 @@ function saveCurrentMenu() {
 
   const rows = table.querySelectorAll("tbody tr");
   rows.forEach(row => {
-    const mealTitle = row.querySelector("td.meal-row").textContent.trim();
+    const mealTitle = row.querySelector("td.meal-row")?.textContent.trim();
     const mealKey = MEAL_TYPES.find(m => m.title === mealTitle)?.key;
     if (!mealKey) return;
 
@@ -530,14 +532,38 @@ function saveCurrentMenu() {
   });
 
   localStorage.setItem("weeklyMenu", JSON.stringify(menu));
-  alert("Меню сохранено в памяти браузера!");
+  alert("Меню сохранено! Теперь вы можете открыть его в любой момент.");
+}
+
+// Загрузка сохранённого меню
+function loadSavedMenu() {
+  const saved = localStorage.getItem("weeklyMenu");
+  if (!saved) {
+    alert("У вас нет сохранённого меню");
+    return;
+  }
+
+  try {
+    const menu = JSON.parse(saved);
+    const activeMeals = getActiveMealTypes();
+
+    if (activeMeals.length === 0) {
+      alert("Сначала выберите хотя бы один приём пищи в настройках");
+      return;
+    }
+
+    renderMenu(menu, activeMeals);
+  } catch (e) {
+    alert("Ошибка загрузки меню");
+    console.error(e);
+  }
 }
 
 // Очистка меню
 function clearMenu() {
-  if (!confirm("Удалить сохранённое меню?")) return;
+  if (!confirm("Удалить сохранённое меню навсегда?")) return;
   localStorage.removeItem("weeklyMenu");
-  document.getElementById("menuTable").innerHTML = '<div class="empty">Меню очищено</div>';
+  document.getElementById("menuTable").innerHTML = '<div class="empty">Сохранённое меню удалено</div>';
 }
 
 // Отрисовка меню
@@ -607,24 +633,13 @@ function closeRecipeModal() {
   document.body.style.overflow = 'auto';
 }
 
-function loadSavedMenu() {
-  try {
-    const saved = localStorage.getItem("weeklyMenu");
-    return saved ? JSON.parse(saved) : null;
-  } catch {
-    return null;
-  }
-}
-
 // Инициализация
 document.addEventListener("DOMContentLoaded", () => {
-  const savedMenu = loadSavedMenu();
-  const activeMeals = getActiveMealTypes();
-
-  if (savedMenu && activeMeals.length > 0) {
-    renderMenu(savedMenu, activeMeals);
+  // Проверяем наличие сохранённого меню
+  if (localStorage.getItem("weeklyMenu")) {
+    document.getElementById("menuTable").innerHTML = '<div class="info">У вас есть сохранённое меню. Нажмите «Открыть моё меню»</div>';
   } else {
-    document.getElementById("menuTable").innerHTML = '<div class="empty">Сгенерируйте меню</div>';
+    document.getElementById("menuTable").innerHTML = '<div class="empty">Сгенерируйте меню и сохраните его</div>';
   }
 
   document.getElementById("generateBtn").onclick = async () => {
@@ -632,49 +647,14 @@ document.addEventListener("DOMContentLoaded", () => {
     generateMenu();
   };
 
-  document.getElementById("saveMenuBtn").onclick = () => {
-    const currentMenu = {}; // Собираем текущее отображаемое меню
-    const table = document.getElementById("menuTable");
-    if (!table.innerHTML.trim() || table.innerHTML.includes("empty")) {
-      alert("Нет меню для сохранения");
-      return;
-    }
-
-    DAYS.forEach(day => currentMenu[day] = {});
-
-    const rows = table.querySelectorAll("tbody tr");
-    rows.forEach(row => {
-      const mealTitle = row.querySelector("td.meal-row").textContent.trim();
-      const mealKey = MEAL_TYPES.find(m => m.title === mealTitle)?.key;
-      if (!mealKey) return;
-
-      const cells = row.querySelectorAll("td:not(.meal-row)");
-      cells.forEach((cell, i) => {
-        const title = cell.textContent.trim();
-        currentMenu[DAYS[i]][mealKey] = title === "—" ? "—" : title;
-      });
-    });
-
-    localStorage.setItem("weeklyMenu", JSON.stringify(currentMenu));
-    alert("Меню сохранено!");
-  };
-
-  document.getElementById("clearMenuBtn").onclick = () => {
-    if (confirm("Удалить сохранённое меню?")) {
-      localStorage.removeItem("weeklyMenu");
-      document.getElementById("menuTable").innerHTML = '<div class="empty">Меню очищено</div>';
-    }
-  };
+  document.getElementById("saveMenuBtn").onclick = saveMenu;
+  document.getElementById("loadMenuBtn").onclick = loadSavedMenu;
+  document.getElementById("clearMenuBtn").onclick = clearMenu;
 
   document.getElementById("closeRecipeBtn").onclick = closeRecipeModal;
   document.getElementById("recipeModal").onclick = e => {
     if (e.target === document.getElementById("recipeModal")) closeRecipeModal();
   };
-
-  MEAL_TYPES.forEach(m => {
-    const chk = document.getElementById(`chk-${m.key}`);
-    if (chk) chk.onchange = () => {};
-  });
 });
 </script>
 </body>
