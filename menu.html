@@ -372,7 +372,7 @@
   </div>
 </div>
 
-<!-- Модальное окно рецепта (без изменений) -->
+<!-- Модальное окно рецепта -->
 <div class="recipe-modal" id="recipeModal">
   <div class="recipe-modal-box">
     <div class="close-recipe" id="closeRecipeBtn">✕</div>
@@ -414,7 +414,7 @@ document.querySelectorAll('.meal-box').forEach(box => {
   update();
 });
 
-// ─── Остальной скрипт без изменений ────────────────────────────────────
+// ─── Генерация меню с учётом частоты ───────────────────────────────────
 const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
 const SHORT_DAYS = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
 const MEAL_TYPES = [
@@ -425,7 +425,6 @@ const MEAL_TYPES = [
 ];
 let loadedRecipes = {};
 const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото не найдено</text></svg>';
-
 async function loadCategory(file) {
   if (loadedRecipes[file]) return loadedRecipes[file];
   try {
@@ -444,18 +443,15 @@ async function loadCategory(file) {
     document.getElementById("loader").style.display = "none";
   }
 }
-
 async function preloadNeededCategories() {
   const active = MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
   for (const meal of active) {
     await loadCategory(meal.file);
   }
 }
-
 function getActiveMealTypes() {
   return MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
 }
-
 function generateMenu() {
   const menu = {};
   const activeMeals = getActiveMealTypes();
@@ -463,44 +459,49 @@ function generateMenu() {
     document.getElementById("menuTable").innerHTML = '<div class="empty">Выберите хотя бы один приём пищи</div>';
     return;
   }
-  const weights = {};
-  let totalWeight = 0;
-  activeMeals.forEach(meal => {
-    const slider = document.getElementById(`freq-${meal.key}`);
-    const w = slider ? parseInt(slider.value) : 0;
-    weights[meal.key] = w;
-    totalWeight += w;
-  });
-  if (totalWeight === 0) {
-    document.getElementById("menuTable").innerHTML = '<div class="empty">Установите частоту хотя бы для одного приёма пищи</div>';
-    return;
-  }
+  // Инициализируем меню для всех дней и приёмов
   DAYS.forEach(day => {
     menu[day] = {};
     activeMeals.forEach(meal => {
       menu[day][meal.key] = "—";
     });
-    let rand = Math.random() * totalWeight;
-    let selectedKey = null;
-    for (const m of activeMeals) {
-      rand -= weights[m.key];
-      if (rand <= 0) {
-        selectedKey = m.key;
-        break;
+  });
+  // Для каждого приёма пищи независимо генерируем freq рецептов, распределённых по неделе
+  activeMeals.forEach(meal => {
+    const slider = document.getElementById(`freq-${meal.key}`);
+    const freq = slider ? parseInt(slider.value) : 0;
+    if (freq === 0) return;
+    const recipes = loadedRecipes[meal.file] || [];
+    if (recipes.length === 0) return;
+    // Рассчитываем равномерное распределение дней
+    const dayIndices = [];
+    const step = 7 / freq;
+    for (let i = 0; i < freq; i++) {
+      const dayIndex = Math.floor(i * step);
+      dayIndices.push(dayIndex);
+    }
+    // Корректируем, чтобы распределить остаток (если freq не делит 7)
+    // Просто сдвигаем для лучшего распределения, но для простоты используем round
+    const adjustedIndices = [];
+    for (let i = 0; i < freq; i++) {
+      const pos = Math.round(i * (6 / (freq - 1)));
+      if (!adjustedIndices.includes(pos)) {
+        adjustedIndices.push(pos);
+      } else {
+        // Если конфликт, сдвигаем
+        adjustedIndices.push((pos + 1) % 7);
       }
     }
-    if (selectedKey) {
-      const recipes = loadedRecipes[selectedKey] || [];
-      if (recipes.length > 0) {
-        const idx = Math.floor(Math.random() * recipes.length);
-        menu[day][selectedKey] = recipes[idx].title.trim() || "—";
-      }
-    }
+    // Назначаем рецепты на выбранные дни
+    adjustedIndices.forEach(index => {
+      const day = DAYS[index];
+      const recipeIndex = Math.floor(Math.random() * recipes.length);
+      menu[day][meal.key] = recipes[recipeIndex].title.trim() || "—";
+    });
   });
   localStorage.setItem("weeklyMenu", JSON.stringify(menu));
   renderMenu(menu, activeMeals);
 }
-
 function renderMenu(menu, activeMeals) {
   let html = '<table><thead><tr><th></th>';
   SHORT_DAYS.forEach(d => html += `<th>${d}</th>`);
@@ -525,7 +526,6 @@ function renderMenu(menu, activeMeals) {
     });
   });
 }
-
 function showRecipe(title, mealKey) {
   const recipes = loadedRecipes[mealKey] || [];
   const recipe = recipes.find(r => (r.title || '').trim() === title);
@@ -563,12 +563,10 @@ function showRecipe(title, mealKey) {
   document.getElementById('recipeModal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
-
 function closeRecipeModal() {
   document.getElementById('recipeModal').style.display = 'none';
   document.body.style.overflow = 'auto';
 }
-
 function loadSavedMenu() {
   try {
     return JSON.parse(localStorage.getItem("weeklyMenu"));
@@ -576,7 +574,7 @@ function loadSavedMenu() {
     return null;
   }
 }
-
+// Инициализация
 document.addEventListener("DOMContentLoaded", () => {
   const savedMenu = loadSavedMenu();
   const activeMeals = getActiveMealTypes();
