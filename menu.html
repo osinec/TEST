@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Генератор рецептов</title>
+  <title>Меню на неделю</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,21 +13,34 @@
       font-family: 'Inter', system-ui, sans-serif;
       background: linear-gradient(135deg, #ffecd2, #fcb69f);
       min-height: 100vh;
+      color: #222;
+      padding: 30px 16px;
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      color: #222;
-      padding: 30px;
     }
     .card {
       width: 100%;
-      max-width: 540px;
+      max-width: 720px;
       background: rgba(255,255,255,.96);
       border-radius: 26px;
-      padding: 32px 28px;
-      text-align: center;
+      padding: 32px 24px;
       box-shadow: 0 30px 70px rgba(0,0,0,.18);
       margin: 0 auto;
+    }
+    h1 {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 700;
+      color: #c7903d;
+      margin-bottom: 32px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 32px;
+      justify-content: center;
     }
     button {
       font-family: 'Inter', sans-serif;
@@ -36,70 +49,182 @@
       border-radius: 40px;
       font-weight: 600;
       transition: all .3s;
-      -webkit-tap-highlight-color: transparent;
+      padding: 16px 32px;
+      font-size: 16px;
     }
     .main-btn {
-      padding: 20px 35px;
-      background: linear-gradient(135deg,#f6d365,#fda085);
-      font-size: 18px;
+      background: linear-gradient(135deg, #f6d365, #fda085);
       color: #222;
-      width: 100%;
-      margin: 0 0 20px 0;
+      min-width: 220px;
     }
-    .main-btn:last-child {
-      margin-bottom: 0;
-    }
-    .main-btn:hover, .main-btn:active {
+    .main-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(0,0,0,.15);
     }
-    .refresh {
-      display: none;
-      margin-top: 15px;
-      padding: 18px 30px;
-      background: linear-gradient(135deg,#ff6a00,#ee0979);
-      color: #fff;
-      font-size: 17px;
-      width: 100%;
+    .back-btn {
+      background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+      color: #222;
+      min-width: 220px;
     }
-    .refresh:hover, .refresh:active {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 15px rgba(238,9,121,.3);
-    }
-    .category {
-      margin-top: 25px;
-      font-size: 15px;
-      letter-spacing: 2px;
+    .section-title {
+      font-size: 18px;
       font-weight: 600;
+      color: #333;
+      margin: 24px 0 16px;
+    }
+    .settings {
+      background: #fdfaf7;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 48px;
+    }
+    .meal-choices {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .meal-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #ffffff;
+      border-radius: 16px;
+      border: 2px solid #eee;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      user-select: none;
+      font-size: 15px;
+      font-weight: 500;
+      color: #444;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .meal-option:hover {
+      border-color: #f4a261;
+      box-shadow: 0 6px 16px rgba(244,162,97,0.15);
+      transform: translateY(-1px);
+    }
+    .meal-option.selected {
+      background: linear-gradient(135deg, #fffaf0, #ffe8d1);
+      border-color: #f4a261;
       color: #c7903d;
-      text-transform: uppercase;
+      font-weight: 600;
+      box-shadow: 0 6px 18px rgba(244,162,97,0.2);
     }
-    h2 {
-      margin: 15px 0 20px;
-      font-size: 24px;
-      font-weight: 700;
-      line-height: 1.3;
+    .meal-option input[type="checkbox"] {
+      display: none;
     }
-    #photo {
+    .meal-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+    .menu-wrapper {
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+    table {
       width: 100%;
-      height: 260px;
+      min-width: 600px;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    th, td {
+      padding: 12px 10px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+    }
+    th {
+      background: #fdfaf7;
+      color: #c7903d;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+    .meal-row td:first-child {
+      text-align: left;
+      font-weight: 600;
+      color: #444;
+      background: #f9f9f9;
+      padding-left: 16px;
+    }
+    .recipe-link {
+      color: #c7903d;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .recipe-link:hover {
+      color: #ef6c00;
+      text-decoration: underline;
+    }
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #777;
+      font-size: 16px;
+      font-style: italic;
+    }
+
+    /* Модальное окно рецепта */
+    .recipe-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .recipe-modal-box {
+      background: #fff;
+      padding: 32px 28px;
+      border-radius: 22px;
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      text-align: center;
+    }
+    .close-recipe {
+      position: absolute;
+      top: 12px; right: 14px;
+      font-size: 26px;
+      cursor: pointer;
+      opacity: .6;
+      transition: opacity 0.2s;
+    }
+    .close-recipe:hover { opacity: 1; }
+    .recipe-photo {
+      width: 100%;
+      max-height: 280px;
       object-fit: cover;
       border-radius: 16px;
-      display: none;
       margin: 12px 0 20px;
-      max-height: 35vh;
-      background: #f8f1e9 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23e0d0c0"/><text x="50%" y="50%" font-family="Inter" font-size="12" fill="%23997" text-anchor="middle" dy=".3em">Фото блюда</text></svg>') center/cover no-repeat;
-      transition: opacity 0.3s ease;
+      background: #f0f0f0 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23e0e0e0"/></svg>') center/cover no-repeat;
     }
-    #photo.loaded { opacity: 1; }
-    .section-title {
+    .recipe-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 15px 0 20px;
+      line-height: 1.3;
+    }
+    .recipe-section-title {
       text-align: left;
       font-size: 17px;
       font-weight: 600;
       color: #333;
       margin: 24px 0 12px;
     }
-    .plain-list {
+    .recipe-plain-list {
       text-align: left;
       font-size: 16px;
       line-height: 1.65;
@@ -107,7 +232,7 @@
       margin: 0 0 24px 0;
       white-space: pre-wrap;
     }
-    .note {
+    .recipe-note {
       text-align: left;
       margin-top: 20px;
       font-size: 15.5px;
@@ -119,373 +244,297 @@
       border-radius: 8px;
       line-height: 1.6;
     }
-    .note strong { color: #d35400; font-style: normal; }
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.55);
-      backdrop-filter: blur(6px);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      padding: 20px;
-    }
-    .modal-box {
-      background: #fff;
-      padding: 32px 28px;
-      border-radius: 22px;
-      width: 100%;
-      max-width: 380px;
-      position: relative;
-      animation: modalAppear 0.3s ease;
-    }
-    @keyframes modalAppear {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .close {
-      position: absolute;
-      top: 12px; right: 14px;
-      font-size: 26px;
-      cursor: pointer;
-      opacity: .6;
-      transition: opacity 0.2s;
-      width: 36px; height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .close:hover { opacity: 1; }
-    .choice {
-      width: 100%;
-      margin-top: 18px;
-      padding: 20px 15px;
-      background: #f8f9fa;
-      font-size: 17px;
-      border-radius: 16px;
-      transition: all 0.28s ease;
-      text-align: left;
-      border: 1px solid #eee;
-    }
-    .choice:hover {
-      background: #f0f4f8;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    .loader { display: none; text-align: center; padding: 30px; color: #666; font-size: 16px; }
-    .error {
-      color: #d32f2f;
-      background: #ffebee;
-      padding: 12px 16px;
-      border-radius: 10px;
-      margin-top: 12px;
-      font-size: 15px;
-      display: none;
-    }
-    #welcome-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.6);
-      backdrop-filter: blur(5px);
-      justify-content: center;
-      align-items: center;
-      z-index: 1100;
-      padding: 20px;
-    }
-    #welcome-box {
-      background: #ffffff;
-      padding: 28px 24px;
-      border-radius: 20px;
-      width: 100%;
-      max-width: 400px;
-      position: relative;
-      box-shadow: 0 20px 50px rgba(0,0,0,.25);
-    }
-    #welcome-text {
-      font-size: 16px;
-      line-height: 1.55;
-      color: #333;
-      margin-bottom: 20px;
-    }
-    #welcome-close {
-      position: absolute;
-      top: 12px;
-      right: 16px;
-      font-size: 28px;
-      cursor: pointer;
-      color: #777;
-    }
-    #welcome-close:hover {
-      color: #222;
-    }
-    @media (max-width:360px) {
-      .card { padding: 24px 18px; border-radius: 20px; }
-      h2 { font-size: 22px; }
-      #photo { height: 180px; }
-    }
-    @media (min-width:768px) {
-      body { align-items: center; padding: 50px 30px; }
-      .card { padding: 40px; }
+
+    @media (max-width: 600px) {
+      .card { padding: 24px 20px; }
+      h1 { font-size: 24px; }
+      .controls { flex-direction: column; }
+      button { width: 100%; min-width: auto; }
+      .meal-choices { grid-template-columns: 1fr; }
+      th, td { font-size: 14px; padding: 10px 8px; }
     }
   </style>
 </head>
 <body>
-<div class="card">
-  <button class="main-btn" id="mainBtn">Случайный рецепт</button>
-  <button class="main-btn" onclick="window.location.href='menu.html'" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);">
-    Меню на неделю →
-  </button>
-  <button class="refresh" id="refreshBtn">Обновить рецепт 🔄</button>
-  <div class="loader" id="loader">Загрузка рецептов...</div>
-  <div class="error" id="error"></div>
-  <div class="category" id="category"></div>
-  <h2 id="title">Выберите категорию</h2>
-  <img id="photo" alt="Фото рецепта" loading="lazy" decoding="async">
-  <div id="ingredients"></div>
-  <div id="steps"></div>
-  <div id="time"></div>
-  <div id="calories"></div>
-  <div id="note"></div>
-</div>
 
-<div class="modal" id="modal">
-  <div class="modal-box">
-    <div class="close" id="closeBtn">✕</div>
-    <h3 style="margin-bottom:22px;font-size:22px">Выберите категорию</h3>
-    <button class="choice" data-category="breakfast">Завтрак</button>
-    <button class="choice" data-category="lunch">Обед</button>
-    <button class="choice" data-category="dinner">Ужин</button>
-    <button class="choice" data-category="soups">Супы</button>
-    <button class="choice" data-category="dessert">Десерт</button>
+<div class="card">
+  <h1>Меню на неделю</h1>
+
+  <div class="settings">
+    <div class="section-title">Приёмы пищи</div>
+    <div class="meal-choices">
+      <label class="meal-option" id="label-breakfast">
+        <input type="checkbox" id="chk-breakfast">
+        <span class="meal-icon">☕</span> Завтрак
+      </label>
+
+      <label class="meal-option" id="label-soups">
+        <input type="checkbox" id="chk-soups">
+        <span class="meal-icon">🥣</span> Первое
+      </label>
+
+      <label class="meal-option" id="label-lunch">
+        <input type="checkbox" id="chk-lunch">
+        <span class="meal-icon">🍲</span> Второе
+      </label>
+
+      <label class="meal-option" id="label-dinner">
+        <input type="checkbox" id="chk-dinner">
+        <span class="meal-icon">🌙</span> Ужин
+      </label>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="main-btn" id="generateBtn">Сгенерировать / Обновить меню</button>
+    <button class="main-btn back-btn" onclick="window.location.href='index.html'">← Назад к рецептам</button>
+  </div>
+
+  <div id="loader" class="loader" style="display:none">Загрузка рецептов...</div>
+  <div id="error" class="error" style="display:none"></div>
+
+  <div class="menu-wrapper">
+    <div id="menuTable"></div>
   </div>
 </div>
 
-<div id="welcome-modal">
-  <div id="welcome-box">
-    <div id="welcome-close">✕</div>
-    <div id="welcome-text">
-      При первом запуске все картинки будут предзагружены (это займёт 2–5 секунд).<br><br>
-      После этого переключение категорий будет мгновенным 🙂
-    </div>
+<!-- Модальное окно рецепта -->
+<div class="recipe-modal" id="recipeModal">
+  <div class="recipe-modal-box">
+    <div class="close-recipe" id="closeRecipeBtn">✕</div>
+    <h2 class="recipe-title" id="recipeTitle"></h2>
+    <img id="recipePhoto" class="recipe-photo" alt="Фото рецепта" loading="lazy" decoding="async">
+    <div id="recipeIngredients"></div>
+    <div id="recipeSteps"></div>
+    <div id="recipeTime"></div>
+    <div id="recipeCalories"></div>
+    <div id="recipeNote" class="recipe-note"></div>
   </div>
 </div>
 
 <script>
-const elements = {
-  modal: document.getElementById('modal'),
-  mainBtn: document.getElementById('mainBtn'),
-  refreshBtn: document.getElementById('refreshBtn'),
-  closeBtn: document.getElementById('closeBtn'),
-  loader: document.getElementById('loader'),
-  error: document.getElementById('error'),
-  category: document.getElementById('category'),
-  title: document.getElementById('title'),
-  photo: document.getElementById('photo'),
-  ingredients: document.getElementById('ingredients'),
-  steps: document.getElementById('steps'),
-  time: document.getElementById('time'),
-  calories: document.getElementById('calories'),
-  note: document.getElementById('note'),
-  welcomeModal: document.getElementById('welcome-modal'),
-  welcomeClose: document.getElementById('welcome-close')
-};
+// Обработка чекбоксов
+document.querySelectorAll('.meal-option').forEach(label => {
+  const checkbox = label.querySelector('input[type="checkbox"]');
+  const update = () => {
+    label.classList.toggle('selected', checkbox.checked);
+  };
+  checkbox.addEventListener('change', update);
+  update(); // начальное состояние
+});
+
+const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+const SHORT_DAYS = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
+
+const MEAL_TYPES = [
+  { key: "breakfast", title: "Завтрак", file: "breakfast" },
+  { key: "soups", title: "Первое", file: "soups" },
+  { key: "lunch", title: "Второе", file: "lunch" },
+  { key: "dinner", title: "Ужин", file: "dinner" }
+];
 
 let loadedRecipes = {};
-let currentCategory = null;
-let recipeIndices = {};
-let allPhotos = new Set();
+const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="Inter" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото не найдено</text></svg>';
 
-const categoryNames = {
-  breakfast: "Завтрак",
-  lunch: "Обед",
-  dinner: "Ужин",
-  soups: "Супы",
-  dessert: "Десерт"
-};
-
-const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23f8f1e9"/><text x="50%" y="45%" font-family="Inter" font-size="16" fill="%23997" text-anchor="middle">Фото блюда</text><text x="50%" y="60%" font-family="Inter" font-size="13" fill="%23aaa" text-anchor="middle">(не найдено)</text></svg>';
-
-function showWelcomeIfFirstTime() {
-  if (!localStorage.getItem('hasSeenWelcome')) {
-    elements.welcomeModal.style.display = 'flex';
-    localStorage.setItem('hasSeenWelcome', 'true');
-  }
-}
-
-function closeWelcome() {
-  elements.welcomeModal.style.display = 'none';
-}
-
-async function loadCategoryRecipes(category) {
-  if (loadedRecipes[category]) return loadedRecipes[category];
+async function loadCategory(file) {
+  if (loadedRecipes[file]) return loadedRecipes[file];
   try {
-    elements.loader.style.display = 'block';
-    const response = await fetch(`recipes/${category}.json`);
-    if (!response.ok) throw new Error(`HTTP ${response.status} для ${category}`);
-    const data = await response.json();
-    loadedRecipes[category] = data;
-
-    // Собираем пути только к .webp
-    data.forEach(r => {
-      if (r.photo) {
-        // Убираем путь и расширение, всегда .webp
-        let filename = r.photo.split('/').pop();
-        let base = filename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
-        allPhotos.add(`pics/${base}.webp`);
-      }
-    });
-
-    elements.loader.style.display = 'none';
+    document.getElementById("loader").style.display = "block";
+    const res = await fetch(`recipes/${file}.json`);
+    if (!res.ok) throw new Error(`Не удалось загрузить ${file}.json`);
+    const data = await res.json();
+    loadedRecipes[file] = data;
     return data;
   } catch (err) {
-    console.error('Ошибка загрузки категории:', category, err);
-    elements.loader.style.display = 'none';
-    elements.error.textContent = `Не удалось загрузить ${categoryNames[category] || category}`;
-    elements.error.style.display = 'block';
+    console.error(`Ошибка загрузки категории ${file}:`, err);
+    document.getElementById("error").textContent = "Не удалось загрузить некоторые рецепты";
+    document.getElementById("error").style.display = "block";
     return [];
+  } finally {
+    document.getElementById("loader").style.display = "none";
   }
 }
 
-function preloadAllImages() {
-  console.log(`Предзагружаем ${allPhotos.size} webp-изображений...`);
-  allPhotos.forEach(src => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => console.log(`Успешно: ${src}`);
-    img.onerror = () => console.warn(`Не найден: ${src}`);
+async function preloadNeededCategories() {
+  const active = MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
+  for (const meal of active) {
+    await loadCategory(meal.file);
+  }
+}
+
+function getActiveMealTypes() {
+  return MEAL_TYPES.filter(m => document.getElementById(`chk-${m.key}`).checked);
+}
+
+function generateMenu() {
+  const menu = {};
+  const activeMeals = getActiveMealTypes();
+
+  if (activeMeals.length === 0) {
+    document.getElementById("menuTable").innerHTML = '<div class="empty">Выберите хотя бы один приём пищи</div>';
+    return;
+  }
+
+  DAYS.forEach(day => {
+    menu[day] = {};
+    activeMeals.forEach(meal => {
+      const recipes = loadedRecipes[meal.file] || [];
+      menu[day][meal.key] = recipes.length > 0
+        ? recipes[Math.floor(Math.random() * recipes.length)].title.trim() || "—"
+        : "—";
+    });
+  });
+
+  localStorage.setItem("weeklyMenu", JSON.stringify(menu));
+  renderMenu(menu, activeMeals);
+}
+
+function renderMenu(menu, activeMeals) {
+  let html = '<table><thead><tr><th></th>';
+  SHORT_DAYS.forEach(d => html += `<th>${d}</th>`);
+  html += '</tr></thead><tbody>';
+
+  activeMeals.forEach(meal => {
+    html += `<tr><td class="meal-row">${meal.title}</td>`;
+    DAYS.forEach(day => {
+      const title = menu[day]?.[meal.key] || "—";
+      html += `<td><span class="recipe-link" data-title="${title}" data-meal="${meal.key}">${title}</span></td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  document.getElementById("menuTable").innerHTML = html;
+
+  document.querySelectorAll('.recipe-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const title = e.target.dataset.title.trim();
+      const mealKey = e.target.dataset.meal;
+      if (title && title !== "—") {
+        showRecipe(title, mealKey);
+      }
+    });
   });
 }
 
-function openModal() {
-  elements.modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
+function showRecipe(title, mealKey) {
+  const recipes = loadedRecipes[mealKey] || [];
+  console.log(`Открываем рецепт "${title}" из категории "${mealKey}" — всего рецептов: ${recipes.length}`);
 
-function closeModal() {
-  elements.modal.style.display = 'none';
-  document.body.style.overflow = 'auto';
-}
+  // Ищем рецепт с гибким сравнением
+  const recipe = recipes.find(r => {
+    const recipeTitle = (r.title || '').trim();
+    return recipeTitle === title;
+  });
 
-function selectCategory(cat) {
-  currentCategory = cat;
-  closeModal();
-  generateRecipe();
-}
-
-async function generateRecipe() {
-  if (!currentCategory) return openModal();
-  const recipes = await loadCategoryRecipes(currentCategory);
-  if (!recipes?.length) {
-    elements.error.textContent = 'Рецепты в этой категории отсутствуют';
-    elements.error.style.display = 'block';
-    elements.refreshBtn.style.display = 'none';
+  if (!recipe) {
+    console.error(`Рецепт "${title}" НЕ НАЙДЕН в категории ${mealKey}`);
+    alert('Рецепт не найден. Проверьте консоль (F12) — возможно проблема в названии.');
     return;
   }
-  let idx = recipeIndices[currentCategory] || 0;
-  recipeIndices[currentCategory] = (idx + 1) % recipes.length;
-  updateUI(recipes[idx]);
-  elements.refreshBtn.style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
 
-function updateUI(r) {
-  elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
-  elements.title.textContent = (r.title || 'Без названия').trim();
+  console.log(`Рецепт найден: "${recipe.title}"`);
 
-  // ─── Фото — всегда ищем .webp ──────────────────────────────────────────
-  const photoEl = elements.photo;
+  document.getElementById('recipeTitle').textContent = recipe.title || 'Без названия';
+
+  // Фото — та же надёжная логика, что в index.html
+  const photoEl = document.getElementById('recipePhoto');
   photoEl.classList.remove('loaded');
-  photoEl.style.display = 'block';
 
   let photoSrc = fallbackImage;
 
-  if (r.photo) {
-    // Убираем путь и расширение, добавляем .webp
-    let filename = r.photo.split('/').pop();               // omelette.webp → omelette.webp
-    let base = filename.replace(/\.(webp|png|jpg|jpeg)$/i, ''); // omelette
+  if (recipe.photo) {
+    let filename = recipe.photo.split('/').pop();
+    let base = filename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
     photoSrc = `pics/${base}.webp`;
 
-    console.log(`[Фото] Для "${r.title}" ищем: ${photoSrc}`);
+    console.log(`[Фото рецепта] Ищем: ${photoSrc}`);
   } else {
-    console.log(`[Фото] Нет поля photo у "${r.title}" → fallback`);
+    console.log(`[Фото рецепта] Нет поля photo → fallback`);
   }
 
   photoEl.src = photoSrc;
 
-  photoEl.onload = function() {
-    console.log(`[Фото] УСПЕХ: ${this.src}`);
-    this.classList.add('loaded');
+  photoEl.onload = () => {
+    console.log(`[Фото рецепта] УСПЕХ: ${photoSrc}`);
+    photoEl.classList.add('loaded');
   };
 
-  photoEl.onerror = function() {
-    console.warn(`[Фото] НЕ УДАЛОСЬ: ${photoSrc} → fallback`);
-    this.src = fallbackImage;
+  photoEl.onerror = () => {
+    console.warn(`[Фото рецепта] НЕ УДАЛОСЬ: ${photoSrc} → fallback`);
+    photoEl.src = fallbackImage;
   };
-  // ────────────────────────────────────────────────────────────────────────
 
-  elements.ingredients.innerHTML = '';
-  if (Array.isArray(r.ingredients) && r.ingredients.length) {
-    elements.ingredients.innerHTML = `
-      <div class="section-title">Ингредиенты:</div>
-      <div class="plain-list">${r.ingredients.map(item => item.trim()).join('<br>')}</div>
-    `;
-  }
+  // Ингредиенты
+  const ing = document.getElementById('recipeIngredients');
+  ing.innerHTML = recipe.ingredients?.length
+    ? `<div class="recipe-section-title">Ингредиенты:</div><div class="recipe-plain-list">${recipe.ingredients.map(i => i.trim()).join('<br>')}</div>`
+    : '';
 
-  elements.steps.innerHTML = '';
-  if (Array.isArray(r.steps) && r.steps.length) {
-    elements.steps.innerHTML = `
-      <div class="section-title">Приготовление:</div>
-      <div class="plain-list">${r.steps.map((step, i) => `${i + 1}. ${step.trim()}`).join('<br>')}</div>
-    `;
-  }
+  // Шаги
+  const steps = document.getElementById('recipeSteps');
+  steps.innerHTML = recipe.steps?.length
+    ? `<div class="recipe-section-title">Приготовление:</div><div class="recipe-plain-list">${recipe.steps.map((s,i) => `${i+1}. ${s.trim()}`).join('<br>')}</div>`
+    : '';
 
-  elements.time.innerHTML = `<strong>Время приготовления:</strong> ${r.time || '—'}`;
-  elements.calories.innerHTML = `<strong>Калорийность:</strong> ${r.calories || '—'} ккал`;
+  // Время и калории
+  document.getElementById('recipeTime').innerHTML = `<strong>Время приготовления:</strong> ${recipe.time || '—'}`;
+  document.getElementById('recipeCalories').innerHTML = `<strong>Калорийность:</strong> ${recipe.calories || '—'} ккал`;
 
-  if (r.note) {
-    elements.note.innerHTML = `<strong>Примечание:</strong><br>${r.note.trim()}`;
-    elements.note.style.display = 'block';
+  // Примечание
+  const noteEl = document.getElementById('recipeNote');
+  if (recipe.note) {
+    noteEl.innerHTML = `<strong>Примечание:</strong><br>${recipe.note.trim()}`;
+    noteEl.style.display = 'block';
   } else {
-    elements.note.style.display = 'none';
+    noteEl.style.display = 'none';
+  }
+
+  // Показываем модалку
+  document.getElementById('recipeModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRecipeModal() {
+  document.getElementById('recipeModal').style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+function loadSavedMenu() {
+  try {
+    return JSON.parse(localStorage.getItem("weeklyMenu"));
+  } catch {
+    return null;
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  elements.title.textContent = 'Выберите категорию';
-  elements.photo.src = fallbackImage;
+// Инициализация
+document.addEventListener("DOMContentLoaded", async () => {
+  const savedMenu = loadSavedMenu();
+  const activeMeals = getActiveMealTypes();
 
-  elements.mainBtn.onclick = openModal;
-  elements.refreshBtn.onclick = generateRecipe;
-  elements.closeBtn.onclick = closeModal;
+  if (savedMenu && activeMeals.length > 0) {
+    renderMenu(savedMenu, activeMeals);
+  } else {
+    document.getElementById("menuTable").innerHTML = '<div class="empty">Выберите приёмы пищи и нажмите «Сгенерировать / Обновить меню»</div>';
+  }
 
-  document.querySelectorAll('.choice').forEach(btn => {
-    btn.onclick = () => selectCategory(btn.dataset.category);
+  document.getElementById("generateBtn").onclick = async () => {
+    await preloadNeededCategories();
+    generateMenu();
+  };
+
+  document.getElementById("closeRecipeBtn").onclick = closeRecipeModal;
+  document.getElementById("recipeModal").onclick = e => {
+    if (e.target === document.getElementById("recipeModal")) closeRecipeModal();
+  };
+
+  MEAL_TYPES.forEach(m => {
+    document.getElementById(`chk-${m.key}`).onchange = () => {
+      const saved = loadSavedMenu();
+      if (saved) renderMenu(saved, getActiveMealTypes());
+    };
   });
-
-  elements.modal.onclick = e => {
-    if (e.target === elements.modal) closeModal();
-  };
-
-  document.onkeydown = e => {
-    if (e.key === 'Escape' && elements.modal.style.display === 'flex') closeModal();
-  };
-
-  elements.welcomeClose.onclick = closeWelcome;
-  elements.welcomeModal.onclick = e => {
-    if (e.target === elements.welcomeModal) closeWelcome();
-  };
-
-  showWelcomeIfFirstTime();
-  elements.refreshBtn.style.display = 'none';
-
-  const preloadCheck = setInterval(() => {
-    if (Object.keys(loadedRecipes).length > 0) {
-      preloadAllImages();
-      clearInterval(preloadCheck);
-    }
-  }, 800);
 });
 </script>
 </body>
