@@ -494,26 +494,12 @@ function generateMenu() {
 
     // Равномерное распределение по дням
     const selectedDays = [];
-    if (freq === 7) {
-      selectedDays.push(...DAYS);
-    } else if (freq > 0) {
-      const step = 7 / freq;
-      for (let i = 0; i < freq; i++) {
-        // Начинаем с понедельника (0), добавляем небольшой случайный сдвиг ±1 день
-        let dayIndex = Math.round(i * step + (Math.random() * 0.8 - 0.4));
-        dayIndex = Math.max(0, Math.min(6, dayIndex));
-        // Если день уже занят — сдвигаем на ближайший свободный
-        let attempts = 0;
-        while (selectedDays.includes(dayIndex) && attempts < 10) {
-          dayIndex = (dayIndex + 1) % 7;
-          attempts++;
-        }
-        selectedDays.push(dayIndex);
-      }
+    for (let i = 0; i < freq; i++) {
+      const dayIndex = Math.floor(i * 7 / freq);
+      selectedDays.push(dayIndex);
     }
 
     // Назначаем рецепты на выбранные дни
-    selectedDays.sort((a,b)=>a-b); // для предсказуемости
     selectedDays.forEach((dayIndex, i) => {
       const day = DAYS[dayIndex];
       const recipeTitle = selectedRecipes[i] || "—";
