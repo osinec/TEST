@@ -37,6 +37,7 @@
       font-weight: 600;
       transition: all .3s;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
     }
     .main-btn {
       padding: 20px 35px;
@@ -53,9 +54,20 @@
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(0,0,0,.15);
     }
-    .ingredients-btn {
+    .premium-btn {
       background: linear-gradient(135deg, #84fab0, #8fd3f4);
       color: #222;
+      padding-right: 60px; /* дополнительный отступ справа для короны */
+    }
+    .premium-badge {
+      position: absolute;
+      top: 50%;
+      right: 18px;
+      transform: translateY(-50%);
+      font-size: 24px;
+      color: #ffcc00;
+      pointer-events: none;
+      line-height: 1;
     }
     .refresh {
       display: none;
@@ -236,20 +248,17 @@
   </style>
 </head>
 <body>
-
 <div class="card">
   <button class="main-btn" id="mainBtn">Случайный рецепт</button>
-  <button class="main-btn" onclick="window.location.href='menu.html'">
-    Меню на неделю →
+  <button class="main-btn premium-btn" id="menuBtn" onclick="window.location.href='menu.html'">
+    Меню на неделю <span class="premium-badge">👑</span>
   </button>
-  <button class="main-btn ingredients-btn" onclick="window.location.href='ingredients.html'">
-    По ингредиентам →
+  <button class="main-btn premium-btn" id="ingredientsBtn" onclick="window.location.href='ingredients.html'">
+    По ингредиентам <span class="premium-badge">👑</span>
   </button>
   <button class="refresh" id="refreshBtn">Обновить рецепт 🔄</button>
-
   <div class="loader" id="loader">Загрузка рецептов...</div>
   <div class="error" id="error"></div>
-
   <div class="category" id="category"></div>
   <h2 id="title">Выберите категорию</h2>
   <img id="photo" alt="Фото рецепта" loading="lazy" decoding="async">
@@ -259,7 +268,6 @@
   <div id="calories"></div>
   <div id="note"></div>
 </div>
-
 <div class="modal" id="modal">
   <div class="modal-box">
     <div class="close" id="closeBtn">✕</div>
@@ -271,7 +279,6 @@
     <button class="choice" data-category="dessert">Десерт</button>
   </div>
 </div>
-
 <div id="welcome-modal">
   <div id="welcome-box">
     <div id="welcome-close">✕</div>
@@ -281,15 +288,17 @@
     </div>
   </div>
 </div>
-
 <script>
 // ──────────────────────────────────────────────────────────────────────
-// Ваш существующий JavaScript-код (без изменений)
+// PocketBase SDK + аутентификация
 // ──────────────────────────────────────────────────────────────────────
+const pb = new PocketBase('http://217.12.37.52:8090');
 
 const elements = {
   modal: document.getElementById('modal'),
   mainBtn: document.getElementById('mainBtn'),
+  menuBtn: document.getElementById('menuBtn'),
+  ingredientsBtn: document.getElementById('ingredientsBtn'),
   refreshBtn: document.getElementById('refreshBtn'),
   closeBtn: document.getElementById('closeBtn'),
   loader: document.getElementById('loader'),
@@ -401,7 +410,6 @@ async function generateRecipe() {
 function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
-
   const photoEl = elements.photo;
   photoEl.classList.remove('loaded');
   photoEl.style.display = 'block';
@@ -414,7 +422,6 @@ function updateUI(r) {
   photoEl.src = photoSrc;
   photoEl.onload = () => photoEl.classList.add('loaded');
   photoEl.onerror = () => photoEl.src = fallbackImage;
-
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
     elements.ingredients.innerHTML = `
@@ -422,7 +429,6 @@ function updateUI(r) {
       <div class="plain-list">${r.ingredients.map(item => item.trim()).join('<br>')}</div>
     `;
   }
-
   elements.steps.innerHTML = '';
   if (Array.isArray(r.steps) && r.steps.length) {
     elements.steps.innerHTML = `
@@ -430,10 +436,8 @@ function updateUI(r) {
       <div class="plain-list">${r.steps.map((step, i) => `${i + 1}. ${step.trim()}`).join('<br>')}</div>
     `;
   }
-
   elements.time.innerHTML = `<strong>Время приготовления:</strong> ${r.time || '—'}`;
   elements.calories.innerHTML = `<strong>Калорийность:</strong> ${r.calories || '—'} ккал`;
-
   if (r.note) {
     elements.note.innerHTML = `<strong>Примечание:</strong><br>${r.note.trim()}`;
     elements.note.style.display = 'block';
@@ -441,6 +445,92 @@ function updateUI(r) {
     elements.note.style.display = 'none';
   }
 }
+
+// ──────────────────────────────────────────────────────────────────────
+// Аутентификация через PocketBase + премиум-кнопки с короной
+// ──────────────────────────────────────────────────────────────────────
+
+async function updateUIState() {
+  elements.mainBtn.style.display = 'block';
+
+  if (!pb.authStore.isValid) {
+    elements.menuBtn.querySelector('.premium-badge').style.display = 'inline';
+    elements.ingredientsBtn.querySelector('.premium-badge').style.display = 'inline';
+    elements.subscribeBtn.style.display = 'none';
+    elements.logoutBtn.style.display = 'none';
+    elements.mainBtn.disabled = false;
+    elements.mainBtn.textContent = "Случайный рецепт (войти)";
+    return;
+  }
+
+  elements.logoutBtn.style.display = 'block';
+
+  const user = pb.authStore.model;
+  const record = await pb.collection('users').getOne(user.id);
+
+  if (record.is_subscribed) {
+    elements.menuBtn.querySelector('.premium-badge').style.display = 'none';
+    elements.ingredientsBtn.querySelector('.premium-badge').style.display = 'none';
+    elements.subscribeBtn.style.display = 'none';
+    elements.mainBtn.disabled = false;
+    elements.mainBtn.textContent = "Случайный рецепт";
+  } else {
+    elements.menuBtn.querySelector('.premium-badge').style.display = 'inline';
+    elements.ingredientsBtn.querySelector('.premium-badge').style.display = 'inline';
+    elements.subscribeBtn.style.display = 'block';
+    elements.mainBtn.disabled = true;
+    elements.mainBtn.textContent = "Случайный рецепт (подписка)";
+  }
+}
+
+async function signUp() {
+  let email = elements.emailInput.value.trim();
+  let password = elements.passwordInput.value.trim();
+
+  if (!email.includes('@') || password.length < 6) {
+    elements.error.textContent = "Некорректный email или пароль короче 6 символов";
+    elements.error.style.display = 'block';
+    return;
+  }
+
+  try {
+    const user = await pb.collection('users').create({
+      email: email,
+      password: password,
+      passwordConfirm: password,
+    });
+
+    await pb.collection('users').authWithPassword(email, password);
+    closeAuthModal();
+    await updateUIState();
+  } catch (err) {
+    elements.error.textContent = err.message || "Ошибка регистрации";
+    elements.error.style.display = 'block';
+  }
+}
+
+async function signIn() {
+  let email = elements.emailInput.value.trim();
+  let password = elements.passwordInput.value.trim();
+
+  try {
+    const authData = await pb.collection('users').authWithPassword(email, password);
+    closeAuthModal();
+    await updateUIState();
+  } catch (err) {
+    elements.error.textContent = err.message || "Неверный email или пароль";
+    elements.error.style.display = 'block';
+  }
+}
+
+async function logout() {
+  pb.authStore.clear();
+  await updateUIState();
+}
+
+// ──────────────────────────────────────────────────────────────────────
+// Инициализация и события
+// ──────────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
   elements.title.textContent = 'Выберите категорию';
@@ -476,6 +566,9 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(preloadCheck);
     }
   }, 800);
+
+  // Инициализация состояния при загрузке страницы
+  updateUIState();
 });
 </script>
 </body>
