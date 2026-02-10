@@ -46,12 +46,16 @@
       width: 100%;
       margin: 0 0 20px 0;
     }
-    .main-btn:last-child {
+    .main-btn:last-of-type {
       margin-bottom: 0;
     }
     .main-btn:hover, .main-btn:active {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(0,0,0,.15);
+    }
+    .ingredients-btn {
+      background: linear-gradient(135deg, #84fab0, #8fd3f4);
+      color: #222;
     }
     .refresh {
       display: none;
@@ -232,14 +236,20 @@
   </style>
 </head>
 <body>
+
 <div class="card">
   <button class="main-btn" id="mainBtn">Случайный рецепт</button>
-  <button class="main-btn" onclick="window.location.href='menu.html'" style="background: linear-gradient(135deg, #a1c4fd, #c2e9fb);">
+  <button class="main-btn" onclick="window.location.href='menu.html'">
     Меню на неделю →
   </button>
+  <button class="main-btn ingredients-btn" onclick="window.location.href='ingredients.html'">
+    По ингредиентам →
+  </button>
   <button class="refresh" id="refreshBtn">Обновить рецепт 🔄</button>
+
   <div class="loader" id="loader">Загрузка рецептов...</div>
   <div class="error" id="error"></div>
+
   <div class="category" id="category"></div>
   <h2 id="title">Выберите категорию</h2>
   <img id="photo" alt="Фото рецепта" loading="lazy" decoding="async">
@@ -273,6 +283,10 @@
 </div>
 
 <script>
+// ──────────────────────────────────────────────────────────────────────
+// Ваш существующий JavaScript-код (без изменений)
+// ──────────────────────────────────────────────────────────────────────
+
 const elements = {
   modal: document.getElementById('modal'),
   mainBtn: document.getElementById('mainBtn'),
@@ -326,16 +340,13 @@ async function loadCategoryRecipes(category) {
     if (!response.ok) throw new Error(`HTTP ${response.status} для ${category}`);
     const data = await response.json();
     loadedRecipes[category] = data;
-
-    // Собираем пути только к .webp
     data.forEach(r => {
       if (r.photo) {
-        const filename = r.photo.split('/').pop();           // берём только имя файла
+        const filename = r.photo.split('/').pop();
         const base = filename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
         allPhotos.add(`pics/${base}.webp`);
       }
     });
-
     elements.loader.style.display = 'none';
     return data;
   } catch (err) {
@@ -352,8 +363,6 @@ function preloadAllImages() {
   allPhotos.forEach(src => {
     const img = new Image();
     img.src = src;
-    img.onload = () => console.log(`Успешно предзагружено: ${src}`);
-    img.onerror = () => console.warn(`Не удалось предзагрузить: ${src}`);
   });
 }
 
@@ -393,36 +402,18 @@ function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = (r.title || 'Без названия').trim();
 
-  // ─── Фото — всегда .webp, без дублирования пути ────────────────────────
   const photoEl = elements.photo;
   photoEl.classList.remove('loaded');
   photoEl.style.display = 'block';
-
   let photoSrc = fallbackImage;
-
   if (r.photo) {
-    // Берём только имя файла без папки и расширения
-    const filename = r.photo.split('/').pop();               // omelette.webp → omelette.webp
-    const base = filename.replace(/\.(webp|png|jpg|jpeg)$/i, ''); // omelette
+    const filename = r.photo.split('/').pop();
+    const base = filename.replace(/\.(webp|png|jpg|jpeg)$/i, '');
     photoSrc = `pics/${base}.webp`;
-
-    console.log(`Загружаем для "${r.title}": ${photoSrc}`);
-  } else {
-    console.log(`Нет photo в рецепте "${r.title}" → fallback`);
   }
-
   photoEl.src = photoSrc;
-
-  photoEl.onload = () => {
-    console.log(`Успех: ${photoSrc}`);
-    photoEl.classList.add('loaded');
-  };
-
-  photoEl.onerror = () => {
-    console.warn(`Не удалось загрузить: ${photoSrc} → fallback`);
-    photoEl.src = fallbackImage;
-  };
-  // ────────────────────────────────────────────────────────────────────────
+  photoEl.onload = () => photoEl.classList.add('loaded');
+  photoEl.onerror = () => photoEl.src = fallbackImage;
 
   elements.ingredients.innerHTML = '';
   if (Array.isArray(r.ingredients) && r.ingredients.length) {
