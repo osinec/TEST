@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Рецепты по ингредиентам</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -102,6 +102,18 @@
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(0,0,0,.15);
     }
+    .back-btn {
+      padding: 14px 24px;
+      background: linear-gradient(135deg, #a0d8ef, #b8e0f8);
+      color: #222;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 24px;
+    }
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(160,216,239,0.4);
+    }
     .secondary-btn {
       padding: 16px 28px;
       background: linear-gradient(135deg, #e0e0e0, #d0d0d0);
@@ -177,25 +189,22 @@
   </style>
 </head>
 <body>
-
 <div class="card">
+  <button class="back-btn" onclick="window.location.href='index.html'">
+    ← Назад в меню
+  </button>
   <h1>Рецепты по имеющимся продуктам</h1>
-
   <div class="section-title">Отметьте, что есть дома:</div>
   <div class="ingredients-grid" id="ingredientsList"></div>
-
   <button class="main-btn" id="findRecipesBtn" disabled>Найти подходящие рецепты</button>
   <button class="secondary-btn" id="clearBtn">Сбросить выбор</button>
-
   <div id="results">
     <div class="loader" id="loader" style="display:none">Поиск рецептов...</div>
   </div>
 </div>
-
 <script type="module">
 // ─── НАСТРОЙКИ ────────────────────────────────────────────────
 const CATEGORIES = ['breakfast', 'lunch', 'dinner', 'soups', 'dessert'];
-
 const POPULAR_INGREDIENTS = [
   "яйца", "молоко", "сахар", "мука", "масло сливочное", "масло растительное",
   "курица", "говядина", "свинина", "рыба", "картофель", "морковь", "лук",
@@ -204,40 +213,33 @@ const POPULAR_INGREDIENTS = [
   "апельсины", "лимон", "чеснок", "зелень", "укроп", "петрушка", "специи",
   "соль", "перец", "мёд", "шоколад", "какао", "разрыхлитель", "сода"
 ];
-
 // ─── Элементы ─────────────────────────────────────────────────
-const ingListEl   = document.getElementById('ingredientsList');
-const findBtn     = document.getElementById('findRecipesBtn');
-const clearBtn    = document.getElementById('clearBtn');
-const resultsEl   = document.getElementById('results');
-const loaderEl    = document.getElementById('loader');
-
+const ingListEl = document.getElementById('ingredientsList');
+const findBtn = document.getElementById('findRecipesBtn');
+const clearBtn = document.getElementById('clearBtn');
+const resultsEl = document.getElementById('results');
+const loaderEl = document.getElementById('loader');
 // ─── Состояние ────────────────────────────────────────────────
 let selected = new Set();
-
 // ─── Функции ──────────────────────────────────────────────────
 function renderIngredients() {
   ingListEl.innerHTML = '';
   POPULAR_INGREDIENTS.forEach(name => {
     const label = document.createElement('label');
     label.className = 'ingredient-item';
-
     const cb = document.createElement('input');
     cb.type = 'checkbox';
     cb.addEventListener('change', e => {
       if (e.target.checked) selected.add(name.toLowerCase());
-      else                    selected.delete(name.toLowerCase());
+      else selected.delete(name.toLowerCase());
       findBtn.disabled = selected.size === 0;
     });
-
     const span = document.createElement('span');
     span.textContent = name;
-
     label.append(cb, span);
     ingListEl.appendChild(label);
   });
 }
-
 async function loadAllRecipes() {
   const all = [];
   for (const cat of CATEGORIES) {
@@ -251,40 +253,30 @@ async function loadAllRecipes() {
   }
   return all;
 }
-
 function normalize(str) {
   return (str || '').toLowerCase()
     .replace(/ё/g, 'е')
     .replace(/[^а-я0-9\s]/gi, '')
     .trim();
 }
-
 function matchesRecipe(recipe, selectedSet) {
   if (!recipe.ingredients?.length) return false;
-
   const recipeNorm = recipe.ingredients.map(i => normalize(i));
-
   let hitCount = 0;
   for (const s of selectedSet) {
     if (recipeNorm.some(r => r.includes(s) || s.includes(r))) hitCount++;
   }
-
-  return hitCount / selectedSet.size >= 0.58;   // порог можно подвинуть
+  return hitCount / selectedSet.size >= 0.58; // порог можно подвинуть
 }
-
 async function showMatchingRecipes() {
   if (selected.size === 0) return;
-
   resultsEl.innerHTML = '';
   loaderEl.style.display = 'block';
   findBtn.disabled = true;
-
   try {
     const allRecipes = await loadAllRecipes();
     const matches = allRecipes.filter(r => matchesRecipe(r, selected));
-
     loaderEl.style.display = 'none';
-
     if (!matches.length) {
       resultsEl.innerHTML = `
         <div class="no-results">
@@ -293,7 +285,6 @@ async function showMatchingRecipes() {
         </div>`;
       return;
     }
-
     const catNames = {
       breakfast: "Завтрак",
       lunch: "Обед",
@@ -301,33 +292,26 @@ async function showMatchingRecipes() {
       soups: "Супы",
       dessert: "Десерт"
     };
-
     matches.forEach(r => {
       const card = document.createElement('div');
       card.className = 'recipe-card';
-
       card.innerHTML = `
         <div class="recipe-title">${r.title || 'Без названия'}</div>
         <div class="recipe-meta">
           ${catNames[r.category] || r.category} • ${r.time || '?'} мин • ${r.calories || '?'} ккал
         </div>
-
         <div class="plain-list">
           <strong>Ингредиенты:</strong><br>
           ${r.ingredients.map(i => `• ${i.trim()}`).join('<br>')}
         </div>
-
         <div class="plain-list">
           <strong>Приготовление:</strong><br>
           ${r.steps?.map((s,i) => `${i+1}. ${s.trim()}`).join('<br>') || '—'}
         </div>
-
         ${r.note ? `<div class="note"><strong>Примечание:</strong><br>${r.note.trim()}</div>` : ''}
       `;
-
       resultsEl.appendChild(card);
     });
-
   } catch (err) {
     console.error(err);
     loaderEl.style.display = 'none';
@@ -336,11 +320,9 @@ async function showMatchingRecipes() {
     findBtn.disabled = false;
   }
 }
-
 // ─── Инициализация ────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   renderIngredients();
-
   findBtn.onclick = showMatchingRecipes;
   clearBtn.onclick = () => {
     selected.clear();
