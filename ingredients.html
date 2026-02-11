@@ -181,6 +181,32 @@
       font-size: 15px;
       text-align: center;
     }
+    .auth-form {
+      display: none;
+      margin-bottom: 24px;
+    }
+    .auth-form input {
+      width: 100%;
+      padding: 12px 16px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .auth-btn {
+      margin-top: 12px;
+    }
+    .toggle-auth {
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+    .toggle-auth span {
+      color: #d35400;
+      text-decoration: underline;
+    }
     @media (max-width: 380px) {
       .card { padding: 24px 20px; border-radius: 20px; }
       h1 { font-size: 23px; }
@@ -194,16 +220,43 @@
     ← Назад в меню
   </button>
   <h1>Рецепты по имеющимся продуктам</h1>
-  <div class="section-title">Отметьте, что есть дома:</div>
-  <div class="ingredients-grid" id="ingredientsList"></div>
-  <button class="main-btn" id="findRecipesBtn" disabled>Найти подходящие рецепты</button>
-  <button class="secondary-btn" id="clearBtn">Сбросить выбор</button>
-  <div id="results">
-    <div class="loader" id="loader" style="display:none">Поиск рецептов...</div>
+  
+  <!-- Форма аутентификации -->
+  <div id="authSection" class="auth-form">
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Пароль" required>
+    <button class="main-btn auth-btn" id="authBtn">Войти</button>
+    <div class="toggle-auth" id="toggleAuth">
+      Нет аккаунта? <span>Зарегистрироваться</span>
+    </div>
+    <div class="error" id="authError" style="display: none;"></div>
+  </div>
+  
+  <!-- Основной контент (скрыт по умолчанию) -->
+  <div id="mainContent" style="display: none;">
+    <div class="section-title">Отметьте, что есть дома:</div>
+    <div class="ingredients-grid" id="ingredientsList"></div>
+    <button class="main-btn" id="findRecipesBtn" disabled>Найти подходящие рецепты</button>
+    <button class="secondary-btn" id="clearBtn">Сбросить выбор</button>
+    <button class="secondary-btn" id="logoutBtn" style="margin-top: 12px;">Выйти</button>
+    <div id="results">
+      <div class="loader" id="loader" style="display:none">Поиск рецептов...</div>
+    </div>
+  </div>
+  
+  <!-- Сообщение об истекшем триале -->
+  <div id="trialExpired" style="display: none;" class="note">
+    <strong>Ваш тестовый период истек.</strong><br>
+    Для продолжения использования оформите подписку.
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/pocketbase/dist/pocketbase.umd.js"></script>
 <script type="module">
 // ─── НАСТРОЙКИ ────────────────────────────────────────────────
+const PB_URL = 'http://your-pocketbase-server:8090'; // Замените на URL вашего PocketBase сервера
+const pb = new PocketBase(PB_URL);
+
 const CATEGORIES = ['breakfast', 'lunch', 'dinner', 'soups', 'dessert'];
 const POPULAR_INGREDIENTS = [
   "яйца", "молоко", "сахар", "мука", "масло сливочное", "масло растительное",
@@ -214,6 +267,16 @@ const POPULAR_INGREDIENTS = [
   "соль", "перец", "мёд", "шоколад", "какао", "разрыхлитель", "сода"
 ];
 // ─── Элементы ─────────────────────────────────────────────────
+const authSection = document.getElementById('authSection');
+const mainContent = document.getElementById('mainContent');
+const trialExpired = document.getElementById('trialExpired');
+const authBtn = document.getElementById('authBtn');
+const toggleAuth = document.getElementById('toggleAuth');
+const authError = document.getElementById('authError');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const logoutBtn = document.getElementById('logoutBtn');
+
 const ingListEl = document.getElementById('ingredientsList');
 const findBtn = document.getElementById('findRecipesBtn');
 const clearBtn = document.getElementById('clearBtn');
@@ -221,6 +284,7 @@ const resultsEl = document.getElementById('results');
 const loaderEl = document.getElementById('loader');
 // ─── Состояние ────────────────────────────────────────────────
 let selected = new Set();
+let isRegisterMode = false;
 // ─── Функции ──────────────────────────────────────────────────
 function renderIngredients() {
   ingListEl.innerHTML = '';
@@ -320,15 +384,114 @@ async function showMatchingRecipes() {
     findBtn.disabled = false;
   }
 }
+
+async function checkAccess() {
+  if (!pb.authStore.isValid) {
+    authSection.style.display = 'block';
+    mainContent.style.display = 'none';
+    trialExpired.style.display = 'none';
+    return false;
+  }
+
+  try {
+    // Обновляем модель пользователя (если нужно)
+    await pb.collection('users').authRefresh();
+
+    const user = pb.authStore.model;
+    
+    // Предполагаем, что в коллекции users есть поля: 
+    // - trial_start (datetime, дата начала триала)
+    // - subscribed (boolean, активна ли платная подписка)
+    // Если полей нет, добавьте их в PocketBase админке.
+
+    const trialStart = new Date(user.trial_start);
+    const trialEnd = new Date(trialStart);
+    trialEnd.setDate(trialEnd.getDate() + 3); // 3 дня триала
+
+    const now = new Date();
+    const hasAccess = user.subscribed || (now < trialEnd && user.trial_start);
+
+    if (hasAccess) {
+      authSection.style.display = 'none';
+      mainContent.style.display = 'block';
+      trialExpired.style.display = 'none';
+      renderIngredients();
+      return true;
+    } else {
+      authSection.style.display = 'none';
+      mainContent.style.display = 'none';
+      trialExpired.style.display = 'block';
+      return false;
+    }
+  } catch (err) {
+    console.error('Ошибка проверки доступа:', err);
+    pb.authStore.clear();
+    checkAccess(); // Повторно показать форму
+    return false;
+  }
+}
+
+async function handleAuth() {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!email || !password) {
+    authError.textContent = 'Заполните все поля';
+    authError.style.display = 'block';
+    return;
+  }
+
+  try {
+    if (isRegisterMode) {
+      // Регистрация
+      const data = {
+        email,
+        password,
+        passwordConfirm: password,
+        trial_start: new Date().toISOString(), // Устанавливаем дату начала триала
+        subscribed: false // По умолчанию без подписки
+      };
+      await pb.collection('users').create(data);
+      // Автоматический логин после регистрации
+      await pb.collection('users').authWithPassword(email, password);
+    } else {
+      // Логин
+      await pb.collection('users').authWithPassword(email, password);
+    }
+
+    authError.style.display = 'none';
+    checkAccess();
+  } catch (err) {
+    authError.textContent = err.message || 'Ошибка аутентификации';
+    authError.style.display = 'block';
+  }
+}
+
+function toggleMode() {
+  isRegisterMode = !isRegisterMode;
+  authBtn.textContent = isRegisterMode ? 'Зарегистрироваться' : 'Войти';
+  toggleAuth.innerHTML = isRegisterMode 
+    ? 'Уже есть аккаунт? <span>Войти</span>' 
+    : 'Нет аккаунта? <span>Зарегистрироваться</span>';
+}
+
 // ─── Инициализация ────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  renderIngredients();
+document.addEventListener('DOMContentLoaded', async () => {
+  // Проверяем доступ при загрузке
+  await checkAccess();
+
+  authBtn.onclick = handleAuth;
+  toggleAuth.onclick = toggleMode;
   findBtn.onclick = showMatchingRecipes;
   clearBtn.onclick = () => {
     selected.clear();
     document.querySelectorAll('#ingredientsList input').forEach(el => el.checked = false);
     findBtn.disabled = true;
     resultsEl.innerHTML = '';
+  };
+  logoutBtn.onclick = () => {
+    pb.authStore.clear();
+    checkAccess();
   };
 });
 </script>
