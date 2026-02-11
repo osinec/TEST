@@ -125,40 +125,46 @@
     .frequency-label {
       font-size: 12px;
       color: #666;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       text-align: center;
     }
-    input[type="range"] {
-      width: 100%;
-      height: 6px;
-      background: #ffe082;
-      border-radius: 3px;
-      outline: none;
-      -webkit-appearance: none;
+    
+    /* Стили для новых кнопок +- */
+    .counter-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
     }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
-      background: #ffb74d;
+    .counter-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
       border-radius: 50%;
-      cursor: pointer;
-    }
-    input[type="range"]::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
       background: #ffb74d;
-      border-radius: 50%;
-      cursor: pointer;
-      border: none;
+      color: white;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
     }
+    .counter-btn:active {
+      transform: scale(0.9);
+    }
+    .counter-btn:disabled {
+      background: #ddd;
+      cursor: not-allowed;
+    }
+
     .frequency-value {
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 15px;
+      font-weight: 700;
       color: #ef6c00;
+      min-width: 45px;
       text-align: center;
-      margin-top: 4px;
     }
+    
     .menu-wrapper {
       overflow-x: auto;
       margin: 20px 0;
@@ -307,7 +313,6 @@
   <div class="settings">
     <div class="section-title">Выбери прием пищи и сколько раз его готовить:</div>
     <div class="meal-grid">
-      <!-- Завтрак -->
       <div class="meal-box" id="box-breakfast">
         <label class="meal-header" for="chk-breakfast">
           <input type="checkbox" id="chk-breakfast" style="display:none;">
@@ -315,13 +320,16 @@
           <span class="meal-name">Завтрак</span>
         </label>
         <div class="frequency-control" id="freq-control-breakfast">
-          <div class="frequency-label">Сколько раз в неделю готовить:</div>
-          <input type="range" id="freq-breakfast" min="0" max="7" value="7" step="1">
-          <div class="frequency-value" id="value-breakfast">7 раз</div>
+          <div class="frequency-label">Количество на неделю:</div>
+          <div class="counter-wrapper">
+            <button class="counter-btn" onclick="updateCounter('breakfast', -1)">−</button>
+            <div class="frequency-value" id="value-breakfast">7 раз</div>
+            <button class="counter-btn" onclick="updateCounter('breakfast', 1)">+</button>
+          </div>
+          <input type="hidden" id="freq-breakfast" value="7">
         </div>
       </div>
 
-      <!-- Первое -->
       <div class="meal-box" id="box-soups">
         <label class="meal-header" for="chk-soups">
           <input type="checkbox" id="chk-soups" style="display:none;">
@@ -329,13 +337,16 @@
           <span class="meal-name">Первое</span>
         </label>
         <div class="frequency-control" id="freq-control-soups">
-          <div class="frequency-label">Сколько раз в неделю:</div>
-          <input type="range" id="freq-soups" min="0" max="7" value="3" step="1">
-          <div class="frequency-value" id="value-soups">3 раза</div>
+          <div class="frequency-label">Количество на неделю:</div>
+          <div class="counter-wrapper">
+            <button class="counter-btn" onclick="updateCounter('soups', -1)">−</button>
+            <div class="frequency-value" id="value-soups">3 раза</div>
+            <button class="counter-btn" onclick="updateCounter('soups', 1)">+</button>
+          </div>
+          <input type="hidden" id="freq-soups" value="3">
         </div>
       </div>
 
-      <!-- Второе -->
       <div class="meal-box" id="box-lunch">
         <label class="meal-header" for="chk-lunch">
           <input type="checkbox" id="chk-lunch" style="display:none;">
@@ -343,13 +354,16 @@
           <span class="meal-name">Второе</span>
         </label>
         <div class="frequency-control" id="freq-control-lunch">
-          <div class="frequency-label">Сколько раз в неделю:</div>
-          <input type="range" id="freq-lunch" min="0" max="7" value="4" step="1">
-          <div class="frequency-value" id="value-lunch">4 раза</div>
+          <div class="frequency-label">Количество на неделю:</div>
+          <div class="counter-wrapper">
+            <button class="counter-btn" onclick="updateCounter('lunch', -1)">−</button>
+            <div class="frequency-value" id="value-lunch">4 раза</div>
+            <button class="counter-btn" onclick="updateCounter('lunch', 1)">+</button>
+          </div>
+          <input type="hidden" id="freq-lunch" value="4">
         </div>
       </div>
 
-      <!-- Ужин -->
       <div class="meal-box" id="box-dinner">
         <label class="meal-header" for="chk-dinner">
           <input type="checkbox" id="chk-dinner" style="display:none;">
@@ -357,9 +371,13 @@
           <span class="meal-name">Ужин</span>
         </label>
         <div class="frequency-control" id="freq-control-dinner">
-          <div class="frequency-label">Сколько раз в неделю:</div>
-          <input type="range" id="freq-dinner" min="0" max="7" value="5" step="1">
-          <div class="frequency-value" id="value-dinner">5 раз</div>
+          <div class="frequency-label">Количество на неделю:</div>
+          <div class="counter-wrapper">
+            <button class="counter-btn" onclick="updateCounter('dinner', -1)">−</button>
+            <div class="frequency-value" id="value-dinner">5 раз</div>
+            <button class="counter-btn" onclick="updateCounter('dinner', 1)">+</button>
+          </div>
+          <input type="hidden" id="freq-dinner" value="5">
         </div>
       </div>
     </div>
@@ -378,7 +396,6 @@
   </div>
 </div>
 
-<!-- Модальное окно -->
 <div class="recipe-modal" id="recipeModal">
   <div class="recipe-modal-box">
     <div class="close-recipe" id="closeRecipeBtn">✕</div>
@@ -397,46 +414,41 @@ const DAYS = ["Понедельник", "Вторник", "Среда", "Чет�
 const SHORT_DAYS = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
 const MEAL_TYPES = [
   { key: "breakfast", title: "Завтрак", file: "breakfast" },
-  { key: "soups",     title: "Первое",    file: "soups"     },
-  { key: "lunch",     title: "Второе",    file: "lunch"     },
+  { key: "soups",     title: "Первое",    file: "soups"      },
+  { key: "lunch",     title: "Второе",    file: "lunch"      },
   { key: "dinner",    title: "Ужин",      file: "dinner"    }
 ];
 
 let loadedRecipes = {};
 const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="system-ui" font-size="14" fill="%23888" text-anchor="middle" dy=".3em">Фото не найдено</text></svg>';
 
-// ─── Управление чекбоксами и ползунками ────────────────────────────────
+// ─── Управление счетчиками +- ────────────────────────────────────────
+function updateCounter(mealKey, delta) {
+  const input = document.getElementById(`freq-${mealKey}`);
+  const display = document.getElementById(`value-${mealKey}`);
+  let val = parseInt(input.value) + delta;
+  
+  if (val < 0) val = 0;
+  if (val > 7) val = 7;
+  
+  input.value = val;
+  display.textContent = val === 0 ? '0 раз' : (val === 1 ? '1 раз' : (val < 5 ? `${val} раза` : `${val} раз`));
+}
+
+// ─── Управление чекбоксами ───────────────────────────────────────────
 document.querySelectorAll('.meal-box').forEach(box => {
   const checkbox = box.querySelector('input[type="checkbox"]');
   const freqControl = box.querySelector('.frequency-control');
-  const slider = box.querySelector('input[type="range"]');
-  const valueEl = box.querySelector('.frequency-value');
 
   function updateUI() {
     const isActive = checkbox.checked;
     box.classList.toggle('active', isActive);
-
     if (freqControl) {
       freqControl.style.display = isActive ? 'block' : 'none';
-
-      // Если выключили — сбрасываем ползунок на 0
-      if (!isActive && slider) {
-        slider.value = 0;
-        if (valueEl) valueEl.textContent = '0 раз';
-      }
     }
   }
 
   checkbox.addEventListener('change', updateUI);
-
-  if (slider && valueEl) {
-    slider.addEventListener('input', () => {
-      const val = parseInt(slider.value);
-      valueEl.textContent = val === 0 ? '0 раз' : (val === 1 ? '1 раз' : `${val} раз`);
-    });
-  }
-
-  // Изначальное состояние — ничего не выбрано
   updateUI();
 });
 
@@ -487,8 +499,8 @@ function generateMenu() {
   });
 
   activeMeals.forEach(meal => {
-    const slider = document.getElementById(`freq-${meal.key}`);
-    const freq = slider ? parseInt(slider.value) : 0;
+    const input = document.getElementById(`freq-${meal.key}`);
+    const freq = input ? parseInt(input.value) : 0;
     if (freq <= 0) return;
 
     const recipes = loadedRecipes[meal.file] || [];
