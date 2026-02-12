@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Рецепты по имеющимся продуктам</title>
+  <title>Умный поиск рецептов</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'Inter', sans-serif;
       background: linear-gradient(135deg, #ffecd2, #fcb69f);
       min-height: 100vh;
       display: flex;
@@ -27,211 +27,166 @@
       padding: 32px 28px;
       box-shadow: 0 30px 70px rgba(0,0,0,.18);
     }
-    h1 {
-      font-size: 26px;
-      font-weight: 700;
-      text-align: center;
-      margin: 0 0 28px;
-      line-height: 1.3;
-      color: #d35400;
-    }
-    .ingredients-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-      gap: 10px 12px;
-      margin-bottom: 20px;
-    }
-    .ingredient-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      background: #fdfaf7;
-      border: 1px solid #f4d3b5;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: all 0.22s;
-    }
-    .ingredient-item:has(input:checked) {
-      background: #fff8f2;
-      border-color: #f4a261;
-      transform: translateY(-1px);
-    }
-    .ingredient-item input {
-      width: 18px;
-      height: 18px;
-      accent-color: #f4a261;
-    }
-    .main-btn {
-      padding: 18px 32px;
-      background: linear-gradient(135deg, #f6d365, #fda085);
-      font-size: 17px;
-      color: #222;
-      width: 100%;
-      margin: 16px 0 12px;
-      border: none;
-      border-radius: 40px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .main-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    
     .back-btn {
       padding: 14px 24px;
       background: linear-gradient(135deg, #a0d8ef, #b8e0f8);
       color: #222;
-      font-size: 16px;
       width: 100%;
-      margin-bottom: 16px;
       border: none;
       border-radius: 40px;
       cursor: pointer;
-      /* Сделал текст жирным по вашему запросу */
-      font-weight: 800; 
+      font-weight: 800; /* Максимально жирный */
+      margin-bottom: 16px;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 28px;
+      color: #d35400;
+    }
+    .ingredients-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .ingredient-item {
+      display: flex; align-items: center; gap: 8px; padding: 10px;
+      background: #fdfaf7; border: 1px solid #f4d3b5; border-radius: 12px;
+      cursor: pointer; font-size: 14px; transition: 0.2s;
+    }
+    .ingredient-item:has(input:checked) { background: #fff8f2; border-color: #f4a261; }
+    
+    .main-btn {
+      padding: 18px; background: linear-gradient(135deg, #f6d365, #fda085);
+      width: 100%; border-radius: 40px; border: none; font-weight: 700; font-size: 17px;
+      cursor: pointer; margin-bottom: 10px;
+    }
+    .main-btn:disabled { opacity: 0.5; }
 
     .refresh-btn {
-      padding: 16px;
-      background: linear-gradient(135deg, #4caf50, #66bb6a);
-      color: white;
-      width: 100%;
-      border-radius: 40px;
-      border: none;
-      font-weight: 700;
-      cursor: pointer;
-      display: none;
-      margin-bottom: 10px;
+      padding: 16px; background: linear-gradient(135deg, #4caf50, #66bb6a);
+      color: white; width: 100%; border-radius: 40px; border: none; font-weight: 700;
+      cursor: pointer; display: none; margin-bottom: 20px;
     }
-
-    /* Стили значков ингредиентов */
-    .ing-tag { padding: 4px 8px; border-radius: 6px; font-size: 12px; display: inline-block; margin: 2px; }
-    .have { background: #e3fcef; color: #27ae60; font-weight: 600; }
-    .missing-main { background: #ffe3e3; color: #eb4d4b; border: 1px solid #ffcccc; }
-    .missing-extra { background: #f1f2f6; color: #b2bec3; text-decoration: line-through; }
 
     .recipe-card {
-      background: #fffef9;
-      border-radius: 16px;
-      padding: 20px;
-      margin-top: 24px;
-      border: 1px solid #f0e8e0;
+      background: white; border-radius: 20px; overflow: hidden;
+      border: 1px solid #eee; margin-top: 20px; animation: fadeIn 0.4s ease;
     }
+    @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+    
+    .recipe-card img { width: 100%; height: 220px; object-fit: cover; }
+    .recipe-info { padding: 20px; }
+    .recipe-title { font-size: 22px; font-weight: 700; color: #d35400; margin-bottom: 10px; }
+    
+    .ing-tag { padding: 5px 10px; border-radius: 8px; font-size: 13px; display: inline-block; margin: 3px; }
+    .have { background: #e3fcef; color: #27ae60; font-weight: 600; }
+    .missing-main { background: #ffe3e3; color: #eb4d4b; border: 1px solid #ffcccc; font-weight: 700; }
+    .missing-extra { background: #f1f2f6; color: #b2bec3; text-decoration: line-through; opacity: 0.7; }
+    
+    .steps-box { margin-top: 15px; font-size: 15px; line-height: 1.6; color: #444; border-top: 1px solid #eee; padding-top: 10px; }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <button class="back-btn" onclick="window.history.back()"><strong>← Назад в меню</strong></button>
+  <button class="back-btn" onclick="window.history.back()">← Назад в меню</button>
   <h1>Что есть дома?</h1>
 
   <div class="ingredients-grid" id="ingredientsList"></div>
   
-  <button class="main-btn" id="findRecipesBtn" disabled>Найти подходящие рецепты</button>
-  <button class="refresh-btn" id="refreshBtn">Показать другой вариант</button>
+  <button class="main-btn" id="findBtn" disabled>Сгенерировать рецепт</button>
+  <button class="refresh-btn" id="refreshBtn">Другой вариант</button>
 
   <div id="results"></div>
 </div>
 
 <script>
-// Данные теперь встроены прямо в скрипт, чтобы кнопка работала без сервера
-const recipesData = [
-  {
-    "title": "Грибной омлет",
-    "time": "10",
-    "calories": "250",
-    "ingredients": [
-      { "id": "mushrooms", "name": "шампиньоны", "isMain": true },
-      { "id": "eggs", "name": "2 яйца", "isMain": true },
-      { "id": "onion", "name": "лук", "isMain": true },
-      { "id": "salt", "name": "соль", "isMain": false }
-    ],
-    "steps": ["Грибы режем...", "Обжариваем...", "Яйца взбиваем..."]
-  },
-  {
-    "title": "Лаваш с творогом",
-    "time": "20",
-    "calories": "260",
-    "ingredients": [
-      { "id": "lavash", "name": "лаваш", "isMain": true },
-      { "id": "cottage_cheese", "name": "творог", "isMain": true },
-      { "id": "cheese", "name": "сыр", "isMain": true },
-      { "id": "eggs", "name": "яйцо", "isMain": true }
-    ],
-    "steps": ["Смешайте творог...", "Заверните в лаваш...", "Запекайте..."]
-  }
-];
-
-const POPULAR_INGREDIENTS = [
-  {id: "eggs", name: "Яйца"}, {id: "mushrooms", name: "Грибы"},
-  {id: "cheese", name: "Сыр"}, {id: "lavash", name: "Лаваш"},
-  {id: "cottage_cheese", name: "Творог"}, {id: "onion", name: "Лук"}
+const CATALOG = [
+  {id: "eggs", name: "Яйца"}, {id: "mushrooms", name: "Грибы"}, {id: "onion", name: "Лук"},
+  {id: "bran", name: "Отруби"}, {id: "cottage_cheese", name: "Творог"}, {id: "lavash", name: "Лаваш"},
+  {id: "cheese", name: "Сыр"}, {id: "tomato", name: "Помидоры"}, {id: "fish", name: "Рыба"}
 ];
 
 let selected = new Set();
-let matchingRecipes = [];
-let currentIndex = 0;
+let foundRecipes = [];
+let currentIdx = 0;
 
-const listEl = document.getElementById('ingredientsList');
-const findBtn = document.getElementById('findRecipesBtn');
-const refreshBtn = document.getElementById('refreshBtn');
-const resultsEl = document.getElementById('results');
-
+// Инициализация списка ингредиентов
 function init() {
-  listEl.innerHTML = POPULAR_INGREDIENTS.map(ing => `
+  const grid = document.getElementById('ingredientsList');
+  grid.innerHTML = CATALOG.map(i => `
     <label class="ingredient-item">
-      <input type="checkbox" value="${ing.id}" onchange="toggle('${ing.id}')">
-      <span>${ing.name}</span>
+      <input type="checkbox" value="${i.id}" onchange="toggleIng('${i.id}')">
+      <span>${i.name}</span>
     </label>
   `).join('');
 }
 
-function toggle(id) {
-  if (selected.has(id)) selected.delete(id);
-  else selected.add(id);
-  findBtn.disabled = selected.size === 0;
-  refreshBtn.style.display = 'none';
+function toggleIng(id) {
+  if (selected.has(id)) selected.delete(id); else selected.add(id);
+  document.getElementById('findBtn').disabled = selected.size === 0;
+  document.getElementById('refreshBtn').style.display = 'none';
 }
 
+// Отрисовка рецепта
 function renderRecipe(recipe) {
-  const ingHTML = recipe.ingredients.map(ing => {
+  const tags = recipe.ingredients.map(ing => {
     const has = selected.has(ing.id);
-    const cls = has ? 'have' : (ing.isMain ? 'missing-main' : 'missing-extra');
-    const label = has ? ing.name : (ing.isMain ? ing.name + " (заменить!)" : ing.name);
-    return `<span class="ing-tag ${cls}">${label}</span>`;
+    let cls = has ? 'have' : (ing.isMain ? 'missing-main' : 'missing-extra');
+    let text = has ? ing.name : (ing.isMain ? ing.name + " (нужно!)" : ing.name);
+    return `<span class="ing-tag ${cls}">${text}</span>`;
   }).join('');
 
-  resultsEl.innerHTML = `
+  document.getElementById('results').innerHTML = `
     <div class="recipe-card">
-      <h2 style="color: #d35400; margin-bottom:10px;">${recipe.title}</h2>
-      <p style="font-size:14px; color:#666; margin-bottom:15px;">⏱ ${recipe.time} мин | 🔥 ${recipe.calories} ккал</p>
-      <div>${ingHTML}</div>
-      <div style="margin-top:15px; font-size:15px; line-height:1.5;">
-        <strong>Приготовление:</strong><br>${recipe.steps.join('<br>')}
+      <img src="${recipe.photo}" onerror="this.src='https://via.placeholder.com/500x300?text=Нет+фото'">
+      <div class="recipe-info">
+        <div class="recipe-title">${recipe.title}</div>
+        <p style="color:#666; font-size:14px; margin-bottom:12px;">⏱ ${recipe.time} | 🔥 ${recipe.calories} ккал</p>
+        <div>${tags}</div>
+        <div class="steps-box">
+          <strong>Приготовление:</strong><br>
+          ${recipe.steps.map((s,i) => `${i+1}. ${s}`).join('<br>')}
+        </div>
       </div>
     </div>
   `;
 }
 
-findBtn.onclick = () => {
-  // Алгоритм 80% совпадения основных ингредиентов
-  matchingRecipes = recipesData.filter(recipe => {
-    const mains = recipe.ingredients.filter(i => i.isMain);
-    const count = mains.filter(i => selected.has(i.id)).length;
-    return (count / mains.length) >= 0.8;
-  }).sort(() => Math.random() - 0.5);
+// Загрузка JSON и поиск
+document.getElementById('findBtn').onclick = async () => {
+  try {
+    const response = await fetch('breakfast.json');
+    const recipes = await response.json();
 
-  if (matchingRecipes.length > 0) {
-    currentIndex = 0;
-    renderRecipe(matchingRecipes[currentIndex]);
-    if (matchingRecipes.length > 1) refreshBtn.style.display = 'block';
-  } else {
-    resultsEl.innerHTML = '<p style="text-align:center; padding:20px;">Ничего не нашлось. Попробуйте выбрать больше продуктов!</p>';
+    foundRecipes = recipes.filter(r => {
+      const mains = r.ingredients.filter(i => i.isMain);
+      const matched = mains.filter(i => selected.has(i.id)).length;
+      return (matched / mains.length) >= 0.75; // Условие совпадения
+    }).sort(() => Math.random() - 0.5);
+
+    if (foundRecipes.length > 0) {
+      currentIdx = 0;
+      renderRecipe(foundRecipes[currentIdx]);
+      if (foundRecipes.length > 1) document.getElementById('refreshBtn').style.display = 'block';
+    } else {
+      document.getElementById('results').innerHTML = '<p style="text-align:center; padding:20px; color:#666;">По этим ингредиентам ничего не найдено. Попробуйте выбрать другие.</p>';
+    }
+  } catch (err) {
+    console.error("Ошибка загрузки JSON:", err);
+    alert("Положите файл breakfast.json в ту же папку, что и этот HTML!");
   }
 };
 
-refreshBtn.onclick = () => {
-  currentIndex = (currentIndex + 1) % matchingRecipes.length;
-  renderRecipe(matchingRecipes[currentIndex]);
+document.getElementById('refreshBtn').onclick = () => {
+  currentIdx = (currentIdx + 1) % foundRecipes.length;
+  renderRecipe(foundRecipes[currentIdx]);
 };
 
 init();
