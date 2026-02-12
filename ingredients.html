@@ -3,497 +3,220 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Рецепты по ингредиентам</title>
+  <title>Умный Поиск Рецептов</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: linear-gradient(135deg, #ffecd2, #fcb69f);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      color: #222;
-      padding: 30px 16px;
+    :root {
+      --primary: #ff6b6b;
+      --bg: #f9f9f9;
+      --text: #2d3436;
+      --success: #27ae60;
+      --error: #eb4d4b;
+      --gray: #b2bec3;
     }
-    .card {
-      width: 100%;
-      max-width: 540px;
-      background: rgba(255,255,255,.96);
-      border-radius: 26px;
-      padding: 32px 28px;
-      box-shadow: 0 30px 70px rgba(0,0,0,.18);
-    }
-    h1 {
-      font-size: 26px;
-      font-weight: 700;
-      text-align: center;
-      margin: 0 0 28px;
-      line-height: 1.3;
-      color: #d35400;
-    }
-    .section-title {
-      text-align: left;
-      font-size: 17px;
-      font-weight: 600;
-      color: #333;
-      margin: 24px 0 14px;
-    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .container { width: 100%; max-width: 600px; }
+    
+    h1 { font-size: 22px; text-align: center; margin-bottom: 20px; color: #2d3436; }
+
+    /* Сетка выбора */
     .ingredients-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-      gap: 10px 12px;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 10px;
       margin-bottom: 20px;
     }
+
     .ingredient-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      background: #fdfaf7;
-      border: 1px solid #f4d3b5;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: all 0.22s;
-      user-select: none;
+      background: white; border: 2px solid #eee; border-radius: 12px;
+      padding: 12px 8px; text-align: center; cursor: pointer;
+      transition: all 0.2s; font-size: 14px; position: relative;
     }
-    .ingredient-item:hover {
-      background: #fff8f2;
-      border-color: #f4a261;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(244,162,97,0.12);
+
+    .ingredient-item input { position: absolute; opacity: 0; }
+
+    .ingredient-item:has(input:checked) {
+      border-color: var(--primary); background-color: #fff5f5;
+      transform: translateY(-2px); box-shadow: 0 4px 10px rgba(255,107,107,0.1);
     }
-    .ingredient-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: #f4a261;
-    }
-    .ingredient-item span {
-      font-size: 15px;
-      line-height: 1.4;
-      color: #444;
-    }
+
+    /* Кнопки */
+    .actions { display: flex; gap: 10px; margin-bottom: 25px; }
     button {
-      font-family: 'Inter', sans-serif;
-      cursor: pointer;
-      border: none;
-      border-radius: 40px;
-      font-weight: 600;
-      transition: all .3s;
-      -webkit-tap-highlight-color: transparent;
+      flex: 1; padding: 15px; border-radius: 12px; border: none;
+      font-weight: 600; font-size: 16px; cursor: pointer;
     }
-    .main-btn {
-      padding: 18px 32px;
-      background: linear-gradient(135deg, #f6d365, #fda085);
-      font-size: 17px;
-      color: #222;
-      width: 100%;
-      margin: 16px 0 12px;
-    }
-    .main-btn:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-    .main-btn:not(:disabled):hover,
-    .main-btn:not(:disabled):active {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0,0,0,.15);
-    }
-    .back-btn {
-      padding: 14px 24px;
-      background: linear-gradient(135deg, #a0d8ef, #b8e0f8);
-      color: #222;
-      font-size: 16px;
-      width: 100%;
-      margin-bottom: 24px;
-    }
-    .back-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(160,216,239,0.4);
-    }
-    .secondary-btn {
-      padding: 16px 28px;
-      background: linear-gradient(135deg, #e0e0e0, #d0d0d0);
-      color: #444;
-      font-size: 16px;
-      width: 100%;
-    }
-    .secondary-btn:hover {
-      background: linear-gradient(135deg, #d0d0d0, #c0c0c0);
-    }
+    #findBtn { background: var(--primary); color: white; }
+    #findBtn:disabled { background: var(--gray); }
+    #clearBtn { background: #eee; }
+
+    /* Карточки рецептов */
     .recipe-card {
-      background: #fffef9;
-      border-radius: 16px;
-      padding: 20px;
-      margin: 24px 0;
-      border: 1px solid #f0e8e0;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+      background: white; border-radius: 20px; overflow: hidden;
+      margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
     }
-    .recipe-title {
-      font-size: 21px;
-      font-weight: 700;
-      color: #c7903d;
-      margin-bottom: 12px;
+    .recipe-card img { width: 100%; height: 200px; object-fit: cover; }
+    .recipe-content { padding: 20px; }
+    .recipe-content h3 { margin: 0 0 10px; font-size: 18px; }
+
+    /* Стилизация списка ингредиентов внутри рецепта */
+    .ing-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+    .ing-badge {
+      padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 500;
+      display: flex; align-items: center; gap: 4px;
     }
-    .recipe-meta {
-      font-size: 14.5px;
-      color: #666;
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-    .plain-list {
-      text-align: left;
-      font-size: 15.5px;
-      line-height: 1.65;
-      color: #333;
-      margin: 12px 0 20px;
-      white-space: pre-wrap;
-    }
-    .note {
-      text-align: left;
-      margin-top: 20px;
-      font-size: 15px;
-      color: #555;
-      font-style: italic;
-      padding: 14px 16px;
-      background: #fdfaf7;
-      border-left: 4px solid #f4a261;
-      border-radius: 8px;
-      line-height: 1.6;
-    }
-    .note strong { color: #d35400; font-style: normal; }
-    .no-results, .loader {
-      text-align: center;
-      padding: 40px 20px;
-      color: #666;
-      font-size: 16.5px;
-      line-height: 1.6;
-    }
-    .error {
-      color: #d32f2f;
-      background: #ffebee;
-      padding: 12px 16px;
-      border-radius: 10px;
-      margin: 16px 0;
-      font-size: 15px;
-      text-align: center;
-    }
-    .auth-form {
-      display: none;
-      margin-bottom: 24px;
-    }
-    .auth-form input {
-      width: 100%;
-      padding: 12px 16px;
-      margin: 8px 0;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 15px;
-    }
-    .auth-btn {
-      margin-top: 12px;
-    }
-    .toggle-auth {
-      font-size: 14px;
-      color: #666;
-      text-align: center;
-      margin-top: 12px;
-      cursor: pointer;
-    }
-    .toggle-auth span {
-      color: #d35400;
-      text-decoration: underline;
-    }
-    @media (max-width: 380px) {
-      .card { padding: 24px 20px; border-radius: 20px; }
-      h1 { font-size: 23px; }
-      .ingredients-grid { grid-template-columns: 1fr 1fr; }
-    }
+
+    /* 1. Ингредиент ЕСТЬ */
+    .ing-badge.have { background: #e3fcef; color: var(--success); }
+    
+    /* 2. НЕТ основного (Красный) */
+    .ing-badge.missing-main { background: #ffe3e3; color: var(--error); border: 1px solid #ffcccc; }
+    .ing-badge.missing-main::after { content: " (заменить?)"; font-size: 10px; opacity: 0.8; }
+
+    /* 3. НЕТ второстепенного (Серый зачеркнутый) */
+    .ing-badge.missing-extra { background: #f1f2f6; color: var(--gray); text-decoration: line-through; }
+
+    .match-info { font-size: 12px; color: #636e72; margin-bottom: 10px; }
   </style>
 </head>
 <body>
-<div class="card">
-  <button class="back-btn" onclick="window.location.href='index.html'">
-    ← Назад в меню
-  </button>
-  <h1>Рецепты по имеющимся продуктам</h1>
-  
-  <!-- Форма аутентификации -->
-  <div id="authSection" class="auth-form">
-    <input type="email" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Пароль" required>
-    <button class="main-btn auth-btn" id="authBtn">Войти</button>
-    <div class="toggle-auth" id="toggleAuth">
-      Нет аккаунта? <span>Зарегистрироваться</span>
-    </div>
-    <div class="error" id="authError" style="display: none;"></div>
+
+<div class="container">
+  <h1>Твой холодильник</h1>
+
+  <div class="ingredients-grid" id="ingredientsList"></div>
+
+  <div class="actions">
+    <button id="clearBtn">Сброс</button>
+    <button id="findBtn" disabled>Найти завтрак</button>
   </div>
-  
-  <!-- Основной контент (скрыт по умолчанию) -->
-  <div id="mainContent" style="display: none;">
-    <div class="section-title">Отметьте, что есть дома:</div>
-    <div class="ingredients-grid" id="ingredientsList"></div>
-    <button class="main-btn" id="findRecipesBtn" disabled>Найти подходящие рецепты</button>
-    <button class="secondary-btn" id="clearBtn">Сбросить выбор</button>
-    <button class="secondary-btn" id="logoutBtn" style="margin-top: 12px;">Выйти</button>
-    <div id="results">
-      <div class="loader" id="loader" style="display:none">Поиск рецептов...</div>
-    </div>
-  </div>
-  
-  <!-- Сообщение об истекшем триале -->
-  <div id="trialExpired" style="display: none;" class="note">
-    <strong>Ваш тестовый период истек.</strong><br>
-    Для продолжения использования оформите подписку.
-  </div>
+
+  <div id="results"></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/pocketbase/dist/pocketbase.umd.js"></script>
-<script type="module">
-// ─── НАСТРОЙКИ ────────────────────────────────────────────────
-const PB_URL = 'http://your-pocketbase-server:8090'; // Замените на URL вашего PocketBase сервера
-const pb = new PocketBase(PB_URL);
+<script>
+  // Список для выбора пользователем
+  const INGREDIENTS_CATALOG = [
+    { id: 'eggs', name: 'Яйца' },
+    { id: 'mushrooms', name: 'Грибы' },
+    { id: 'cheese', name: 'Сыр' },
+    { id: 'lavash', name: 'Лаваш' },
+    { id: 'cottage_cheese', name: 'Творог' },
+    { id: 'tomato', name: 'Помидоры' },
+    { id: 'bread', name: 'Хлеб' },
+    { id: 'milk', name: 'Молоко' }
+  ];
 
-const CATEGORIES = ['breakfast', 'lunch', 'dinner', 'soups', 'dessert'];
-const POPULAR_INGREDIENTS = [
-  "яйца", "молоко", "сахар", "мука", "масло сливочное", "масло растительное",
-  "курица", "говядина", "свинина", "рыба", "картофель", "морковь", "лук",
-  "помидоры", "огурцы", "капуста", "рис", "гречка", "макароны", "овсянка",
-  "творог", "сыр", "сметана", "кефир", "йогурт", "яблоки", "бананы",
-  "апельсины", "лимон", "чеснок", "зелень", "укроп", "петрушка", "специи",
-  "соль", "перец", "мёд", "шоколад", "какао", "разрыхлитель", "сода"
-];
-// ─── Элементы ─────────────────────────────────────────────────
-const authSection = document.getElementById('authSection');
-const mainContent = document.getElementById('mainContent');
-const trialExpired = document.getElementById('trialExpired');
-const authBtn = document.getElementById('authBtn');
-const toggleAuth = document.getElementById('toggleAuth');
-const authError = document.getElementById('authError');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const logoutBtn = document.getElementById('logoutBtn');
+  // Пример базы рецептов (структуру нужно будет перенести в JSON)
+  const recipes = [
+    {
+      title: "Грибной омлет",
+      photo: "https://images.unsplash.com/photo-1510629954389-c1e0da47d414?auto=format&fit=crop&w=600&q=80",
+      time: "10 мин",
+      ingredients: [
+        { id: 'eggs', name: '2 яйца', isMain: true },
+        { id: 'mushrooms', name: 'шампиньоны', isMain: true },
+        { id: 'milk', name: 'молоко', isMain: true },
+        { id: 'oil', name: 'масло', isMain: false },
+        { id: 'salt', name: 'соль', isMain: false }
+      ]
+    },
+    {
+      title: "Творожный лаваш",
+      photo: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80",
+      time: "20 мин",
+      ingredients: [
+        { id: 'lavash', name: 'лаваш', isMain: true },
+        { id: 'cottage_cheese', name: 'творог', isMain: true },
+        { id: 'cheese', name: 'сыр', isMain: true },
+        { id: 'eggs', name: 'яйцо', isMain: true },
+        { id: 'sugar', name: 'сахар', isMain: false }
+      ]
+    }
+  ];
 
-const ingListEl = document.getElementById('ingredientsList');
-const findBtn = document.getElementById('findRecipesBtn');
-const clearBtn = document.getElementById('clearBtn');
-const resultsEl = document.getElementById('results');
-const loaderEl = document.getElementById('loader');
-// ─── Состояние ────────────────────────────────────────────────
-let selected = new Set();
-let isRegisterMode = false;
-// ─── Функции ──────────────────────────────────────────────────
-function renderIngredients() {
-  ingListEl.innerHTML = '';
-  POPULAR_INGREDIENTS.forEach(name => {
-    const label = document.createElement('label');
-    label.className = 'ingredient-item';
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.addEventListener('change', e => {
-      if (e.target.checked) selected.add(name.toLowerCase());
-      else selected.delete(name.toLowerCase());
-      findBtn.disabled = selected.size === 0;
+  const selected = new Set();
+  const listEl = document.getElementById('ingredientsList');
+  const resultsEl = document.getElementById('results');
+  const findBtn = document.getElementById('findBtn');
+
+  // Отрисовка плиток
+  function init() {
+    listEl.innerHTML = INGREDIENTS_CATALOG.map(ing => `
+      <label class="ingredient-item">
+        <input type="checkbox" value="${ing.id}">
+        <span>${ing.name}</span>
+      </label>
+    `).join('');
+
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('change', (e) => {
+        if (e.target.checked) selected.add(e.target.value);
+        else selected.delete(e.target.value);
+        findBtn.disabled = selected.size === 0;
+      });
     });
-    const span = document.createElement('span');
-    span.textContent = name;
-    label.append(cb, span);
-    ingListEl.appendChild(label);
-  });
-}
-async function loadAllRecipes() {
-  const all = [];
-  for (const cat of CATEGORIES) {
-    try {
-      const r = await fetch(`recipes/${cat}.json`);
-      if (!r.ok) continue;
-      const data = await r.json();
-      data.forEach(recipe => { recipe.category = cat; });
-      all.push(...data);
-    } catch {}
   }
-  return all;
-}
-function normalize(str) {
-  return (str || '').toLowerCase()
-    .replace(/ё/g, 'е')
-    .replace(/[^а-я0-9\s]/gi, '')
-    .trim();
-}
-function matchesRecipe(recipe, selectedSet) {
-  if (!recipe.ingredients?.length) return false;
-  const recipeNorm = recipe.ingredients.map(i => normalize(i));
-  let hitCount = 0;
-  for (const s of selectedSet) {
-    if (recipeNorm.some(r => r.includes(s) || s.includes(r))) hitCount++;
-  }
-  return hitCount / selectedSet.size >= 0.58; // порог можно подвинуть
-}
-async function showMatchingRecipes() {
-  if (selected.size === 0) return;
-  resultsEl.innerHTML = '';
-  loaderEl.style.display = 'block';
-  findBtn.disabled = true;
-  try {
-    const allRecipes = await loadAllRecipes();
-    const matches = allRecipes.filter(r => matchesRecipe(r, selected));
-    loaderEl.style.display = 'none';
-    if (!matches.length) {
-      resultsEl.innerHTML = `
-        <div class="no-results">
-          Подходящих рецептов не найдено 😔<br><br>
-          Попробуйте отметить больше продуктов
-        </div>`;
+
+  findBtn.onclick = () => {
+    resultsEl.innerHTML = '';
+
+    const filtered = recipes.map(recipe => {
+      const mains = recipe.ingredients.filter(i => i.isMain);
+      const matchedMains = mains.filter(i => selected.has(i.id)).length;
+      const score = Math.round((matchedMains / mains.length) * 100);
+      return { ...recipe, score };
+    }).filter(r => r.score >= 70); // Порог 70-80%
+
+    if (filtered.length === 0) {
+      resultsEl.innerHTML = '<p style="text-align:center; color:gray;">Ничего не нашлось. Выберите больше продуктов.</p>';
       return;
     }
-    const catNames = {
-      breakfast: "Завтрак",
-      lunch: "Обед",
-      dinner: "Ужин",
-      soups: "Супы",
-      dessert: "Десерт"
-    };
-    matches.forEach(r => {
+
+    filtered.sort((a,b) => b.score - a.score).forEach(recipe => {
       const card = document.createElement('div');
       card.className = 'recipe-card';
+      
+      const ingHTML = recipe.ingredients.map(ing => {
+        const hasIt = selected.has(ing.id);
+        let statusClass = '';
+        
+        if (hasIt) {
+          statusClass = 'have'; // Есть
+        } else if (ing.isMain) {
+          statusClass = 'missing-main'; // Нет основного (КРАСНЫЙ)
+        } else {
+          statusClass = 'missing-extra'; // Нет второстепенного (СЕРЫЙ ЗАЧЕРКНУТЫЙ)
+        }
+
+        return `<span class="ing-badge ${statusClass}">${ing.name}</span>`;
+      }).join('');
+
       card.innerHTML = `
-        <div class="recipe-title">${r.title || 'Без названия'}</div>
-        <div class="recipe-meta">
-          ${catNames[r.category] || r.category} • ${r.time || '?'} мин • ${r.calories || '?'} ккал
+        <img src="${recipe.photo}">
+        <div class="recipe-content">
+          <div class="match-info">Подходит на ${recipe.score}%</div>
+          <h3>${recipe.title}</h3>
+          <div class="ing-list">${ingHTML}</div>
         </div>
-        <div class="plain-list">
-          <strong>Ингредиенты:</strong><br>
-          ${r.ingredients.map(i => `• ${i.trim()}`).join('<br>')}
-        </div>
-        <div class="plain-list">
-          <strong>Приготовление:</strong><br>
-          ${r.steps?.map((s,i) => `${i+1}. ${s.trim()}`).join('<br>') || '—'}
-        </div>
-        ${r.note ? `<div class="note"><strong>Примечание:</strong><br>${r.note.trim()}</div>` : ''}
       `;
       resultsEl.appendChild(card);
     });
-  } catch (err) {
-    console.error(err);
-    loaderEl.style.display = 'none';
-    resultsEl.innerHTML = '<div class="error">Не удалось загрузить рецепты</div>';
-  } finally {
-    findBtn.disabled = false;
-  }
-}
+  };
 
-async function checkAccess() {
-  if (!pb.authStore.isValid) {
-    authSection.style.display = 'block';
-    mainContent.style.display = 'none';
-    trialExpired.style.display = 'none';
-    return false;
-  }
-
-  try {
-    // Обновляем модель пользователя (если нужно)
-    await pb.collection('users').authRefresh();
-
-    const user = pb.authStore.model;
-    
-    // Предполагаем, что в коллекции users есть поля: 
-    // - trial_start (datetime, дата начала триала)
-    // - subscribed (boolean, активна ли платная подписка)
-    // Если полей нет, добавьте их в PocketBase админке.
-
-    const trialStart = new Date(user.trial_start);
-    const trialEnd = new Date(trialStart);
-    trialEnd.setDate(trialEnd.getDate() + 3); // 3 дня триала
-
-    const now = new Date();
-    const hasAccess = user.subscribed || (now < trialEnd && user.trial_start);
-
-    if (hasAccess) {
-      authSection.style.display = 'none';
-      mainContent.style.display = 'block';
-      trialExpired.style.display = 'none';
-      renderIngredients();
-      return true;
-    } else {
-      authSection.style.display = 'none';
-      mainContent.style.display = 'none';
-      trialExpired.style.display = 'block';
-      return false;
-    }
-  } catch (err) {
-    console.error('Ошибка проверки доступа:', err);
-    pb.authStore.clear();
-    checkAccess(); // Повторно показать форму
-    return false;
-  }
-}
-
-async function handleAuth() {
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
-
-  if (!email || !password) {
-    authError.textContent = 'Заполните все поля';
-    authError.style.display = 'block';
-    return;
-  }
-
-  try {
-    if (isRegisterMode) {
-      // Регистрация
-      const data = {
-        email,
-        password,
-        passwordConfirm: password,
-        trial_start: new Date().toISOString(), // Устанавливаем дату начала триала
-        subscribed: false // По умолчанию без подписки
-      };
-      await pb.collection('users').create(data);
-      // Автоматический логин после регистрации
-      await pb.collection('users').authWithPassword(email, password);
-    } else {
-      // Логин
-      await pb.collection('users').authWithPassword(email, password);
-    }
-
-    authError.style.display = 'none';
-    checkAccess();
-  } catch (err) {
-    authError.textContent = err.message || 'Ошибка аутентификации';
-    authError.style.display = 'block';
-  }
-}
-
-function toggleMode() {
-  isRegisterMode = !isRegisterMode;
-  authBtn.textContent = isRegisterMode ? 'Зарегистрироваться' : 'Войти';
-  toggleAuth.innerHTML = isRegisterMode 
-    ? 'Уже есть аккаунт? <span>Войти</span>' 
-    : 'Нет аккаунта? <span>Зарегистрироваться</span>';
-}
-
-// ─── Инициализация ────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
-  // Проверяем доступ при загрузке
-  await checkAccess();
-
-  authBtn.onclick = handleAuth;
-  toggleAuth.onclick = toggleMode;
-  findBtn.onclick = showMatchingRecipes;
-  clearBtn.onclick = () => {
+  document.getElementById('clearBtn').onclick = () => {
     selected.clear();
-    document.querySelectorAll('#ingredientsList input').forEach(el => el.checked = false);
+    document.querySelectorAll('input').forEach(i => i.checked = false);
     findBtn.disabled = true;
     resultsEl.innerHTML = '';
   };
-  logoutBtn.onclick = () => {
-    pb.authStore.clear();
-    checkAccess();
-  };
-});
+
+  init();
 </script>
+
 </body>
 </html>
