@@ -3,168 +3,196 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Умные рецепты по кругу</title>
+  <title>Умный поиск рецептов</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/pocketbase@0.21.1/dist/pocketbase.umd.min.js"></script>
   <style>
-    /* Стили из вашего оригинала */
-    :root {
-      --primary: #ff6b6b;
-      --bg: #f9f9f9;
-      --text: #2d3436;
-      --success: #27ae60;
-      --error: #eb4d4b;
-      --gray: #b2bec3;
+    /* ВАШ ОРИГИНАЛЬНЫЙ СТИЛЬ */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #ffecd2, #fcb69f);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      color: #222;
+      padding: 30px 16px;
     }
-
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    .container { width: 100%; max-width: 600px; }
-    
+    .card {
+      width: 100%;
+      max-width: 540px;
+      background: rgba(255,255,255,.96);
+      border-radius: 26px;
+      padding: 32px 28px;
+      box-shadow: 0 30px 70px rgba(0,0,0,.18);
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+      margin: 0 0 28px;
+      color: #d35400;
+    }
     .ingredients-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: 10px; margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 10px 12px;
+      margin-bottom: 20px;
     }
-
     .ingredient-item {
-      background: white; border: 2px solid #eee; border-radius: 12px;
-      padding: 12px 8px; text-align: center; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+      background: #fdfaf7; border: 1px solid #f4d3b5; border-radius: 14px;
+      cursor: pointer; transition: all 0.22s;
     }
-
-    .ingredient-item input { display: none; }
     .ingredient-item:has(input:checked) {
-      border-color: var(--primary); background-color: #fff5f5;
+      background: #fff8f2; border-color: #f4a261;
     }
-
-    /* Кнопки */
-    .actions { display: flex; gap: 10px; margin-bottom: 20px; }
-    button { flex: 1; padding: 15px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; }
-    #findBtn { background: var(--primary); color: white; }
-    #findBtn:disabled { background: var(--gray); }
-    #refreshBtn { background: #6c5ce7; color: white; display: none; } /* Кнопка обновить */
-
-    /* Карточки */
-    .recipe-card {
-      background: white; border-radius: 20px; overflow: hidden;
-      margin-top: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-    }
-    .recipe-card img { width: 100%; height: 200px; object-fit: cover; }
-    .recipe-content { padding: 20px; }
+    .ingredient-item input { width: 18px; height: 18px; accent-color: #f4a261; }
     
-    .ing-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
-    .badge { padding: 5px 10px; border-radius: 8px; font-size: 12px; }
-    .have { background: #e3fcef; color: var(--success); }
-    .missing-main { background: #ffe3e3; color: var(--error); border: 1px solid #ffcccc; }
-    .missing-main::after { content: " (замени!)"; font-size: 10px; }
-    .missing-extra { background: #f1f2f6; color: var(--gray); text-decoration: line-through; }
+    .main-btn {
+      padding: 18px 32px; background: linear-gradient(135deg, #f6d365, #fda085);
+      font-size: 17px; color: #222; width: 100%; border-radius: 40px; font-weight: 600;
+      margin: 16px 0; border: none; cursor: pointer;
+    }
+    .secondary-btn {
+      padding: 14px 24px; background: linear-gradient(135deg, #a0d8ef, #b8e0f8);
+      color: #222; width: 100%; border-radius: 40px; border: none; margin-bottom: 10px; cursor: pointer;
+    }
+    .refresh-btn {
+      padding: 16px; background: linear-gradient(135deg, #4caf50, #66bb6a);
+      color: white; width: 100%; border-radius: 40px; border: none; font-weight: 700; cursor: pointer;
+      display: none; margin-top: 10px;
+    }
+
+    /* НОВЫЕ СТИЛИ ДЛЯ ИНГРЕДИЕНТОВ В КАРТОЧКЕ */
+    .ing-tag { padding: 4px 8px; border-radius: 6px; font-size: 12px; margin-right: 4px; display: inline-block; margin-bottom: 4px; }
+    .ing-tag.have { background: #e3fcef; color: #27ae60; font-weight: 600; }
+    .ing-tag.missing-main { background: #ffe3e3; color: #eb4d4b; border: 1px solid #ffcccc; }
+    .ing-tag.missing-main::after { content: " (заменить?)"; font-size: 10px; opacity: 0.7; }
+    .ing-tag.missing-extra { background: #f1f2f6; color: #b2bec3; text-decoration: line-through; }
+    
+    .recipe-card {
+      background: #fffef9; border-radius: 16px; padding: 20px; margin-top: 24px;
+      border: 1px solid #f0e8e0; box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+    }
+    .recipe-title { font-size: 21px; font-weight: 700; color: #c7903d; margin-bottom: 10px; }
+    .match-percent { font-size: 12px; color: #d35400; font-weight: 600; float: right; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>Выбери продукты</h1>
-  <div class="ingredients-grid" id="ingredientsList"></div>
+<div class="card">
+  <button class="secondary-btn" onclick="window.location.href='index.html'">← Назад в меню</button>
+  <h1>Что есть дома?</h1>
 
-  <div class="actions">
-    <button id="findBtn" disabled>Подобрать рецепт</button>
-    <button id="refreshBtn">Показать другой</button>
-  </div>
+  <div class="ingredients-grid" id="ingredientsList"></div>
+  
+  <button class="main-btn" id="findBtn" disabled>Найти рецепт</button>
+  <button class="refresh-btn" id="refreshBtn">Показать другой вариант</button>
+  <button class="secondary-btn" id="clearBtn">Сбросить всё</button>
 
   <div id="results"></div>
 </div>
 
 <script>
-  const pb = new PocketBase('https://ВАШ-POCKETBASE-URL'); // Замените на ваш URL
-  
-  const CATALOG = [
-    { id: 'eggs', name: 'Яйца' }, { id: 'mushrooms', name: 'Грибы' },
-    { id: 'chicken', name: 'Курица' }, { id: 'cheese', name: 'Сыр' },
-    { id: 'pasta', name: 'Паста' }, { id: 'tomato', name: 'Помидоры' },
-    { id: 'lavash', name: 'Лаваш' }, { id: 'milk', name: 'Молоко/Сливки' }
+  // Тот же каталог ID, что и в JSON
+  const POPULAR_INGREDIENTS = [
+    {id: "eggs", name: "Яйца"}, {id: "milk", name: "Молоко"}, {id: "mushrooms", name: "Грибы"},
+    {id: "chicken", name: "Курица"}, {id: "cheese", name: "Сыр"}, {id: "tomato", name: "Помидоры"},
+    {id: "pasta", name: "Макароны"}, {id: "oil_veg", name: "Раст. масло"}, {id: "salt", name: "Соль"}
   ];
 
-  let currentMatchingRecipes = [];
+  let selected = new Set();
+  let foundRecipes = [];
   let currentIndex = 0;
-  const selected = new Set();
 
   const listEl = document.getElementById('ingredientsList');
-  const resultsEl = document.getElementById('results');
   const findBtn = document.getElementById('findBtn');
   const refreshBtn = document.getElementById('refreshBtn');
+  const resultsEl = document.getElementById('results');
 
-  // Отрисовка ингредиентов
-  function init() {
-    listEl.innerHTML = CATALOG.map(ing => `
+  // 1. Отрисовка списка выбора
+  function renderCatalog() {
+    listEl.innerHTML = POPULAR_INGREDIENTS.map(ing => `
       <label class="ingredient-item">
-        <input type="checkbox" value="${ing.id}">
+        <input type="checkbox" value="${ing.id}" onchange="toggleIng('${ing.id}')">
         <span>${ing.name}</span>
       </label>
     `).join('');
-
-    document.querySelectorAll('input').forEach(input => {
-      input.onchange = (e) => {
-        if (e.target.checked) selected.add(e.target.value);
-        else selected.delete(e.target.value);
-        findBtn.disabled = selected.size === 0;
-        refreshBtn.style.display = 'none'; // Скрываем "Обновить", если изменили выбор
-      };
-    });
   }
 
-  // Расчет совпадения
-  function calculateScore(recipe) {
-    const mains = recipe.ingredients.filter(i => i.isMain);
-    const matches = mains.filter(i => selected.has(i.id)).length;
-    return Math.round((matches / mains.length) * 100);
+  function toggleIng(id) {
+    if (selected.has(id)) selected.delete(id);
+    else selected.add(id);
+    findBtn.disabled = selected.size === 0;
+    refreshBtn.style.display = 'none';
   }
 
-  // Отрисовка ОДНОГО рецепта
-  function renderRecipe(recipe) {
-    const ingHTML = recipe.ingredients.map(ing => {
+  // 2. Логика расчета совпадения
+  function getMatchData(recipe) {
+    const mainIngs = recipe.ingredients.filter(i => i.isMain);
+    const matchedCount = mainIngs.filter(i => selected.has(i.id)).length;
+    const percent = Math.round((matchedCount / mainIngs.length) * 100);
+    return { percent, isFit: percent >= 80 };
+  }
+
+  // 3. Отрисовка конкретной карточки
+  function renderSingleRecipe(recipe) {
+    const ingsHtml = recipe.ingredients.map(ing => {
       const has = selected.has(ing.id);
       let cls = has ? 'have' : (ing.isMain ? 'missing-main' : 'missing-extra');
-      return `<span class="badge ${cls}">${ing.name}</span>`;
+      return `<span class="ing-tag ${cls}">${ing.name}</span>`;
     }).join('');
 
     resultsEl.innerHTML = `
       <div class="recipe-card">
-        <img src="${recipe.photo}">
-        <div class="recipe-content">
-          <small>Совпадение: ${recipe.score}%</small>
-          <h3>${recipe.title}</h3>
-          <div class="ing-list">${ingHTML}</div>
+        <div class="match-percent">${recipe.matchPercent}% совпало</div>
+        <div class="recipe-title">${recipe.title}</div>
+        <div style="font-size: 14px; color: #666; margin-bottom: 10px;">
+          ⏱ ${recipe.time} мин • 🔥 ${recipe.calories} ккал
+        </div>
+        <div class="plain-list"><strong>Ингредиенты:</strong><br>${ingsHtml}</div>
+        <div class="plain-list" style="margin-top:15px;">
+          <strong>Приготовление:</strong><br>
+          ${recipe.steps.map((s, i) => `${i+1}. ${s}`).join('<br>')}
         </div>
       </div>
     `;
   }
 
   findBtn.onclick = async () => {
-    // В реальности: fetch('all_recipes.json')
-    // Для теста используем массив из предыдущего сообщения
-    const data = await fetch('recipes.json').then(r => r.json()); 
+    // В реальном проекте: const data = await pb.collection('recipes').getFullList();
+    // Здесь имитируем загрузку JSON
+    const data = await fetch('recipes.json').then(r => r.json());
+    
+    foundRecipes = data
+      .map(r => {
+        const m = getMatchData(r);
+        return { ...r, matchPercent: m.percent, isFit: m.isFit };
+      })
+      .filter(r => r.isFit)
+      .sort(() => Math.random() - 0.5); // Рандомим список
 
-    currentMatchingRecipes = data
-      .map(r => ({ ...r, score: calculateScore(r) }))
-      .filter(r => r.score >= 70)
-      .sort(() => Math.random() - 0.5); // Случайный порядок
-
-    if (currentMatchingRecipes.length > 0) {
+    if (foundRecipes.length > 0) {
       currentIndex = 0;
-      renderRecipe(currentMatchingRecipes[currentIndex]);
-      if (currentMatchingRecipes.length > 1) refreshBtn.style.display = 'block';
+      renderSingleRecipe(foundRecipes[currentIndex]);
+      if (foundRecipes.length > 1) refreshBtn.style.display = 'block';
     } else {
-      resultsEl.innerHTML = '<p>Нет рецептов с совпадением 80% основных продуктов.</p>';
+      resultsEl.innerHTML = '<div class="no-results">Ничего не подходит на 80%. Попробуйте выбрать больше продуктов.</div>';
     }
   };
 
   refreshBtn.onclick = () => {
-    currentIndex = (currentIndex + 1) % currentMatchingRecipes.length; // Идем по кругу
-    renderRecipe(currentMatchingRecipes[currentIndex]);
+    currentIndex = (currentIndex + 1) % foundRecipes.length;
+    renderSingleRecipe(foundRecipes[currentIndex]);
   };
 
-  init();
+  document.getElementById('clearBtn').onclick = () => location.reload();
+
+  renderCatalog();
 </script>
 </body>
 </html>
