@@ -1,78 +1,187 @@
 [
   {
     "title": "Грибной омлет",
-    "photo": "pics/грибной_омлет.webp",
+    "photo": "грибной_омлет.webp",
     "time": "10 минут",
     "calories": 250,
     "ingredients": [
-      { "id": "eggs",       "name": "2 яйца",                "essential": true,  "important": false },
+      { "id": "eggs",       "name": "2 яйца",               "essential": true,  "important": false },
       { "id": "mushrooms",  "name": "шампиньоны 100-150 гр", "essential": true,  "important": false },
-      { "id": "onion",      "name": "лук 1/4 шт",            "essential": false, "important": true  },
-      { "id": "oil",        "name": "растительное масло",    "essential": false, "important": false },
-      { "id": "salt",       "name": "соль и специи",         "essential": false, "important": false }
+      { "id": "onion",      "name": "лук 1/4",              "essential": false, "important": true  },
+      { "id": "salt",       "name": "соль и специи",        "essential": false, "important": false }
     ],
     "steps": [
       "Грибы режем произвольно, лук измельчаем",
       "Обжариваем на масле до золотистого цвета",
       "Яйца взбиваем вилкой и выливаем на обжаренные грибы",
-      "Можно все перемешать или пожарить как блин"
+      "Можно все перемешать - получится скрамбл / пожарить на каждой стороне, как блин"
     ]
   },
   {
-    "title": "Бутерброды из отрубей",
-    "photo": "pics/бутерброды_из_отрубей.webp",
-    "time": "5 минут",
+    "title": "Бутерброды из отрубей (муки или овсянки)",
+    "photo": "бутерброды_из_отрубей.webp",
+    "time": "10 минут",
     "calories": 180,
     "ingredients": [
-      { "id": "bran",              "name": "2 ст. л. отрубей",         "essential": true,  "important": false },
-      { "id": "eggs",              "name": "1 яйцо",                   "essential": true,  "important": false },
+      { "id": "bran",              "name": "2 ст. л. отрубей",           "essential": true,  "important": false },
+      { "id": "eggs",              "name": "1 яйцо",                     "essential": true,  "important": false },
       { "id": "cottage_cheese_soft","name": "1,5 ст. л. мягкого творога","essential": false, "important": true  },
-      { "id": "baking_powder",     "name": "разрыхлитель",             "essential": false, "important": false },
-      { "id": "salt",              "name": "соль, зелень",             "essential": false, "important": false }
+      { "id": "baking_powder",     "name": "1/3 ч. л. разрыхлителя",     "essential": false, "important": false },
+      { "id": "salt",              "name": "соль, перец, зелень",        "essential": false, "important": false }
     ],
     "steps": [
       "Смешать все ингредиенты",
       "Выпекать в микроволновке 4 минуты",
-      "Дать остыть, разрезать и добавить начинку по вкусу"
+      "Дать остыть, затем намазать хлебную основу на кусок хруста",
+      "Варианты начинки: ветчина 30 г + вареное яйцо + зелень; запеченные баклажаны с чесноком и помидором 100 г; тунец 50 г + яйцо + сметана + зелень; малосоленая рыба 30 г + сметана + зелень"
     ]
   },
   {
-    "title": "Яичный рулет с форелью",
-    "photo": "pics/яичный_рулет_форель.webp",
+    "title": "Ленивые пирожки с зеленым луком",
+    "photo": "ленивые_пирожки.webp",
+    "time": "15 минут",
+    "calories": 200,
+    "ingredients": [
+      { "id": "eggs",       "name": "2 яйца (вареные) + 1 белок сырой", "essential": true,  "important": false },
+      { "id": "onion",      "name": "зелёный лук — по вкусу",           "essential": true,  "important": false },
+      { "id": "sour_cream", "name": "1 ст. ложка сметаны",              "essential": false, "important": true  },
+      { "id": "flour",      "name": "½ ст. ложки муки",                 "essential": false, "important": false }
+    ],
+    "steps": [
+      "Нарежьте варёные яйца кубиками, смешайте с мелко нарезанным луком",
+      "В отдельной миске взбейте сырой белок со сметаной, мукой и специями",
+      "Соедините обе смеси, аккуратно перемешайте",
+      "Жарьте на сковороде под крышкой по 3 минуты с каждой стороны"
+    ]
+  },
+  {
+    "title": "Блинчики с медом",
+    "photo": "блинчики_мед.webp",
+    "time": "10 минут",
+    "calories": 220,
+    "ingredients": [
+      { "id": "flour", "name": "100 г муки",   "essential": true,  "important": false },
+      { "id": "eggs",  "name": "1 яйцо",       "essential": true,  "important": false },
+      { "id": "milk",  "name": "100 мл молока","essential": false, "important": true  },
+      { "id": "honey", "name": "мед",          "essential": false, "important": false }
+    ],
+    "steps": [
+      "Смешайте муку, яйцо и молока до однородности",
+      "Выпекайте блины на сковороде",
+      "Полейте медом перед подачей"
+    ]
+  },
+  {
+    "title": "Ленивые хачапури на кефире",
+    "photo": "ленивый_хачапури.webp",
+    "time": "20 минут",
+    "calories": 280,
+    "ingredients": [
+      { "id": "cheese", "name": "100 г сыра (сулугуни + мягкий)", "essential": true,  "important": false },
+      { "id": "eggs",   "name": "1 яйцо",                          "essential": true,  "important": false },
+      { "id": "kefir",  "name": "100 мл кефира",                   "essential": false, "important": true  },
+      { "id": "flour",  "name": "50 г муки",                       "essential": false, "important": false }
+    ],
+    "steps": [
+      "Натрите сыр на тёрке, добавьте яйцо и кефир, перемешайте",
+      "Всыпьте муку до консистенции густой сметаны",
+      "Вылейте тесто на сковороду с разогретым маслом, разровняйте",
+      "Жарьте под крышкой на малом огне до сухости сверху (~5–7 мин)",
+      "Переверните и дожарьте до золотистой корочки с другой стороны"
+    ]
+  },
+  {
+    "title": "Овсяноблин с бананом",
+    "photo": "овсяноблин_банан.webp",
+    "time": "20 минут",
+    "calories": 136,
+    "ingredients": [
+      { "id": "oatmeal", "name": "4 ст. л. овсяных хлопьев", "essential": true,  "important": false },
+      { "id": "eggs",    "name": "1 яйцо",                    "essential": true,  "important": false },
+      { "id": "milk",    "name": "60 мл молока",              "essential": false, "important": true  },
+      { "id": "banana",  "name": "1 банан",                   "essential": false, "important": true  }
+    ],
+    "steps": [
+      "Смешайте хлопья, молоко, яйцо и соль, дайте набухнуть 5 минут",
+      "Один банан разделите: половину нарежьте колечками для начинки, вторую часть разомните в пюре",
+      "Добавьте банановое пюре в тесто, перемешайте",
+      "Разогрейте сковороду с маслом, вылейте тесто, жарьте до румяной корочки с обеих сторон",
+      "Выложите банановые колечки на одну сторону, сложите блин пополам"
+    ]
+  },
+  {
+    "title": "Бутерброд с яйцом, ветчиной и авокадо",
+    "photo": "бутерброд_авокадо_яйцо.webp",
+    "time": "10 минут",
+    "calories": 220,
+    "ingredients": [
+      { "id": "eggs",     "name": "4 яйца",               "essential": true,  "important": false },
+      { "id": "avocado",  "name": "80 г авокадо",         "essential": true,  "important": false },
+      { "id": "tomato",   "name": "1 помидор",            "essential": false, "important": true  },
+      { "id": "bread",    "name": "200 г цельнозернового хлеба", "essential": false, "important": true },
+      { "id": "ham",      "name": "ветчина по вкусу",     "essential": false, "important": false }
+    ],
+    "steps": [
+      "Помидоры черри обжарьте в масле, посолите, приправьте перцем",
+      "Жарьте яйца на сковороде",
+      "Нарежьте хлеб на 4 части, смажьте авокадо, выложите яйца, ветчину, помидоры и лук",
+      "Украсьте зеленью"
+    ]
+  },
+  {
+    "title": "Яичный рулет с форелью и греческим йогуртом",
+    "photo": "яичный_рулет_форель.webp",
     "time": "15 минут",
     "calories": 210,
     "ingredients": [
-      { "id": "eggs",       "name": "4 яйца",                "essential": true,  "important": false },
-      { "id": "fish_trout", "name": "100 г форели",          "essential": true,  "important": false },
-      { "id": "tomato_cherry","name": "250 г черри",         "essential": false, "important": true  },
-      { "id": "yogurt_greek","name": "100 г йогурта",        "essential": false, "important": true  },
-      { "id": "spinach",    "name": "40 г шпината",          "essential": false, "important": false },
-      { "id": "butter",     "name": "сливочное масло",       "essential": false, "important": false }
+      { "id": "eggs",       "name": "4 яйца",                 "essential": true,  "important": false },
+      { "id": "fish_trout", "name": "100 г слабосоленой форели","essential": true,  "important": false },
+      { "id": "tomato_cherry","name": "250 г помидоров черри", "essential": false, "important": true  },
+      { "id": "yogurt_greek","name": "100 г греческого йогурта","essential": false, "important": true },
+      { "id": "spinach",    "name": "40 г шпината",           "essential": false, "important": false }
     ],
     "steps": [
       "Обжарьте помидоры черри в масле",
       "Взбейте яйца, приготовьте омлет",
-      "Выложите на омлет рыбу, шпинат, йогурт и помидоры",
+      "На омлет выложите рыбу, шпинат, йогурт и помидоры",
       "Сверните в рулет"
     ]
   },
   {
-    "title": "Треугольники из лаваша",
-    "photo": "pics/треугольники_лаваш_творог.webp",
+    "title": "Треугольники из лаваша с творогом",
+    "photo": "треугольники_лаваш_творог.webp",
     "time": "30 минут",
     "calories": 260,
     "ingredients": [
-      { "id": "lavash",         "name": "2 листа лаваша",    "essential": true,  "important": false },
-      { "id": "cottage_cheese", "name": "300 г творога",     "essential": true,  "important": false },
-      { "id": "cheese",         "name": "80 г твердого сыра","essential": false, "important": true  },
-      { "id": "eggs",           "name": "1 яйцо",            "essential": false, "important": true  },
-      { "id": "salt",           "name": "соль по вкусу",     "essential": false, "important": false }
+      { "id": "lavash",         "name": "2 лаваша",            "essential": true,  "important": false },
+      { "id": "cottage_cheese", "name": "300 г творога",       "essential": true,  "important": false },
+      { "id": "cheese",         "name": "80 г твердого сыра",  "essential": false, "important": true  },
+      { "id": "eggs",           "name": "1 яйцо",              "essential": false, "important": true  }
     ],
     "steps": [
       "Смешайте творог, тертый сыр и яйцо",
       "Нарежьте лаваш на полоски",
       "Выложите начинку и сверните треугольником",
       "Запекайте в духовке 15-20 минут"
+    ]
+  },
+  {
+    "title": "Омлет со шпинатом и сыром",
+    "photo": "омлет_шпинат_сыр.webp",
+    "time": "10 минут",
+    "calories": 240,
+    "ingredients": [
+      { "id": "eggs",     "name": "4 яйца",             "essential": true,  "important": false },
+      { "id": "spinach",  "name": "100 г шпината",      "essential": true,  "important": false },
+      { "id": "cheese",   "name": "50 г твердого сыра", "essential": false, "important": true  },
+      { "id": "sour_cream","name": "2 ст. л. сметаны",  "essential": false, "important": false }
+    ],
+    "steps": [
+      "Нагрейте масло в сковороде, обжарьте шпинат",
+      "Взбейте яйца с солью, перцем и сметаной",
+      "Вылейте яичную смесь на шпинат",
+      "Добавьте сыр и сливочное масло",
+      "Готовьте 5-6 минут до золотистой корочки"
     ]
   }
 ]
