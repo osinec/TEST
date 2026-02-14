@@ -1,163 +1,250 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Что приготовить?</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #ffecd2, #fcb69f);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      color: #222;
-      padding: 24px 16px;
+    :root {
+      --bg-gradient: linear-gradient(135deg, #ffe6d9 0%, #ffd1c2 50%, #ff9a8b 100%);
+      --card-bg: rgba(255, 255, 255, 0.78);
+      --card-border: rgba(255, 255, 255, 0.25);
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      --accent: #ff6b6b;
+      --accent-gradient: linear-gradient(90deg, #ff9a8b, #ff6b6b);
+      --success: #51cf66;
+      --text: #2d3436;
+      --gray: #636e72;
+      --light-gray: #dfe6e9;
     }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      color: var(--text);
+      padding: 16px 12px;
+      line-height: 1.5;
+    }
+
     .card {
       width: 100%;
-      max-width: 560px;
-      background: rgba(255,255,255,.96);
-      border-radius: 26px;
-      padding: 32px 28px;
-      box-shadow: 0 30px 70px rgba(0,0,0,.18);
+      max-width: 580px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 28px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow);
+      padding: 28px 24px;
+      overflow: hidden;
     }
+
     .back-btn {
-      padding: 14px 24px;
-      background: linear-gradient(135deg, #a0d8ef, #b8e0f8);
-      color: #222;
       width: 100%;
+      padding: 14px;
+      background: linear-gradient(90deg, #a5d8ff, #74c0fc);
+      color: #1e3a8a;
       border: none;
-      border-radius: 40px;
-      cursor: pointer;
-      font-weight: 800;
-      margin-bottom: 20px;
-      font-size: 16px;
-      text-transform: uppercase;
-    }
-    h1 {
-      font-size: 26px;
+      border-radius: 999px;
       font-weight: 700;
-      text-align: center;
-      margin-bottom: 20px;
-      color: #d35400;
+      font-size: 15px;
+      cursor: pointer;
+      margin-bottom: 24px;
+      transition: all 0.28s ease;
+      box-shadow: 0 4px 12px rgba(165, 216, 255, 0.5);
     }
+
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(165, 216, 255, 0.7);
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      text-align: center;
+      color: #e65c00;
+      margin-bottom: 28px;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #ff9a8b, #ff6b6b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
     .ingredients-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
-      gap: 10px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
     }
+
     .ingredient-item {
-      display: flex; align-items: center; gap: 8px;
-      padding: 10px 12px;
-      background: #fdfaf7;
-      border: 1px solid #f4d3b5;
-      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 16px;
       cursor: pointer;
-      font-size: 14px;
-      transition: 0.18s;
+      transition: all 0.22s ease;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     }
-    .ingredient-item:has(input:checked) {
-      background: #fff8f2;
-      border-color: #f4a261;
+
+    .ingredient-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+      background: rgba(255, 255, 255, 0.85);
     }
-    .main-btn {
-      padding: 18px;
-      background: linear-gradient(135deg, #f6d365, #fda085);
-      width: 100%;
-      border: none;
-      border-radius: 40px;
-      font-weight: 700;
-      font-size: 17px;
-      cursor: pointer;
-      margin-bottom: 12px;
+
+    .ingredient-item input {
+      accent-color: #ff6b6b;
+      width: 20px;
+      height: 20px;
     }
-    .main-btn:disabled { opacity: 0.48; cursor: not-allowed; }
+
+    .ingredient-item span {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .main-btn,
     .refresh-btn {
-      padding: 16px;
-      background: linear-gradient(135deg, #66bb6a, #4caf50);
-      color: white;
       width: 100%;
+      padding: 18px;
       border: none;
-      border-radius: 40px;
+      border-radius: 999px;
+      font-size: 17px;
       font-weight: 700;
+      color: white;
       cursor: pointer;
-      display: none;
-      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      margin-bottom: 16px;
     }
+
+    .main-btn {
+      background: var(--accent-gradient);
+    }
+
+    .main-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .refresh-btn {
+      background: linear-gradient(90deg, #51cf66, #40c057);
+    }
+
+    .main-btn:hover:not(:disabled),
+    .refresh-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+    }
+
     .counter {
       text-align: center;
-      color: #555;
-      margin: 16px 0;
+      color: #4b5e6d;
       font-size: 15px;
+      margin: 20px 0 24px;
+      font-weight: 500;
     }
+
     .recipe-card {
       background: white;
-      border-radius: 20px;
+      border-radius: 24px;
       overflow: hidden;
-      border: 1px solid #eee;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
       margin-top: 16px;
-      animation: fadeIn 0.4s ease;
+      transition: transform 0.3s ease;
     }
-    @keyframes fadeIn { from {opacity:0; transform:translateY(12px);} to {opacity:1; transform:translateY(0);} }
+
+    .recipe-card:hover {
+      transform: translateY(-6px);
+    }
+
     .recipe-card img {
       width: 100%;
-      height: 210px;
+      height: 220px;
       object-fit: cover;
     }
-    .recipe-info { padding: 20px; }
+
+    .recipe-info {
+      padding: 20px 24px;
+    }
+
     .recipe-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: #d35400;
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: #e65c00;
       margin-bottom: 10px;
     }
+
+    .recipe-meta {
+      color: #6c757d;
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
     .ing-tag {
-      padding: 5px 10px;
-      border-radius: 8px;
+      padding: 6px 12px;
+      border-radius: 12px;
       font-size: 13px;
+      margin: 4px 6px 4px 0;
       display: inline-block;
-      margin: 4px 4px 4px 0;
-      line-height: 1.4;
+      backdrop-filter: blur(4px);
     }
-    .have              { background:#e8f5e9; color:#2e7d32; font-weight:600; }
-    .missing-essential { background:#ffebee; color:#c62828; border:2px solid #ef9a9a; font-weight:700; }
-    .missing-important { background:#fff3e0; color:#e65100; border:1px solid #ffcc80; font-weight:600; }
-    .missing-extra     { background:#f5f5f5; color:#757575; font-weight:400; opacity:0.75; }
+
+    .have              { background: rgba(81, 207, 102, 0.18); color: #2f9e44; font-weight: 600; }
+    .missing-essential { background: rgba(255, 107, 107, 0.18); color: #c92a2a; border: 1px solid #ff8787; font-weight: 600; }
+    .missing-important { background: rgba(255, 193, 7, 0.18); color: #e67700; border: 1px solid #ffd43b; font-weight: 500; }
+    .missing-extra     { background: rgba(108, 117, 125, 0.12); color: #868e96; font-weight: 400; }
+
     .steps-box {
-      margin-top: 16px;
-      font-size: 15px;
-      line-height: 1.55;
-      color: #333;
+      margin-top: 20px;
+      padding-top: 16px;
       border-top: 1px solid #eee;
-      padding-top: 12px;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #343a40;
     }
+
     .error-msg {
       text-align: center;
-      padding: 32px 16px;
-      color: #c62828;
-      font-size: 15px;
+      padding: 40px 20px;
+      color: #c92a2a;
+      font-size: 16px;
     }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <button class="back-btn" onclick="window.history.back()">← Назад</button>
+  <button class="back-btn" onclick="window.history.back()">← НАЗАД</button>
+
   <h1>Что приготовить?</h1>
 
   <div class="ingredients-grid" id="ingredientsList"></div>
-  
-  <button class="main-btn" id="findBtn" disabled>Найти рецепт</button>
-  <button class="refresh-btn" id="refreshBtn">Другой вариант</button>
 
-  <div id="counter" class="counter"></div>
+  <button class="main-btn" id="findBtn" disabled>Найти рецепт</button>
+  <button class="refresh-btn" id="refreshBtn" style="display:none;">Другой вариант</button>
+
+  <div class="counter" id="counter"></div>
   <div id="results"></div>
 </div>
 
@@ -172,20 +259,19 @@ const CATEGORY_FILES = [
 ];
 
 const INGREDIENTS_CATALOG = [
-  {id: "eggs",              name: "Яйца"},
-  {id: "mushrooms",         name: "Грибы"},
-  {id: "onion",             name: "Лук"},
-  {id: "bran",              name: "Отруби"},
-  {id: "cottage_cheese",    name: "Творог"},
-  {id: "cottage_cheese_soft",name: "Мягкий творог"},
-  {id: "lavash",            name: "Лаваш"},
-  {id: "cheese",            name: "Твёрдый сыр"},
-  {id: "tomato_cherry",     name: "Помидоры / черри"},
-  {id: "fish_trout",        name: "Форель / красная рыба"},
-  {id: "yogurt_greek",      name: "Греческий йогурт"},
-  {id: "spinach",           name: "Шпинат"},
-  {id: "butter",            name: "Сливочное масло"},
-  // добавляйте другие ингредиенты по мере необходимости
+  { id: "eggs",               name: "Яйца" },
+  { id: "mushrooms",          name: "Грибы" },
+  { id: "onion",              name: "Лук" },
+  { id: "bran",               name: "Отруби" },
+  { id: "cottage_cheese",     name: "Творог" },
+  { id: "cottage_cheese_soft",name: "Мягкий творог" },
+  { id: "lavash",             name: "Лаваш" },
+  { id: "cheese",             name: "Твёрдый сыр" },
+  { id: "tomato_cherry",      name: "Помидоры / черри" },
+  { id: "fish_trout",         name: "Форель / красная рыба" },
+  { id: "yogurt_greek",       name: "Греческий йогурт" },
+  { id: "spinach",            name: "Шпинат" },
+  { id: "butter",             name: "Сливочное масло" },
 ];
 
 let selected = new Set();
@@ -193,134 +279,122 @@ let foundRecipes = [];
 let currentIndex = 0;
 
 function renderIngredients() {
-  const grid = document.getElementById('ingredientsList');
-  grid.innerHTML = INGREDIENTS_CATALOG.map(item => `
-    <label class="ingredient-item">
-      <input type="checkbox" value="${item.id}"
-             onchange="toggleIng('${item.id}')"
-             ${selected.has(item.id) ? 'checked' : ''}>
-      <span>${item.name}</span>
-    </label>
-  `).join('');
+  const grid = document.getElementById("ingredientsList");
+  grid.innerHTML = INGREDIENTS_CATALOG.map(
+    (item) => `
+      <label class="ingredient-item">
+        <input type="checkbox" value="${item.id}" onchange="toggleIng('${item.id}')" ${
+          selected.has(item.id) ? "checked" : ""
+        }>
+        <span>${item.name}</span>
+      </label>
+    `
+  ).join("");
 }
 
 function toggleIng(id) {
   if (selected.has(id)) selected.delete(id);
   else selected.add(id);
 
-  document.getElementById('findBtn').disabled = selected.size === 0;
-  document.getElementById('refreshBtn').style.display = 'none';
-  document.getElementById('counter').textContent = '';
-  document.getElementById('results').innerHTML = '';
+  document.getElementById("findBtn").disabled = selected.size === 0;
+  document.getElementById("refreshBtn").style.display = "none";
+  document.getElementById("counter").textContent = "";
+  document.getElementById("results").innerHTML = "";
 }
 
 async function loadAllRecipes() {
-  const promises = CATEGORY_FILES.map(async file => {
+  const promises = CATEGORY_FILES.map(async (file) => {
     try {
       const res = await fetch(file);
-      if (!res.ok) {
-        console.warn(`Не удалось загрузить ${file} (HTTP ${res.status})`);
-        return [];
-      }
+      if (!res.ok) return [];
       return await res.json();
-    } catch (err) {
-      console.warn(`Ошибка при загрузке ${file}:`, err);
+    } catch {
       return [];
     }
   });
 
-  const allArrays = await Promise.all(promises);
-  return allArrays.flat();
+  const arrays = await Promise.all(promises);
+  return arrays.flat();
 }
 
 async function findRecipes() {
   try {
     const allRecipes = await loadAllRecipes();
 
-    if (allRecipes.length === 0) {
-      document.getElementById('results').innerHTML = 
-        '<div class="error-msg">Не удалось загрузить ни одного рецепта</div>';
-      return;
-    }
-
-    foundRecipes = allRecipes.filter(r => {
-      const essentials = r.ingredients.filter(i => i.essential === true);
-      if (essentials.length === 0) return false;
-      const matchedCount = essentials.filter(i => selected.has(i.id)).length;
-      return matchedCount === essentials.length;
-    }).sort(() => Math.random() - 0.5);
+    foundRecipes = allRecipes
+      .filter((r) => {
+        const essentials = r.ingredients.filter((i) => i.essential === true);
+        if (essentials.length === 0) return false;
+        const matched = essentials.filter((i) => selected.has(i.id)).length;
+        return matched === essentials.length;
+      })
+      .sort(() => Math.random() - 0.5);
 
     currentIndex = 0;
     updateView();
-
   } catch (err) {
-    console.error(err);
-    document.getElementById('results').innerHTML = 
-      `<div class="error-msg">Ошибка при обработке рецептов<br>${err.message}</div>`;
+    document.getElementById("results").innerHTML = `<div class="error-msg">Не удалось загрузить рецепты</div>`;
   }
 }
 
 function updateView() {
-  const counterEl = document.getElementById('counter');
-  const resultsEl = document.getElementById('results');
+  const counter = document.getElementById("counter");
+  const results = document.getElementById("results");
 
   if (foundRecipes.length === 0) {
-    counterEl.textContent = '';
-    resultsEl.innerHTML = '<p style="text-align:center; padding:32px 16px; color:#555;">Подходящих рецептов нет</p>';
-    document.getElementById('refreshBtn').style.display = 'none';
+    counter.textContent = "";
+    results.innerHTML = '<p style="text-align:center; padding:40px 20px; color:#6c757d;">Подходящих рецептов пока нет…</p>';
+    document.getElementById("refreshBtn").style.display = "none";
     return;
   }
 
-  counterEl.textContent = `Найдено ${foundRecipes.length} рецепт${foundRecipes.length === 1 ? '' : 'а/ов'} · ${currentIndex + 1} / ${foundRecipes.length}`;
-  document.getElementById('refreshBtn').style.display = foundRecipes.length > 1 ? 'block' : 'none';
+  counter.textContent = `Найдено ${foundRecipes.length} рецепт${foundRecipes.length === 1 ? "" : "а/ов"} · ${currentIndex + 1} / ${foundRecipes.length}`;
+  document.getElementById("refreshBtn").style.display = foundRecipes.length > 1 ? "block" : "none";
 
-  const recipe = foundRecipes[currentIndex];
-  const tags = recipe.ingredients.map(ing => {
-    const has = selected.has(ing.id);
-    let cls = 'have';
-    let text = ing.name;
-    let prefix = '';
+  const r = foundRecipes[currentIndex];
 
-    if (ing.essential) {
-      cls = has ? 'have' : 'missing-essential';
-      if (!has) {
-        prefix = '✗ ';
-        text += ' (нет)';
+  const tags = r.ingredients
+    .map((ing) => {
+      const has = selected.has(ing.id);
+      let cls = has ? "have" : "missing-extra";
+      let text = ing.name;
+      let prefix = "";
+
+      if (ing.essential) {
+        cls = has ? "have" : "missing-essential";
+        if (!has) {
+          prefix = "✗ ";
+          text += " (нет)";
+        }
+      } else if (ing.important) {
+        cls = has ? "have" : "missing-important";
+        if (!has) text += " (можно без)";
       }
-    } else if (ing.important) {
-      cls = has ? 'have' : 'missing-important';
-      if (!has) {
-        text += ' (можно без)';
-      }
-    } else {
-      // второстепенные — просто серые, если отсутствуют
-      cls = has ? 'have' : 'missing-extra';
-      // без префикса, без доп. текста, без зачёркивания
-    }
 
-    return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
-  }).join(' ');
+      return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
+    })
+    .join("");
 
-  resultsEl.innerHTML = `
+  results.innerHTML = `
     <div class="recipe-card">
-      <img src="${recipe.photo}" onerror="this.src='https://via.placeholder.com/500x210?text=Нет+фото'" alt="${recipe.title}">
+      <img src="${r.photo}" onerror="this.src='https://via.placeholder.com/580x220?text=Нет+фото'" alt="${r.title}">
       <div class="recipe-info">
-        <div class="recipe-title">${recipe.title}</div>
-        <p style="color:#666; font-size:14px; margin:8px 0 12px;">⏱ ${recipe.time}  🔥 ${recipe.calories} ккал</p>
-        <div style="margin:12px 0;">${tags}</div>
+        <div class="recipe-title">${r.title}</div>
+        <div class="recipe-meta">⏱ ${r.time} · 🔥 ${r.calories} ккал</div>
+        <div style="margin:16px 0;">${tags}</div>
         <div class="steps-box">
-          <strong>Приготовление:</strong><br>
-          ${recipe.steps.map((s,i) => `${i+1}. ${s}`).join('<br>')}
+          <strong>Как готовить:</strong><br>
+          ${r.steps.map((s, i) => `${i + 1}. ${s}`).join("<br>")}
         </div>
       </div>
     </div>
   `;
 }
 
-// ─── Инициализация и события ───────────────────────────────
-document.getElementById('findBtn').onclick = findRecipes;
+// ─── События ───────────────────────────────────────
+document.getElementById("findBtn").onclick = findRecipes;
 
-document.getElementById('refreshBtn').onclick = () => {
+document.getElementById("refreshBtn").onclick = () => {
   currentIndex = (currentIndex + 1) % foundRecipes.length;
   updateView();
 };
