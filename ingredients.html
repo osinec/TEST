@@ -47,6 +47,26 @@
       margin-bottom: 20px;
       color: #d35400;
     }
+    .category-select {
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .category-btn {
+      padding: 10px 20px;
+      margin: 4px;
+      border: none;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      background: #f0f0f0;
+      color: #444;
+    }
+    .category-btn.active {
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      color: #111;
+      font-weight: 700;
+    }
     .ingredients-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
@@ -150,7 +170,15 @@
 
 <div class="card">
   <button class="back-btn" onclick="window.history.back()">← Назад</button>
-  <h1>Что есть дома?</h1>
+  <h1>Что приготовить?</h1>
+
+  <div class="category-select" id="categorySelect">
+    <button class="category-btn active" data-cat="breakfast">Завтрак</button>
+    <button class="category-btn"        data-cat="soups">Супы</button>
+    <button class="category-btn"        data-cat="lunch">Обед</button>
+    <button class="category-btn"        data-cat="dinner">Ужин</button>
+    <button class="category-btn"        data-cat="dessert">Десерты</button>
+  </div>
 
   <div class="ingredients-grid" id="ingredientsList"></div>
   
@@ -163,33 +191,66 @@
 
 <script>
 // ────────────────────────────────────────────────
+const CATEGORIES = {
+  breakfast: "recipes/breakfast.json",
+  soups:     "recipes/soups.json",
+  lunch:     "recipes/lunch.json",
+  dinner:    "recipes/dinner.json",
+  dessert:   "recipes/dessert.json"
+};
+
 const INGREDIENTS_CATALOG = [
   {id: "eggs",              name: "Яйца"},
-  {id: "mushrooms",         name: "Грибы (шампиньоны)"},
+  {id: "mushrooms",         name: "Грибы"},
   {id: "onion",             name: "Лук"},
   {id: "bran",              name: "Отруби"},
   {id: "cottage_cheese",    name: "Творог"},
   {id: "cottage_cheese_soft",name: "Мягкий творог"},
   {id: "lavash",            name: "Лаваш"},
   {id: "cheese",            name: "Твёрдый сыр"},
-  {id: "tomato_cherry",     name: "Помидоры черри"},
-  {id: "fish_trout",        name: "Форель / слабосолёная рыба"},
+  {id: "tomato_cherry",     name: "Помидоры / черри"},
+  {id: "fish_trout",        name: "Форель / красная рыба"},
   {id: "yogurt_greek",      name: "Греческий йогурт"},
   {id: "spinach",           name: "Шпинат"},
-  {id: "butter",            name: "Сливочное масло"}
+  {id: "butter",            name: "Сливочное масло"},
+  // добавляйте другие ингредиенты по мере необходимости
 ];
 
+let currentCategory = "breakfast";
 let selected = new Set();
 let foundRecipes = [];
 let currentIndex = 0;
 
+function initCategoryButtons() {
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategory = btn.dataset.cat;
+      resetSearch();
+    });
+  });
+}
+
+function resetSearch() {
+  selected.clear();
+  foundRecipes = [];
+  currentIndex = 0;
+  document.getElementById('findBtn').disabled = true;
+  document.getElementById('refreshBtn').style.display = 'none';
+  document.getElementById('counter').textContent = '';
+  document.getElementById('results').innerHTML = '';
+  renderIngredients();
+}
+
 function renderIngredients() {
   const grid = document.getElementById('ingredientsList');
-  grid.innerHTML = INGREDIENTS_CATALOG.map(i => `
+  grid.innerHTML = INGREDIENTS_CATALOG.map(item => `
     <label class="ingredient-item">
-      <input type="checkbox" value="${i.id}" onchange="toggleIng('${i.id}')"
-             ${selected.has(i.id) ? 'checked' : ''}>
-      <span>${i.name}</span>
+      <input type="checkbox" value="${item.id}" 
+             onchange="toggleIng('${item.id}')"
+             ${selected.has(item.id) ? 'checked' : ''}>
+      <span>${item.name}</span>
     </label>
   `).join('');
 }
@@ -205,16 +266,22 @@ function toggleIng(id) {
 }
 
 async function findRecipes() {
+  const url = CATEGORIES[currentCategory];
+  if (!url) {
+    showError("Неизвестная категория");
+    return;
+  }
+
   try {
-    const res = await fetch('recipes.json');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status} — проверьте наличие файла`);
     const recipes = await res.json();
 
     foundRecipes = recipes.filter(r => {
       const essentials = r.ingredients.filter(i => i.essential === true);
       if (essentials.length === 0) return false;
-      const matched = essentials.filter(i => selected.has(i.id)).length;
-      return matched === essentials.length;
+      const matchedCount = essentials.filter(i => selected.has(i.id)).length;
+      return matchedCount === essentials.length;
     }).sort(() => Math.random() - 0.5);
 
     currentIndex = 0;
@@ -222,65 +289,68 @@ async function findRecipes() {
 
   } catch (err) {
     console.error(err);
-    document.getElementById('results').innerHTML = 
-      '<div class="error-msg">Не удалось загрузить recipes.json</div>';
+    showError(`Ошибка загрузки ${currentCategory}.json<br>${err.message}`);
   }
 }
 
+function showError(message) {
+  document.getElementById('results').innerHTML = `<div class="error-msg">${message}</div>`;
+}
+
 function updateView() {
-  const counter = document.getElementById('counter');
-  const results = document.getElementById('results');
+  const counterEl = document.getElementById('counter');
+  const resultsEl = document.getElementById('results');
 
   if (foundRecipes.length === 0) {
-    counter.textContent = '';
-    results.innerHTML = '<p style="text-align:center; padding:32px 16px; color:#555;">Подходящих рецептов нет</p>';
+    counterEl.textContent = '';
+    resultsEl.innerHTML = '<p style="text-align:center; padding:32px 16px; color:#555;">Подходящих рецептов в этой категории нет</p>';
     document.getElementById('refreshBtn').style.display = 'none';
     return;
   }
 
-  counter.textContent = `Найдено ${foundRecipes.length} рецепт${foundRecipes.length === 1 ? '' : 'а/ов'} · ${currentIndex + 1} из ${foundRecipes.length}`;
+  counterEl.textContent = `Найдено ${foundRecipes.length} рецепт${foundRecipes.length === 1 ? '' : 'а/ов'} · ${currentIndex + 1} / ${foundRecipes.length}`;
   document.getElementById('refreshBtn').style.display = foundRecipes.length > 1 ? 'block' : 'none';
 
-  const r = foundRecipes[currentIndex];
-  const tags = r.ingredients.map(ing => {
-    const have = selected.has(ing.id);
-    let cls = have ? 'have' : 'missing-extra';
+  const recipe = foundRecipes[currentIndex];
+  const tags = recipe.ingredients.map(ing => {
+    const has = selected.has(ing.id);
+    let cls = has ? 'have' : 'missing-extra';
     let text = ing.name;
     let prefix = '';
 
     if (ing.essential) {
-      cls = have ? 'have' : 'missing-essential';
-      if (!have) {
+      cls = has ? 'have' : 'missing-essential';
+      if (!has) {
         prefix = '✗ ';
         text += ' (нет)';
       }
     } else if (ing.important) {
-      cls = have ? 'have' : 'missing-important';
-      if (!have) text += ' (можно без)';
-    } else if (!have) {
+      cls = has ? 'have' : 'missing-important';
+      if (!has) text += ' (можно без)';
+    } else if (!has) {
       text = '– ' + text;
     }
 
     return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
   }).join(' ');
 
-  results.innerHTML = `
+  resultsEl.innerHTML = `
     <div class="recipe-card">
-      <img src="${r.photo}" onerror="this.src='https://via.placeholder.com/500x210?text=Нет+фото'" alt="${r.title}">
+      <img src="${recipe.photo}" onerror="this.src='https://via.placeholder.com/500x210?text=Нет+фото'" alt="${recipe.title}">
       <div class="recipe-info">
-        <div class="recipe-title">${r.title}</div>
-        <p style="color:#666; font-size:14px; margin:8px 0 12px;">⏱ ${r.time}  🔥 ${r.calories} ккал</p>
+        <div class="recipe-title">${recipe.title}</div>
+        <p style="color:#666; font-size:14px; margin:8px 0 12px;">⏱ ${recipe.time}  🔥 ${recipe.calories} ккал</p>
         <div style="margin:12px 0;">${tags}</div>
         <div class="steps-box">
           <strong>Приготовление:</strong><br>
-          ${r.steps.map((s,i) => `${i+1}. ${s}`).join('<br>')}
+          ${recipe.steps.map((s,i) => `${i+1}. ${s}`).join('<br>')}
         </div>
       </div>
     </div>
   `;
 }
 
-// ─── события ───────────────────────────────────────
+// ─── Инициализация и события ───────────────────────────────
 document.getElementById('findBtn').onclick = findRecipes;
 
 document.getElementById('refreshBtn').onclick = () => {
@@ -288,6 +358,7 @@ document.getElementById('refreshBtn').onclick = () => {
   updateView();
 };
 
+initCategoryButtons();
 renderIngredients();
 </script>
 </body>
