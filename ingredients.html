@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Что приготовить на завтрак?</title>
+  <title>Что приготовить?</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,11 +17,11 @@
       justify-content: center;
       align-items: flex-start;
       color: #222;
-      padding: 30px 16px;
+      padding: 24px 16px;
     }
     .card {
       width: 100%;
-      max-width: 540px;
+      max-width: 560px;
       background: rgba(255,255,255,.96);
       border-radius: 26px;
       padding: 32px 28px;
@@ -36,7 +36,7 @@
       border-radius: 40px;
       cursor: pointer;
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       font-size: 16px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -48,11 +48,26 @@
       margin-bottom: 20px;
       color: #d35400;
     }
-    .counter {
+    .category-select {
+      margin-bottom: 24px;
       text-align: center;
-      color: #555;
-      margin-bottom: 16px;
+    }
+    .category-btn {
+      padding: 12px 24px;
+      margin: 6px;
+      border: none;
+      border-radius: 40px;
+      font-weight: 600;
       font-size: 15px;
+      cursor: pointer;
+      background: #eee;
+      color: #444;
+      transition: all 0.2s;
+    }
+    .category-btn.active {
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      color: #222;
+      font-weight: 700;
     }
     .ingredients-grid {
       display: grid;
@@ -98,6 +113,12 @@
       display: none;
       margin-bottom: 20px;
     }
+    .counter {
+      text-align: center;
+      color: #555;
+      margin: 16px 0;
+      font-size: 15px;
+    }
     .recipe-card {
       background: white;
       border-radius: 20px;
@@ -126,7 +147,7 @@
       border-radius: 8px;
       font-size: 13px;
       display: inline-block;
-      margin: 3px;
+      margin: 4px 4px 4px 0;
     }
     .have           { background: #e3fcef; color: #27ae60; font-weight: 600; }
     .missing-main   { background: #ffe3e3; color: #c0392b; border: 1px solid #ffcccc; font-weight: 700; }
@@ -139,13 +160,27 @@
       border-top: 1px solid #eee;
       padding-top: 12px;
     }
+    .error-msg {
+      text-align: center;
+      padding: 30px;
+      color: #c0392b;
+      font-size: 15px;
+    }
   </style>
 </head>
 <body>
 
 <div class="card">
   <button class="back-btn" onclick="window.history.back()">← Назад</button>
-  <h1>Что есть дома?</h1>
+  <h1>Что приготовить?</h1>
+
+  <div class="category-select" id="categorySelect">
+    <button class="category-btn active" data-cat="breakfast">Завтрак</button>
+    <button class="category-btn" data-cat="soups">Супы</button>
+    <button class="category-btn" data-cat="lunch">Обед</button>
+    <button class="category-btn" data-cat="dinner">Ужин</button>
+    <button class="category-btn" data-cat="dessert">Десерты</button>
+  </div>
 
   <div class="ingredients-grid" id="ingredientsList"></div>
   
@@ -158,54 +193,101 @@
 
 <script>
 // ────────────────────────────────────────────────
+const CATEGORIES = {
+  breakfast: "recipes/breakfast.json",
+  soups:     "recipes/soups.json",
+  lunch:     "recipes/lunch.json",
+  dinner:    "recipes/dinner.json",
+  dessert:   "recipes/dessert.json"
+};
+
 const CATALOG = [
   {id: "eggs",              name: "Яйца"},
-  {id: "mushrooms",         name: "Грибы (шампиньоны)"},
+  {id: "mushrooms",         name: "Грибы"},
   {id: "onion",             name: "Лук"},
   {id: "bran",              name: "Отруби"},
   {id: "cottage_cheese",    name: "Творог"},
-  {id: "cottage_cheese_soft",name: "Мягкий творог / крем-сыр"},
+  {id: "cottage_cheese_soft",name: "Мягкий творог"},
   {id: "lavash",            name: "Лаваш"},
   {id: "cheese",            name: "Твёрдый сыр"},
-  {id: "tomato_cherry",     name: "Помидоры черри"},
-  {id: "fish_trout",        name: "Форель / слабосолёная рыба"},
-  {id: "yogurt_greek",      name: "Греческий йогурт"}
+  {id: "tomato_cherry",     name: "Помидоры черри / томаты"},
+  {id: "fish_trout",        name: "Рыба слабосолёная / форель"},
+  {id: "chicken",           name: "Курица"},
+  {id: "potato",            name: "Картофель"},
+  {id: "carrot",            name: "Морковь"},
+  {id: "rice",              name: "Рис"},
+  {id: "pasta",             name: "Макароны / паста"},
+  // добавляй сюда другие ингредиенты по мере появления в рецептах
 ];
 
-let selected = new Set();           // выбранные пользователем главные ингредиенты
+let selectedCategory = "breakfast";
+let selectedIngredients = new Set();
 let foundRecipes = [];
 let currentIdx = 0;
 
-function init() {
+function initCategoryButtons() {
+  document.querySelectorAll('.category-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedCategory = btn.dataset.cat;
+      resetSearch();
+    });
+  });
+}
+
+function resetSearch() {
+  selectedIngredients.clear();
+  foundRecipes = [];
+  currentIdx = 0;
+  document.getElementById('findBtn').disabled = true;
+  document.getElementById('refreshBtn').style.display = 'none';
+  document.getElementById('counter').innerHTML = '';
+  document.getElementById('results').innerHTML = '';
+  renderIngredients();
+}
+
+function renderIngredients() {
   const grid = document.getElementById('ingredientsList');
   grid.innerHTML = CATALOG.map(i => `
     <label class="ingredient-item">
-      <input type="checkbox" value="${i.id}" onchange="toggleIng('${i.id}')">
+      <input type="checkbox" value="${i.id}" 
+             onchange="toggleIng('${i.id}')"
+             ${selectedIngredients.has(i.id) ? 'checked' : ''}>
       <span>${i.name}</span>
     </label>
   `).join('');
 }
 
 function toggleIng(id) {
-  if (selected.has(id)) selected.delete(id);
-  else selected.add(id);
-
-  document.getElementById('findBtn').disabled = selected.size === 0;
+  if (selectedIngredients.has(id)) {
+    selectedIngredients.delete(id);
+  } else {
+    selectedIngredients.add(id);
+  }
+  document.getElementById('findBtn').disabled = selectedIngredients.size === 0;
   document.getElementById('refreshBtn').style.display = 'none';
   document.getElementById('counter').innerHTML = '';
   document.getElementById('results').innerHTML = '';
 }
 
 async function findRecipes() {
+  const url = CATEGORIES[selectedCategory];
+  if (!url) {
+    showError("Категория не найдена");
+    return;
+  }
+
   try {
-    const response = await fetch('recipes/breakfast.json');  // ← поменяй имя файла, если переименовал
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const recipes = await response.json();
 
     foundRecipes = recipes.filter(r => {
-      const mains = r.ingredients.filter(i => i.isMain);
+      const mains = r.ingredients.filter(i => i.isMain === true);
       if (mains.length === 0) return false;
-      const matched = mains.filter(i => selected.has(i.id)).length;
-      return (matched / mains.length) >= 0.6;
+      const matchedCount = mains.filter(i => selectedIngredients.has(i.id)).length;
+      return (matchedCount / mains.length) >= 0.6;
     }).sort(() => Math.random() - 0.5);
 
     currentIdx = 0;
@@ -213,9 +295,12 @@ async function findRecipes() {
 
   } catch (err) {
     console.error(err);
-    document.getElementById('results').innerHTML = 
-      '<p style="text-align:center; padding:30px; color:#c0392b;">Не удалось загрузить рецепты.<br>Проверьте, что файл breakfast.json лежит рядом с html.</p>';
+    showError(`Не удалось загрузить ${selectedCategory}.json<br>${err.message}`);
   }
+}
+
+function showError(msg) {
+  document.getElementById('results').innerHTML = `<div class="error-msg">${msg}</div>`;
 }
 
 function updateCounterAndRender() {
@@ -224,7 +309,7 @@ function updateCounterAndRender() {
 
   if (foundRecipes.length === 0) {
     counterEl.innerHTML = '';
-    resultsEl.innerHTML = '<p style="text-align:center; padding:30px; color:#666;">По выбранным ингредиентам ничего не нашлось.<br>Попробуйте выбрать другие.</p>';
+    resultsEl.innerHTML = '<p style="text-align:center; padding:30px; color:#666;">По выбранным ингредиентам ничего не нашлось в этой категории.</p>';
     document.getElementById('refreshBtn').style.display = 'none';
     return;
   }
@@ -237,7 +322,7 @@ function updateCounterAndRender() {
 
 function renderRecipe(recipe) {
   const tags = recipe.ingredients.map(ing => {
-    const has = selected.has(ing.id);
+    const has = selectedIngredients.has(ing.id);
     let cls = has ? 'have' : (ing.isMain ? 'missing-main' : 'missing-extra');
     let text = ing.name;
     if (!has && ing.isMain) text += " (можно заменить / без него)";
@@ -268,7 +353,8 @@ document.getElementById('refreshBtn').onclick = () => {
   updateCounterAndRender();
 };
 
-init();
+initCategoryButtons();
+renderIngredients();
 </script>
 </body>
 </html>
