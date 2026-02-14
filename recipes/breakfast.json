@@ -5,17 +5,17 @@
     "time": "10 минут",
     "calories": 250,
     "ingredients": [
-      { "id": "mushrooms", "name": "шампиньоны 100-150 г", "isMain": true },
-      { "id": "eggs",       "name": "яйца 2 шт",           "isMain": true },
-      { "id": "onion",      "name": "лук ¼ шт",            "isMain": true },
-      { "id": "oil",        "name": "растительное масло",  "isMain": false },
-      { "id": "salt",       "name": "соль, перец",         "isMain": false }
+      { "id": "mushrooms",  "name": "шампиньоны 100-150 гр", "essential": true,  "important": false },
+      { "id": "eggs",       "name": "2 яйца",                "essential": true,  "important": false },
+      { "id": "onion",      "name": "лук 1/4 шт",            "essential": false, "important": true  },
+      { "id": "oil",        "name": "растительное масло",    "essential": false, "important": false },
+      { "id": "salt",       "name": "соль и специи",         "essential": false, "important": false }
     ],
     "steps": [
       "Грибы режем произвольно, лук измельчаем",
       "Обжариваем на масле до золотистого цвета",
-      "Яйца взбиваем вилкой и выливаем на грибы",
-      "Можно перемешать или пожарить как блин"
+      "Яйца взбиваем вилкой и выливаем на обжаренные грибы",
+      "Можно все перемешать или пожарить как блин"
     ]
   },
   {
@@ -24,16 +24,16 @@
     "time": "5 минут",
     "calories": 180,
     "ingredients": [
-      { "id": "bran",              "name": "отруби 2 ст.л.",         "isMain": true },
-      { "id": "eggs",              "name": "яйцо 1 шт",              "isMain": true },
-      { "id": "cottage_cheese_soft","name": "мягкий творог 1,5 ст.л.","isMain": true },
-      { "id": "baking_powder",     "name": "разрыхлитель",           "isMain": false },
-      { "id": "salt",              "name": "соль, зелень",           "isMain": false }
+      { "id": "bran",              "name": "2 ст. л. отрубей",         "essential": true,  "important": false },
+      { "id": "eggs",              "name": "1 яйцо",                   "essential": true,  "important": false },
+      { "id": "cottage_cheese_soft","name": "1,5 ст. л. мягкого творога","essential": true,  "important": false },
+      { "id": "baking_powder",     "name": "разрыхлитель",             "essential": false, "important": false },
+      { "id": "salt",              "name": "соль, зелень",             "essential": false, "important": false }
     ],
     "steps": [
       "Смешать все ингредиенты",
       "Выпекать в микроволновке 4 минуты",
-      "Остудить, разрезать и добавить начинку по вкусу"
+      "Дать остыть, разрезать и добавить начинку по вкусу"
     ]
   },
   {
@@ -42,37 +42,37 @@
     "time": "15 минут",
     "calories": 210,
     "ingredients": [
-      { "id": "eggs",       "name": "яйца 4 шт",         "isMain": true },
-      { "id": "fish_trout", "name": "форель 100 г",      "isMain": true },
-      { "id": "tomato_cherry","name": "помидоры черри 250 г", "isMain": true },
-      { "id": "yogurt_greek","name": "греческий йогурт 100 г", "isMain": false },
-      { "id": "spinach",    "name": "шпинат 40 г",       "isMain": false },
-      { "id": "butter",     "name": "сливочное масло",   "isMain": false }
+      { "id": "eggs",       "name": "4 яйца",                "essential": true,  "important": false },
+      { "id": "fish_trout", "name": "100 г форели",          "essential": true,  "important": false },
+      { "id": "tomato_cherry","name": "250 г черри",         "essential": false, "important": true  },
+      { "id": "yogurt_greek","name": "100 г йогурта",        "essential": false, "important": true  },
+      { "id": "spinach",    "name": "40 г шпината",          "essential": false, "important": false },
+      { "id": "butter",     "name": "сливочное масло",       "essential": false, "important": false }
     ],
     "steps": [
-      "Обжарить помидоры черри на масле",
-      "Взбить яйца, приготовить омлет",
-      "Выложить рыбу, шпинат, йогурт и помидоры",
-      "Свернуть в рулет"
+      "Обжарьте помидоры черри в масле",
+      "Взбейте яйца, приготовьте омлет",
+      "Выложите на омлет рыбу, шпинат, йогурт и помидоры",
+      "Сверните в рулет"
     ]
   },
   {
-    "title": "Треугольники из лаваша с творогом",
+    "title": "Треугольники из лаваша",
     "photo": "pics/треугольники_лаваш_творог.webp",
     "time": "30 минут",
     "calories": 260,
     "ingredients": [
-      { "id": "lavash",     "name": "лаваш 2 листа",     "isMain": true },
-      { "id": "cottage_cheese", "name": "творог 300 г",  "isMain": true },
-      { "id": "cheese",     "name": "твёрдый сыр 80 г",  "isMain": true },
-      { "id": "eggs",       "name": "яйцо 1 шт",         "isMain": true },
-      { "id": "salt",       "name": "соль",              "isMain": false }
+      { "id": "lavash",         "name": "2 листа лаваша",    "essential": true,  "important": false },
+      { "id": "cottage_cheese", "name": "300 г творога",     "essential": true,  "important": false },
+      { "id": "cheese",         "name": "80 г твердого сыра","essential": false, "important": true  },
+      { "id": "eggs",           "name": "1 яйцо",            "essential": false, "important": true  },
+      { "id": "salt",           "name": "соль по вкусу",     "essential": false, "important": false }
     ],
     "steps": [
-      "Смешать творог, тёртый сыр и яйцо",
-      "Нарезать лаваш на полоски",
-      "Выложить начинку и свернуть треугольниками",
-      "Запекать 15–20 минут при 180 °C"
+      "Смешайте творог, тертый сыр и яйцо",
+      "Нарежьте лаваш на полоски",
+      "Выложите начинку и сверните треугольником",
+      "Запекайте в духовке 15-20 минут"
     ]
   }
 ]
