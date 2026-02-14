@@ -102,7 +102,7 @@
       display: none;
       margin: 12px 0 20px;
       max-height: 35vh;
-      background: #f8f1e9 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23e0d0c0"/><text x="50%" y="50%" font-family="Inter" font-size="12" fill="%23997" text-anchor="middle" dy=".3em">Фото блюда</text></svg>') center/cover no-repeat;
+      background: #f8f1e9 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200"><rect width="400" height="200" fill="%23f8f1e9"/><text x="50%" y="45%" font-family="Inter" font-size="16" fill="%23997" text-anchor="middle">Фото блюда</text><text x="50%" y="60%" font-family="Inter" font-size="13" fill="%23aaa" text-anchor="middle">(загрузка...)</text></svg>') center/cover no-repeat;
       transition: opacity 0.3s ease;
     }
     #photo.loaded { opacity: 1; display: block; }
@@ -294,7 +294,7 @@
 
 <script>
 // ──────────────────────────────────────────────────────────────────────
-// Основной код
+// Основной код (исправленный)
 // ──────────────────────────────────────────────────────────────────────
 const elements = {
   modal: document.getElementById('modal'),
@@ -317,9 +317,9 @@ const elements = {
   welcomeClose: document.getElementById('welcome-close')
 };
 
-let loadedRecipes = {};           // кэш загруженных рецептов по категориям
-let currentCategory = null;       // текущая выбранная категория
-let currentRecipeIndex = {};      // индекс текущего рецепта для каждой категории
+let loadedRecipes = {};           // { breakfast: [...], lunch: [...] }
+let currentCategory = null;
+let currentRecipe = null;         // текущий рецепт (объект)
 
 const categoryNames = {
   breakfast: "Завтрак",
@@ -331,7 +331,7 @@ const categoryNames = {
 
 const fallbackImage = 'data:image/svg+xml;utf8,<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="400" height="200" fill="%23f8f1e9"/><text x="50%" y="45%" font-family="Inter" font-size="16" fill="%23997" text-anchor="middle">Фото блюда</text><text x="50%" y="60%" font-family="Inter" font-size="13" fill="%23aaa" text-anchor="middle">(не найдено)</text></svg>';
 
-// ─── Показ welcome при первом запуске ───
+// ─── Показ приветствия при первом запуске ───
 function showWelcomeIfFirstTime() {
   if (!localStorage.getItem('hasSeenWelcome')) {
     elements.welcomeModal.style.display = 'flex';
@@ -343,7 +343,7 @@ function closeWelcome() {
   elements.welcomeModal.style.display = 'none';
 }
 
-// ─── Загрузка рецептов одной категории ───
+// ─── Загрузка рецептов категории ───
 async function loadCategoryRecipes(category) {
   if (loadedRecipes[category]) return loadedRecipes[category];
 
@@ -356,7 +356,7 @@ async function loadCategoryRecipes(category) {
     const data = await response.json();
 
     if (!Array.isArray(data) || data.length === 0) {
-      throw new Error('Пустой массив рецептов');
+      throw new Error('Нет рецептов');
     }
 
     loadedRecipes[category] = data;
@@ -365,23 +365,22 @@ async function loadCategoryRecipes(category) {
   } catch (err) {
     console.error(`Ошибка загрузки ${category}:`, err);
     elements.loader.style.display = 'none';
-    elements.error.textContent = `Не удалось загрузить рецепты ${categoryNames[category] || category}`;
+    elements.error.textContent = `Не удалось загрузить рецепты (${categoryNames[category] || category})`;
     elements.error.style.display = 'block';
     return [];
   }
 }
 
-// ─── Открыть модалку выбора категории ───
+// ─── Открыть/закрыть модалку ───
 function openModal() {
   elements.modal.style.display = 'flex';
 }
 
-// ─── Закрыть модалку ───
 function closeModal() {
   elements.modal.style.display = 'none';
 }
 
-// ─── Выбор категории и генерация рецепта ───
+// ─── Выбор категории и показ случайного рецепта ───
 async function selectCategory(cat) {
   currentCategory = cat;
   closeModal();
@@ -389,29 +388,29 @@ async function selectCategory(cat) {
   const recipes = await loadCategoryRecipes(currentCategory);
   if (recipes.length === 0) return;
 
-  // Случайный индекс при первом выборе
-  if (!currentRecipeIndex[currentCategory]) {
-    currentRecipeIndex[currentCategory] = Math.floor(Math.random() * recipes.length);
-  }
+  // Случайный рецепт
+  const randomIndex = Math.floor(Math.random() * recipes.length);
+  currentRecipe = recipes[randomIndex];
 
-  updateUI(recipes[currentRecipeIndex[currentCategory]]);
+  updateUI(currentRecipe);
   elements.refreshBtn.style.display = 'block';
 }
 
-// ─── Случайный рецепт из текущей категории ───
-async function generateRandomRecipe() {
-  if (!currentCategory) return openModal();
+// ─── Обновить на другой случайный рецепт ───
+async function refreshRecipe() {
+  if (!currentCategory) return;
 
   const recipes = await loadCategoryRecipes(currentCategory);
   if (recipes.length === 0) return;
 
-  // Меняем индекс на случайный
-  currentRecipeIndex[currentCategory] = Math.floor(Math.random() * recipes.length);
+  // Новый случайный индекс
+  const randomIndex = Math.floor(Math.random() * recipes.length);
+  currentRecipe = recipes[randomIndex];
 
-  updateUI(recipes[currentRecipeIndex[currentCategory]]);
+  updateUI(currentRecipe);
 }
 
-// ─── Обновление интерфейса рецептом ───
+// ─── Обновление интерфейса ───
 function updateUI(r) {
   elements.category.textContent = categoryNames[currentCategory]?.toUpperCase() || currentCategory.toUpperCase();
   elements.title.textContent = r.title || 'Без названия';
@@ -421,12 +420,12 @@ function updateUI(r) {
   photoEl.classList.remove('loaded');
   let photoSrc = fallbackImage;
   if (r.photo) {
-    const base = r.photo.split('/').pop().replace(/\.(webp|jpg|png)$/i, '');
+    const base = r.photo.replace(/\.(webp|jpg|png)$/i, '');
     photoSrc = `pics/${base}.webp`;
   }
   photoEl.src = photoSrc;
   photoEl.onload = () => photoEl.classList.add('loaded');
-  photoEl.onerror = () => { photoEl.src = fallbackImage; };
+  photoEl.onerror = () => photoEl.src = fallbackImage;
 
   // Ингредиенты
   elements.ingredients.innerHTML = '';
@@ -460,13 +459,18 @@ document.addEventListener('DOMContentLoaded', () => {
   showWelcomeIfFirstTime();
 
   elements.mainBtn.onclick = openModal;
-  elements.refreshBtn.onclick = generateRandomRecipe;
+  elements.refreshBtn.onclick = refreshRecipe;
   elements.closeBtn.onclick = closeModal;
   elements.welcomeClose.onclick = closeWelcome;
 
-  // Клик по модалке вне окна → закрыть
+  // Клик вне модалки → закрыть
   elements.modal.onclick = e => {
     if (e.target === elements.modal) closeModal();
+  };
+
+  // Клик вне welcome → закрыть
+  elements.welcomeModal.onclick = e => {
+    if (e.target === elements.welcomeModal) closeWelcome();
   };
 
   // Выбор категории
@@ -474,14 +478,12 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.onclick = () => selectCategory(btn.dataset.category);
   });
 
-  // Escape → закрыть модалку
+  // Escape закрывает модалки
   document.onkeydown = e => {
-    if (e.key === 'Escape' && elements.modal.style.display === 'flex') closeModal();
-  };
-
-  // Клик по welcome-модалке вне окна → закрыть
-  elements.welcomeModal.onclick = e => {
-    if (e.target === elements.welcomeModal) closeWelcome();
+    if (e.key === 'Escape') {
+      if (elements.modal.style.display === 'flex') closeModal();
+      if (elements.welcomeModal.style.display === 'flex') closeWelcome();
+    }
   };
 
   // Изначально кнопка обновления скрыта
