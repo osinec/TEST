@@ -198,7 +198,7 @@ function toggleIng(id) {
 
 async function findRecipes() {
   try {
-    const response = await fetch('breakfast.json');  // ← поменяй имя файла, если переименовал
+    const response = await fetch('recipes/breakfast.json');  // ← поменяй имя файла, если переименовал
     const recipes = await response.json();
 
     foundRecipes = recipes.filter(r => {
