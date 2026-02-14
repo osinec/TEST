@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Умный поиск рецептов</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>Что приготовить на завтрак?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -35,7 +35,7 @@
       border: none;
       border-radius: 40px;
       cursor: pointer;
-      font-weight: 800; /* Максимально жирный */
+      font-weight: 800;
       margin-bottom: 16px;
       font-size: 16px;
       text-transform: uppercase;
@@ -45,79 +45,137 @@
       font-size: 26px;
       font-weight: 700;
       text-align: center;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
       color: #d35400;
+    }
+    .counter {
+      text-align: center;
+      color: #555;
+      margin-bottom: 16px;
+      font-size: 15px;
     }
     .ingredients-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
     .ingredient-item {
-      display: flex; align-items: center; gap: 8px; padding: 10px;
-      background: #fdfaf7; border: 1px solid #f4d3b5; border-radius: 12px;
-      cursor: pointer; font-size: 14px; transition: 0.2s;
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px;
+      background: #fdfaf7;
+      border: 1px solid #f4d3b5;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s;
     }
-    .ingredient-item:has(input:checked) { background: #fff8f2; border-color: #f4a261; }
-    
+    .ingredient-item:has(input:checked) {
+      background: #fff8f2;
+      border-color: #f4a261;
+    }
     .main-btn {
-      padding: 18px; background: linear-gradient(135deg, #f6d365, #fda085);
-      width: 100%; border-radius: 40px; border: none; font-weight: 700; font-size: 17px;
-      cursor: pointer; margin-bottom: 10px;
+      padding: 18px;
+      background: linear-gradient(135deg, #f6d365, #fda085);
+      width: 100%;
+      border-radius: 40px;
+      border: none;
+      font-weight: 700;
+      font-size: 17px;
+      cursor: pointer;
+      margin-bottom: 12px;
     }
-    .main-btn:disabled { opacity: 0.5; }
-
+    .main-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .refresh-btn {
-      padding: 16px; background: linear-gradient(135deg, #4caf50, #66bb6a);
-      color: white; width: 100%; border-radius: 40px; border: none; font-weight: 700;
-      cursor: pointer; display: none; margin-bottom: 20px;
+      padding: 16px;
+      background: linear-gradient(135deg, #4caf50, #66bb6a);
+      color: white;
+      width: 100%;
+      border-radius: 40px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      margin-bottom: 20px;
     }
-
     .recipe-card {
-      background: white; border-radius: 20px; overflow: hidden;
-      border: 1px solid #eee; margin-top: 20px; animation: fadeIn 0.4s ease;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid #eee;
+      margin-top: 16px;
+      animation: fadeIn 0.4s ease;
     }
-    @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
-    
-    .recipe-card img { width: 100%; height: 220px; object-fit: cover; }
-    .recipe-info { padding: 20px; }
-    .recipe-title { font-size: 22px; font-weight: 700; color: #d35400; margin-bottom: 10px; }
-    
-    .ing-tag { padding: 5px 10px; border-radius: 8px; font-size: 13px; display: inline-block; margin: 3px; }
-    .have { background: #e3fcef; color: #27ae60; font-weight: 600; }
-    .missing-main { background: #ffe3e3; color: #eb4d4b; border: 1px solid #ffcccc; font-weight: 700; }
-    .missing-extra { background: #f1f2f6; color: #b2bec3; text-decoration: line-through; opacity: 0.7; }
-    
-    .steps-box { margin-top: 15px; font-size: 15px; line-height: 1.6; color: #444; border-top: 1px solid #eee; padding-top: 10px; }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+    .recipe-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+    .recipe-info {
+      padding: 20px;
+    }
+    .recipe-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #d35400;
+      margin-bottom: 10px;
+    }
+    .ing-tag {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: inline-block;
+      margin: 3px;
+    }
+    .have           { background: #e3fcef; color: #27ae60; font-weight: 600; }
+    .missing-main   { background: #ffe3e3; color: #c0392b; border: 1px solid #ffcccc; font-weight: 700; }
+    .missing-extra  { background: #f1f2f6; color: #95a5a6; text-decoration: line-through; opacity: 0.75; }
+    .steps-box {
+      margin-top: 16px;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #444;
+      border-top: 1px solid #eee;
+      padding-top: 12px;
+    }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <button class="back-btn" onclick="window.history.back()">← Назад в меню</button>
+  <button class="back-btn" onclick="window.history.back()">← Назад</button>
   <h1>Что есть дома?</h1>
 
   <div class="ingredients-grid" id="ingredientsList"></div>
   
-  <button class="main-btn" id="findBtn" disabled>Сгенерировать рецепт</button>
+  <button class="main-btn" id="findBtn" disabled>Найти рецепт</button>
   <button class="refresh-btn" id="refreshBtn">Другой вариант</button>
 
+  <div id="counter" class="counter"></div>
   <div id="results"></div>
 </div>
 
 <script>
+// ────────────────────────────────────────────────
 const CATALOG = [
-  {id: "eggs", name: "Яйца"}, {id: "mushrooms", name: "Грибы"}, {id: "onion", name: "Лук"},
-  {id: "bran", name: "Отруби"}, {id: "cottage_cheese", name: "Творог"}, {id: "lavash", name: "Лаваш"},
-  {id: "cheese", name: "Сыр"}, {id: "tomato", name: "Помидоры"}, {id: "fish", name: "Рыба"}
+  {id: "eggs",              name: "Яйца"},
+  {id: "mushrooms",         name: "Грибы (шампиньоны)"},
+  {id: "onion",             name: "Лук"},
+  {id: "bran",              name: "Отруби"},
+  {id: "cottage_cheese",    name: "Творог"},
+  {id: "cottage_cheese_soft",name: "Мягкий творог / крем-сыр"},
+  {id: "lavash",            name: "Лаваш"},
+  {id: "cheese",            name: "Твёрдый сыр"},
+  {id: "tomato_cherry",     name: "Помидоры черри"},
+  {id: "fish_trout",        name: "Форель / слабосолёная рыба"},
+  {id: "yogurt_greek",      name: "Греческий йогурт"}
 ];
 
-let selected = new Set();
+let selected = new Set();           // выбранные пользователем главные ингредиенты
 let foundRecipes = [];
 let currentIdx = 0;
 
-// Инициализация списка ингредиентов
 function init() {
   const grid = document.getElementById('ingredientsList');
   grid.innerHTML = CATALOG.map(i => `
@@ -129,26 +187,69 @@ function init() {
 }
 
 function toggleIng(id) {
-  if (selected.has(id)) selected.delete(id); else selected.add(id);
+  if (selected.has(id)) selected.delete(id);
+  else selected.add(id);
+
   document.getElementById('findBtn').disabled = selected.size === 0;
   document.getElementById('refreshBtn').style.display = 'none';
+  document.getElementById('counter').innerHTML = '';
+  document.getElementById('results').innerHTML = '';
 }
 
-// Отрисовка рецепта
+async function findRecipes() {
+  try {
+    const response = await fetch('breakfast.json');  // ← поменяй имя файла, если переименовал
+    const recipes = await response.json();
+
+    foundRecipes = recipes.filter(r => {
+      const mains = r.ingredients.filter(i => i.isMain);
+      if (mains.length === 0) return false;
+      const matched = mains.filter(i => selected.has(i.id)).length;
+      return (matched / mains.length) >= 0.6;
+    }).sort(() => Math.random() - 0.5);
+
+    currentIdx = 0;
+    updateCounterAndRender();
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('results').innerHTML = 
+      '<p style="text-align:center; padding:30px; color:#c0392b;">Не удалось загрузить рецепты.<br>Проверьте, что файл breakfast.json лежит рядом с html.</p>';
+  }
+}
+
+function updateCounterAndRender() {
+  const counterEl = document.getElementById('counter');
+  const resultsEl = document.getElementById('results');
+
+  if (foundRecipes.length === 0) {
+    counterEl.innerHTML = '';
+    resultsEl.innerHTML = '<p style="text-align:center; padding:30px; color:#666;">По выбранным ингредиентам ничего не нашлось.<br>Попробуйте выбрать другие.</p>';
+    document.getElementById('refreshBtn').style.display = 'none';
+    return;
+  }
+
+  counterEl.innerHTML = `Найдено ${foundRecipes.length} рецепт${foundRecipes.length === 1 ? '' : 'а/ов'} · ${currentIdx + 1} из ${foundRecipes.length}`;
+  document.getElementById('refreshBtn').style.display = foundRecipes.length > 1 ? 'block' : 'none';
+
+  renderRecipe(foundRecipes[currentIdx]);
+}
+
 function renderRecipe(recipe) {
   const tags = recipe.ingredients.map(ing => {
     const has = selected.has(ing.id);
     let cls = has ? 'have' : (ing.isMain ? 'missing-main' : 'missing-extra');
-    let text = has ? ing.name : (ing.isMain ? ing.name + " (нужно!)" : ing.name);
+    let text = ing.name;
+    if (!has && ing.isMain) text += " (можно заменить / без него)";
     return `<span class="ing-tag ${cls}">${text}</span>`;
-  }).join('');
+  }).join(' ');
 
   document.getElementById('results').innerHTML = `
     <div class="recipe-card">
-      <img src="${recipe.photo}" onerror="this.src='https://via.placeholder.com/500x300?text=Нет+фото'">
+      <img src="${recipe.photo}" onerror="this.src='https://via.placeholder.com/500x220?text=Нет+фото'" alt="${recipe.title}">
       <div class="recipe-info">
         <div class="recipe-title">${recipe.title}</div>
-        <p style="color:#666; font-size:14px; margin-bottom:12px;">⏱ ${recipe.time} | 🔥 ${recipe.calories} ккал</p>
+        <p style="color:#666; font-size:14px; margin-bottom:12px;">⏱ ${recipe.time}  🔥 ${recipe.calories} ккал</p>
         <div>${tags}</div>
         <div class="steps-box">
           <strong>Приготовление:</strong><br>
@@ -159,34 +260,12 @@ function renderRecipe(recipe) {
   `;
 }
 
-// Загрузка JSON и поиск
-document.getElementById('findBtn').onclick = async () => {
-  try {
-    const response = await fetch('breakfast.json');
-    const recipes = await response.json();
-
-    foundRecipes = recipes.filter(r => {
-      const mains = r.ingredients.filter(i => i.isMain);
-      const matched = mains.filter(i => selected.has(i.id)).length;
-      return (matched / mains.length) >= 0.75; // Условие совпадения
-    }).sort(() => Math.random() - 0.5);
-
-    if (foundRecipes.length > 0) {
-      currentIdx = 0;
-      renderRecipe(foundRecipes[currentIdx]);
-      if (foundRecipes.length > 1) document.getElementById('refreshBtn').style.display = 'block';
-    } else {
-      document.getElementById('results').innerHTML = '<p style="text-align:center; padding:20px; color:#666;">По этим ингредиентам ничего не найдено. Попробуйте выбрать другие.</p>';
-    }
-  } catch (err) {
-    console.error("Ошибка загрузки JSON:", err);
-    alert("Положите файл breakfast.json в ту же папку, что и этот HTML!");
-  }
-};
+// ─── События ───────────────────────────────────────
+document.getElementById('findBtn').onclick = findRecipes;
 
 document.getElementById('refreshBtn').onclick = () => {
   currentIdx = (currentIdx + 1) % foundRecipes.length;
-  renderRecipe(foundRecipes[currentIdx]);
+  updateCounterAndRender();
 };
 
 init();
