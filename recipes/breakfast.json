@@ -5,8 +5,8 @@
     "time": "10 минут",
     "calories": 250,
     "ingredients": [
-      { "id": "mushrooms",  "name": "шампиньоны 100-150 гр", "essential": true,  "important": false },
       { "id": "eggs",       "name": "2 яйца",                "essential": true,  "important": false },
+      { "id": "mushrooms",  "name": "шампиньоны 100-150 гр", "essential": true,  "important": false },
       { "id": "onion",      "name": "лук 1/4 шт",            "essential": false, "important": true  },
       { "id": "oil",        "name": "растительное масло",    "essential": false, "important": false },
       { "id": "salt",       "name": "соль и специи",         "essential": false, "important": false }
@@ -26,7 +26,7 @@
     "ingredients": [
       { "id": "bran",              "name": "2 ст. л. отрубей",         "essential": true,  "important": false },
       { "id": "eggs",              "name": "1 яйцо",                   "essential": true,  "important": false },
-      { "id": "cottage_cheese_soft","name": "1,5 ст. л. мягкого творога","essential": true,  "important": false },
+      { "id": "cottage_cheese_soft","name": "1,5 ст. л. мягкого творога","essential": false, "important": true  },
       { "id": "baking_powder",     "name": "разрыхлитель",             "essential": false, "important": false },
       { "id": "salt",              "name": "соль, зелень",             "essential": false, "important": false }
     ],
