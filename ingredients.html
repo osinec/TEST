@@ -47,26 +47,6 @@
       margin-bottom: 20px;
       color: #d35400;
     }
-    .category-select {
-      margin-bottom: 24px;
-      text-align: center;
-    }
-    .category-btn {
-      padding: 10px 20px;
-      margin: 4px;
-      border: none;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      background: #f0f0f0;
-      color: #444;
-    }
-    .category-btn.active {
-      background: linear-gradient(135deg, #f6d365, #fda085);
-      color: #111;
-      font-weight: 700;
-    }
     .ingredients-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
@@ -172,14 +152,6 @@
   <button class="back-btn" onclick="window.history.back()">← Назад</button>
   <h1>Что приготовить?</h1>
 
-  <div class="category-select" id="categorySelect">
-    <button class="category-btn active" data-cat="breakfast">Завтрак</button>
-    <button class="category-btn"        data-cat="soups">Супы</button>
-    <button class="category-btn"        data-cat="lunch">Обед</button>
-    <button class="category-btn"        data-cat="dinner">Ужин</button>
-    <button class="category-btn"        data-cat="dessert">Десерты</button>
-  </div>
-
   <div class="ingredients-grid" id="ingredientsList"></div>
   
   <button class="main-btn" id="findBtn" disabled>Найти рецепт</button>
@@ -191,13 +163,7 @@
 
 <script>
 // ────────────────────────────────────────────────
-const CATEGORIES = {
-  breakfast: "recipes/breakfast.json",
-  soups:     "recipes/soups.json",
-  lunch:     "recipes/lunch.json",
-  dinner:    "recipes/dinner.json",
-  dessert:   "recipes/dessert.json"
-};
+const RECIPES_URL = "recipes/all.json";  // ← здесь можно изменить путь/имя файла
 
 const INGREDIENTS_CATALOG = [
   {id: "eggs",              name: "Яйца"},
@@ -216,38 +182,15 @@ const INGREDIENTS_CATALOG = [
   // добавляйте другие ингредиенты по мере необходимости
 ];
 
-let currentCategory = "breakfast";
 let selected = new Set();
 let foundRecipes = [];
 let currentIndex = 0;
-
-function initCategoryButtons() {
-  document.querySelectorAll('.category-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentCategory = btn.dataset.cat;
-      resetSearch();
-    });
-  });
-}
-
-function resetSearch() {
-  selected.clear();
-  foundRecipes = [];
-  currentIndex = 0;
-  document.getElementById('findBtn').disabled = true;
-  document.getElementById('refreshBtn').style.display = 'none';
-  document.getElementById('counter').textContent = '';
-  document.getElementById('results').innerHTML = '';
-  renderIngredients();
-}
 
 function renderIngredients() {
   const grid = document.getElementById('ingredientsList');
   grid.innerHTML = INGREDIENTS_CATALOG.map(item => `
     <label class="ingredient-item">
-      <input type="checkbox" value="${item.id}" 
+      <input type="checkbox" value="${item.id}"
              onchange="toggleIng('${item.id}')"
              ${selected.has(item.id) ? 'checked' : ''}>
       <span>${item.name}</span>
@@ -266,14 +209,8 @@ function toggleIng(id) {
 }
 
 async function findRecipes() {
-  const url = CATEGORIES[currentCategory];
-  if (!url) {
-    showError("Неизвестная категория");
-    return;
-  }
-
   try {
-    const res = await fetch(url);
+    const res = await fetch(RECIPES_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status} — проверьте наличие файла`);
     const recipes = await res.json();
 
@@ -289,12 +226,9 @@ async function findRecipes() {
 
   } catch (err) {
     console.error(err);
-    showError(`Ошибка загрузки ${currentCategory}.json<br>${err.message}`);
+    document.getElementById('results').innerHTML = 
+      `<div class="error-msg">Ошибка загрузки рецептов<br>${err.message}</div>`;
   }
-}
-
-function showError(message) {
-  document.getElementById('results').innerHTML = `<div class="error-msg">${message}</div>`;
 }
 
 function updateView() {
@@ -303,7 +237,7 @@ function updateView() {
 
   if (foundRecipes.length === 0) {
     counterEl.textContent = '';
-    resultsEl.innerHTML = '<p style="text-align:center; padding:32px 16px; color:#555;">Подходящих рецептов в этой категории нет</p>';
+    resultsEl.innerHTML = '<p style="text-align:center; padding:32px 16px; color:#555;">Подходящих рецептов нет</p>';
     document.getElementById('refreshBtn').style.display = 'none';
     return;
   }
@@ -358,7 +292,6 @@ document.getElementById('refreshBtn').onclick = () => {
   updateView();
 };
 
-initCategoryButtons();
 renderIngredients();
 </script>
 </body>
