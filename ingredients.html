@@ -129,7 +129,7 @@
     .have              { background:#e8f5e9; color:#2e7d32; font-weight:600; }
     .missing-essential { background:#ffebee; color:#c62828; border:2px solid #ef9a9a; font-weight:700; }
     .missing-important { background:#fff3e0; color:#e65100; border:1px solid #ffcc80; font-weight:600; }
-    .missing-extra     { background:#f5f5f5; color:#757575; text-decoration:line-through; opacity:0.8; }
+    .missing-extra     { background:#f5f5f5; color:#757575; font-weight:400; opacity:0.75; }
     .steps-box {
       margin-top: 16px;
       font-size: 15px;
@@ -230,7 +230,7 @@ async function loadAllRecipes() {
   });
 
   const allArrays = await Promise.all(promises);
-  return allArrays.flat(); // объединяем все массивы в один
+  return allArrays.flat();
 }
 
 async function findRecipes() {
@@ -277,7 +277,7 @@ function updateView() {
   const recipe = foundRecipes[currentIndex];
   const tags = recipe.ingredients.map(ing => {
     const has = selected.has(ing.id);
-    let cls = has ? 'have' : 'missing-extra';
+    let cls = 'have';
     let text = ing.name;
     let prefix = '';
 
@@ -289,9 +289,13 @@ function updateView() {
       }
     } else if (ing.important) {
       cls = has ? 'have' : 'missing-important';
-      if (!has) text += ' (можно без)';
-    } else if (!has) {
-      text = '– ' + text;
+      if (!has) {
+        text += ' (можно без)';
+      }
+    } else {
+      // второстепенные — просто серые, если отсутствуют
+      cls = has ? 'have' : 'missing-extra';
+      // без префикса, без доп. текста, без зачёркивания
     }
 
     return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
