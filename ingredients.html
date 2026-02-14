@@ -163,7 +163,13 @@
 
 <script>
 // ────────────────────────────────────────────────
-const RECIPES_URL = "recipes/all.json";  // ← здесь можно изменить путь/имя файла
+const CATEGORY_FILES = [
+  "recipes/breakfast.json",
+  "recipes/soups.json",
+  "recipes/lunch.json",
+  "recipes/dinner.json",
+  "recipes/dessert.json"
+];
 
 const INGREDIENTS_CATALOG = [
   {id: "eggs",              name: "Яйца"},
@@ -208,13 +214,36 @@ function toggleIng(id) {
   document.getElementById('results').innerHTML = '';
 }
 
+async function loadAllRecipes() {
+  const promises = CATEGORY_FILES.map(async file => {
+    try {
+      const res = await fetch(file);
+      if (!res.ok) {
+        console.warn(`Не удалось загрузить ${file} (HTTP ${res.status})`);
+        return [];
+      }
+      return await res.json();
+    } catch (err) {
+      console.warn(`Ошибка при загрузке ${file}:`, err);
+      return [];
+    }
+  });
+
+  const allArrays = await Promise.all(promises);
+  return allArrays.flat(); // объединяем все массивы в один
+}
+
 async function findRecipes() {
   try {
-    const res = await fetch(RECIPES_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status} — проверьте наличие файла`);
-    const recipes = await res.json();
+    const allRecipes = await loadAllRecipes();
 
-    foundRecipes = recipes.filter(r => {
+    if (allRecipes.length === 0) {
+      document.getElementById('results').innerHTML = 
+        '<div class="error-msg">Не удалось загрузить ни одного рецепта</div>';
+      return;
+    }
+
+    foundRecipes = allRecipes.filter(r => {
       const essentials = r.ingredients.filter(i => i.essential === true);
       if (essentials.length === 0) return false;
       const matchedCount = essentials.filter(i => selected.has(i.id)).length;
@@ -227,7 +256,7 @@ async function findRecipes() {
   } catch (err) {
     console.error(err);
     document.getElementById('results').innerHTML = 
-      `<div class="error-msg">Ошибка загрузки рецептов<br>${err.message}</div>`;
+      `<div class="error-msg">Ошибка при обработке рецептов<br>${err.message}</div>`;
   }
 }
 
