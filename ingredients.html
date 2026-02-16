@@ -220,7 +220,7 @@
       padding-top: 16px;
       border-top: 1px solid #e5e7eb;
       font-size: 15px;
-      line-height: 1.6;
+      line-height: 1.7;
       color: #374151;
     }
 
@@ -260,6 +260,8 @@
 
 <script>
 // ────────────────────────────────────────────────
+const PHOTO_FOLDER = "pics";   // ← здесь указана нужная папка
+
 const CATEGORY_FILES = [
   "recipes/breakfast.json",
   "recipes/soups.json",
@@ -282,7 +284,6 @@ const INGREDIENTS_CATALOG = [
   { id: "yogurt_greek",       name: "Греческий йогурт" },
   { id: "spinach",            name: "Шпинат" },
   { id: "butter",             name: "Сливочное масло" },
-  // можно добавить остальные ингредиенты из вашего JSON супов
 ];
 
 let selected = new Set();
@@ -388,13 +389,13 @@ function updateView() {
 
   results.innerHTML = `
     <div class="recipe-card">
-      <img src="images/${r.photo}" 
+      <img src="${PHOTO_FOLDER}/${r.photo}" 
            onerror="this.src='https://via.placeholder.com/580x200?text=Нет+фото'" 
            alt="${r.title}">
       <div class="recipe-info">
         <div class="recipe-title">${r.title}</div>
         <div class="recipe-meta">⏱ ${r.time} · 🔥 ${r.calories} ккал/100 г</div>
-        <div style="margin:16px 0;">${tags}</div>
+        <div style="margin:16px 0; line-height:1.5;">${tags}</div>
         <div class="steps-box">
           <strong>Как готовить:</strong><br><br>
           ${r.steps.map((s, i) => `${i + 1}. ${s}`).join("<br><br>")}
