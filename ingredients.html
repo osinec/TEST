@@ -236,9 +236,7 @@
       .ingredients-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       }
-      h1 {
-        font-size: 1.9rem;
-      }
+      h1 { font-size: 1.9rem; }
     }
   </style>
 </head>
@@ -260,7 +258,7 @@
 
 <script>
 // ────────────────────────────────────────────────
-const PHOTO_FOLDER = "pics";   // ← здесь указана нужная папка
+const PHOTO_FOLDER = "pics";   // твоя папка с фотографиями
 
 const CATEGORY_FILES = [
   "recipes/breakfast.json",
@@ -268,6 +266,7 @@ const CATEGORY_FILES = [
   "recipes/lunch.json",
   "recipes/dinner.json",
   "recipes/dessert.json"
+  // если появится dessertt.json или другие файлы — просто добавь строку
 ];
 
 const INGREDIENTS_CATALOG = [
@@ -284,6 +283,21 @@ const INGREDIENTS_CATALOG = [
   { id: "yogurt_greek",       name: "Греческий йогурт" },
   { id: "spinach",            name: "Шпинат" },
   { id: "butter",             name: "Сливочное масло" },
+
+  // ── можно дополнить ингредиентами из soups.json и других файлов ──
+  { id: "beef",               name: "Говядина" },
+  { id: "pork",               name: "Свинина" },
+  { id: "chicken",            name: "Курица" },
+  { id: "fish",               name: "Рыба" },
+  { id: "potato",             name: "Картофель" },
+  { id: "carrot",             name: "Морковь" },
+  { id: "cabbage",            name: "Капуста" },
+  { id: "beetroot",           name: "Свёкла" },
+  { id: "beans",              name: "Фасоль" },
+  { id: "peas",               name: "Горох" },
+  { id: "tomato_paste",       name: "Томатная паста" },
+  { id: "vermicelli",         name: "Вермишель" }
+  // добавляй остальные по мере необходимости
 ];
 
 let selected = new Set();
@@ -318,9 +332,13 @@ async function loadAllRecipes() {
   const promises = CATEGORY_FILES.map(async (file) => {
     try {
       const res = await fetch(file);
-      if (!res.ok) return [];
+      if (!res.ok) {
+        console.warn(`Не удалось загрузить ${file}: ${res.status}`);
+        return [];
+      }
       return await res.json();
-    } catch {
+    } catch (err) {
+      console.error(`Ошибка при загрузке ${file}:`, err);
       return [];
     }
   });
@@ -335,7 +353,8 @@ async function findRecipes() {
 
     foundRecipes = allRecipes
       .filter((r) => {
-        const essentials = r.ingredients.filter((i) => i.essential === true);
+        if (!r || !r.ingredients || !Array.isArray(r.ingredients)) return false;
+        const essentials = r.ingredients.filter((i) => i && i.essential === true);
         if (essentials.length === 0) return false;
         const matched = essentials.filter((i) => selected.has(i.id)).length;
         return matched === essentials.length;
@@ -345,6 +364,7 @@ async function findRecipes() {
     currentIndex = 0;
     updateView();
   } catch (err) {
+    console.error("Ошибка поиска рецептов:", err);
     document.getElementById("results").innerHTML = `<div class="error-msg">Не удалось загрузить рецепты</div>`;
   }
 }
@@ -365,40 +385,39 @@ function updateView() {
 
   const r = foundRecipes[currentIndex];
 
-  const tags = r.ingredients
-    .map((ing) => {
-      const has = selected.has(ing.id);
-      let cls = has ? "have" : "missing-extra";
-      let text = ing.name;
-      let prefix = "";
+  const tags = (r.ingredients || []).map((ing) => {
+    if (!ing || !ing.id) return "";
+    const has = selected.has(ing.id);
+    let cls = has ? "have" : "missing-extra";
+    let text = ing.name || ing.id;
+    let prefix = "";
 
-      if (ing.essential) {
-        cls = has ? "have" : "missing-essential";
-        if (!has) {
-          prefix = "✗ ";
-          text += " (нет)";
-        }
-      } else if (ing.important) {
-        cls = has ? "have" : "missing-important";
-        if (!has) text += " (можно без)";
+    if (ing.essential) {
+      cls = has ? "have" : "missing-essential";
+      if (!has) {
+        prefix = "✗ ";
+        text += " (нет)";
       }
+    } else if (ing.important) {
+      cls = has ? "have" : "missing-important";
+      if (!has) text += " (можно без)";
+    }
 
-      return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
-    })
-    .join(" ");
+    return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
+  }).filter(Boolean).join(" ");
 
   results.innerHTML = `
     <div class="recipe-card">
-      <img src="${PHOTO_FOLDER}/${r.photo}" 
+      <img src="${PHOTO_FOLDER}/${r.photo || 'no-photo.webp'}" 
            onerror="this.src='https://via.placeholder.com/580x200?text=Нет+фото'" 
-           alt="${r.title}">
+           alt="${r.title || 'Рецепт'}">
       <div class="recipe-info">
-        <div class="recipe-title">${r.title}</div>
-        <div class="recipe-meta">⏱ ${r.time} · 🔥 ${r.calories} ккал/100 г</div>
+        <div class="recipe-title">${r.title || 'Без названия'}</div>
+        <div class="recipe-meta">⏱ ${r.time || '?'} · 🔥 ${r.calories || '?'} ккал/100 г</div>
         <div style="margin:16px 0; line-height:1.5;">${tags}</div>
         <div class="steps-box">
           <strong>Как готовить:</strong><br><br>
-          ${r.steps.map((s, i) => `${i + 1}. ${s}`).join("<br><br>")}
+          ${(r.steps || []).map((s, i) => `${i + 1}. ${s}`).join("<br><br>")}
         </div>
       </div>
     </div>
