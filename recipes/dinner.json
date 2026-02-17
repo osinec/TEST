@@ -6,7 +6,7 @@
     "calories": 180,
     "ingredients": [
       { "id": "eggs", "name": "1 яйцо + 1 белок", "essential": true, "important": false },
-      { "id": "crab_sticks", "name": "крабовые палочки 50-70 г", "essential": true, "important": false },
+      { "id": "crab_sticks", "name": "крабовые палочки 50-70 г", "essential": true, "important": true },
       { "id": "tomato", "name": "помидор 1 шт. средний", "essential": false, "important": true },
       { "id": "sour_cream", "name": "сметана 1-2 ст. л.", "essential": false, "important": true },
       { "id": "greens", "name": "зелень по вкусу", "essential": false, "important": false },
@@ -28,8 +28,8 @@
     "calories": 210,
     "ingredients": [
       { "id": "squid", "name": "кальмар 150 г", "essential": true, "important": false },
-      { "id": "cucumber", "name": "огурец 1 шт.", "essential": true, "important": false },
-      { "id": "eggs", "name": "яйцо 1 шт.", "essential": false, "important": true },
+      { "id": "cucumber", "name": "огурец 1 шт.", "essential": false, "important": true },
+      { "id": "eggs", "name": "яйцо 1 шт.", "essential": true, "important": false },
       { "id": "sour_cream", "name": "сметана 2 ст. л.", "essential": false, "important": true },
       { "id": "spices", "name": "специи по вкусу", "essential": false, "important": false }
     ],
@@ -48,7 +48,7 @@
     "calories": 190,
     "ingredients": [
       { "id": "shrimp", "name": "креветки 100-150 г", "essential": true, "important": false },
-      { "id": "chinese_cabbage", "name": "капуста пекинская 100 г", "essential": true, "important": false },
+      { "id": "chinese_cabbage", "name": "капуста пекинская 100 г", "essential": true, "important": true },
       { "id": "tomato_cherry", "name": "помидоры черри 5-7 шт.", "essential": false, "important": true },
       { "id": "soy_sauce", "name": "соевый соус 1 ст. л.", "essential": false, "important": true },
       { "id": "mustard", "name": "горчица 1 ч. л. для заправки", "essential": false, "important": false }
@@ -69,7 +69,7 @@
     "calories": 240,
     "ingredients": [
       { "id": "broccoli", "name": "брокколи 150 г", "essential": true, "important": false },
-      { "id": "pink_salmon", "name": "горбуша 150 г", "essential": true, "important": false },
+      { "id": "pink_salmon", "name": "горбуша 150 г", "essential": true, "important": true },
       { "id": "sour_cream", "name": "сметана 10% 3-4 ст. л.", "essential": false, "important": true },
       { "id": "eggs", "name": "яйцо 1 шт.", "essential": false, "important": true },
       { "id": "spices", "name": "специи по вкусу", "essential": false, "important": false }
@@ -89,11 +89,11 @@
     "time": "30 минут",
     "calories": 420,
     "ingredients": [
-      { "id": "pasta", "name": "макароны из твёрдых сортов пшеницы 200 г", "essential": true, "important": false },
-      { "id": "smoked_sausage", "name": "копчёные колбаски или копчёная колбаса 100 г", "essential": true, "important": false },
-      { "id": "tomato", "name": "помидор 180 г (1 шт.)", "essential": false, "important": true },
+      { "id": "pasta", "name": "макароны из твёрдых сортов пшеницы 200 г", "essential": true, "important": true },
+      { "id": "smoked_sausage", "name": "копчёные колбаски или копчёная колбаса 100 г", "essential": true, "important": true },
+      { "id": "tomato", "name": "помидор 180 г (1 шт.)", "essential": true, "important": true },
       { "id": "cream", "name": "сливки 20% 150 мл", "essential": false, "important": true },
-      { "id": "cheese", "name": "твёрдый сыр 100 г", "essential": false, "important": true },
+      { "id": "cheese", "name": "твёрдый сыр 100 г", "essential": true, "important": true },
       { "id": "onion", "name": "фиолетовый лук 60 г (½ шт.)", "essential": false, "important": false }
     ],
     "steps": [
@@ -114,12 +114,12 @@
     "time": "15 минут",
     "calories": 380,
     "ingredients": [
-      { "id": "sour_cream", "name": "сметана 3,5 ст. л.", "essential": true, "important": false },
-      { "id": "mayonnaise", "name": "майонез 3,5 ст. л.", "essential": true, "important": false },
-      { "id": "flour", "name": "мука 150–200 г", "essential": false, "important": true },
-      { "id": "eggs", "name": "яйца 2–3 шт.", "essential": false, "important": true },
-      { "id": "cheese", "name": "твёрдый сыр 40 г", "essential": false, "important": true },
-      { "id": "sausage", "name": "колбаса 40 г", "essential": false, "important": false }
+      { "id": "sour_cream", "name": "сметана 3,5 ст. л.", "essential": false, "important": true },
+      { "id": "mayonnaise", "name": "майонез 3,5 ст. л.", "essential": false, "important": true },
+      { "id": "flour", "name": "мука 150–200 г", "essential": false, "important": false },
+      { "id": "eggs", "name": "яйца 2–3 шт.", "essential": true, "important": false },
+      { "id": "cheese", "name": "твёрдый сыр 40 г", "essential": true, "important": true },
+      { "id": "sausage", "name": "колбаса 40 г", "essential": true, "important": false }
     ],
     "steps": [
       "Смешать все ингредиенты для теста до консистенции густой сметаны",
@@ -137,10 +137,10 @@
     "calories": 410,
     "ingredients": [
       { "id": "potato", "name": "картофель некрупный 450 г (5 шт.)", "essential": true, "important": false },
-      { "id": "sausages", "name": "сосиски 200 г (4 шт.)", "essential": true, "important": false },
+      { "id": "sausages", "name": "сосиски 200 г (4 шт.)", "essential": true, "important": true },
       { "id": "tomato", "name": "помидоры 270 г (2 шт.)", "essential": false, "important": true },
-      { "id": "cheese", "name": "твёрдый сыр 90 г", "essential": false, "important": true },
-      { "id": "mayonnaise", "name": "майонез 100 г", "essential": false, "important": false }
+      { "id": "cheese", "name": "твёрдый сыр 90 г", "essential": true, "important": true },
+      { "id": "mayonnaise", "name": "майонез 100 г", "essential": false, "important": true }
     ],
     "steps": [
       "Разогреть духовку до 190°C",
@@ -162,7 +162,7 @@
       { "id": "sausages", "name": "сосиски 5 шт.", "essential": true, "important": false },
       { "id": "lettuce", "name": "листья салата 10 шт.", "essential": false, "important": true },
       { "id": "tomato", "name": "помидор 1 шт.", "essential": false, "important": true },
-      { "id": "pickles", "name": "маринованные огурцы 2 шт.", "essential": false, "important": false }
+      { "id": "pickles", "name": "маринованные огурцы 2 шт.", "essential": false, "important": true }
     ],
     "steps": [
       "Сосиски отварить в кипящей воде до готовности",
@@ -181,10 +181,10 @@
     "calories": 450,
     "ingredients": [
       { "id": "lavash", "name": "тонкий лаваш 2 листа", "essential": true, "important": false },
-      { "id": "chicken", "name": "куриные ножки 3 шт.", "essential": true, "important": false },
+      { "id": "chicken", "name": "куриные ножки 3 шт.", "essential": true, "important": true },
       { "id": "korean_carrot", "name": "корейская морковь 150 г", "essential": false, "important": true },
       { "id": "cabbage", "name": "капуста белокочанная или пекинская 150 г", "essential": false, "important": true },
-      { "id": "tomato", "name": "помидор 1 шт.", "essential": false, "important": false }
+      { "id": "tomato", "name": "помидор 1 шт.", "essential": false, "important": true }
     ],
     "steps": [
       "Курицу посолить, поперчить, запекать 40 минут при 200°C, остудить, нарезать кусочками",
@@ -203,10 +203,10 @@
     "calories": 520,
     "ingredients": [
       { "id": "pasta", "name": "спагетти 200 г", "essential": true, "important": false },
-      { "id": "bacon", "name": "бекон или свиная грудинка 180 г", "essential": true, "important": false },
-      { "id": "eggs", "name": "яйца 2 шт.", "essential": false, "important": true },
-      { "id": "cream", "name": "сливки 20–30% 110 мл", "essential": false, "important": true },
-      { "id": "parmesan", "name": "пармезан тёртый 40 г", "essential": false, "important": false }
+      { "id": "bacon", "name": "бекон или свиная грудинка 180 г", "essential": true, "important": true },
+      { "id": "eggs", "name": "яйца 2 шт.", "essential": true, "important": false },
+      { "id": "cream", "name": "сливки 20–30% 110 мл", "essential": true, "important": true },
+      { "id": "parmesan", "name": "пармезан тёртый 40 г", "essential": true, "important": true }
     ],
     "steps": [
       "Отварить спагетти в подсоленной воде, сохранить немного воды от варки",
