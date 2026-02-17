@@ -17,14 +17,13 @@
       --shadow-hover: 0 16px 40px rgba(0,0,0,0.16);
       --accent-start: #f6d365;
       --accent-end: #fda085;
-      --success: #10b981;
-      --danger: #ef4444;
+      --success: #4caf50;
+      --danger: #e74c3c;
+      --warning: #f39c12;
       --text-dark: #1f2937;
       --text-gray: #4b5563;
     }
-
     * { margin:0; padding:0; box-sizing:border-box; }
-
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
@@ -33,19 +32,19 @@
       padding: 16px 12px;
       line-height: 1.5;
     }
-
     .card {
       width: 100%;
       max-width: 620px;
       margin: 0 auto;
       background: var(--card-bg);
       backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-radius: 28px;
       border: 1px solid var(--card-border);
       box-shadow: var(--shadow-soft);
       padding: 32px 24px;
+      overflow: hidden;
     }
-
     .back-btn {
       width: 100%;
       padding: 14px;
@@ -58,68 +57,84 @@
       text-transform: uppercase;
       letter-spacing: 0.6px;
       cursor: pointer;
-      transition: all 0.28s;
-      box-shadow: 0 4px 12px rgba(191,219,254,0.5);
-      margin-bottom: 24px;
+      transition: all 0.28s ease;
+      box-shadow: 0 4px 12px rgba(191, 219, 254, 0.5);
+      margin-bottom: 28px;
     }
-
-    .back-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(191,219,254,0.7); }
-
+    .back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(191, 219, 254, 0.7);
+    }
     h1 {
       font-size: 2.3rem;
       font-weight: 700;
       text-align: center;
       color: #c2410c;
-      margin-bottom: 12px;
+      margin-bottom: 24px;
     }
-
-    .hint {
-      text-align: center;
-      color: #555;
-      font-size: 15px;
-      font-weight: 500;
-      margin: 0 0 24px;
+    .category {
+      margin-bottom: 24px;
     }
-
-    .ingredients-grid {
+    .category-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #c2410c;
+      margin: 0 0 12px 0;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .category-title::before {
+      content: '▼';
+      font-size: 0.9rem;
+      transition: transform 0.2s;
+    }
+    .category-title.open::before {
+      transform: rotate(180deg);
+    }
+    .category-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: 12px;
-      margin-bottom: 32px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
     }
-
+    .category-grid.open {
+      max-height: 1000px; /* достаточно большой, чтобы вместить всё */
+    }
     .ingredient-item {
       display: flex;
       align-items: center;
       gap: 10px;
       padding: 12px 16px;
-      background: rgba(255,255,255,0.75);
-      border: 1px solid rgba(255,255,255,0.5);
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.5);
       border-radius: 16px;
       cursor: pointer;
-      transition: all 0.22s;
+      transition: all 0.22s ease;
+      backdrop-filter: blur(8px);
     }
-
     .ingredient-item:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-      background: rgba(255,255,255,0.92);
+      background: rgba(255, 255, 255, 0.92);
     }
-
     .ingredient-item input {
       accent-color: #f97316;
       width: 20px;
       height: 20px;
       flex-shrink: 0;
     }
-
     .ingredient-item span {
       font-size: 15px;
       font-weight: 500;
       color: var(--text-dark);
     }
-
-    .main-btn, .refresh-btn {
+    .main-btn,
+    .refresh-btn {
       width: 100%;
       padding: 16px;
       border: none;
@@ -128,30 +143,26 @@
       font-weight: 700;
       color: white;
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
       box-shadow: 0 6px 16px rgba(0,0,0,0.12);
       margin-bottom: 16px;
     }
-
     .main-btn {
       background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
     }
-
     .main-btn:disabled {
       opacity: 0.55;
       cursor: not-allowed;
       box-shadow: none;
     }
-
     .refresh-btn {
       background: linear-gradient(90deg, #10b981, #34d399);
     }
-
-    .main-btn:hover:not(:disabled), .refresh-btn:hover {
+    .main-btn:hover:not(:disabled),
+    .refresh-btn:hover {
       transform: translateY(-3px);
       box-shadow: 0 12px 28px rgba(0,0,0,0.18);
     }
-
     .counter {
       text-align: center;
       color: var(--text-gray);
@@ -159,49 +170,38 @@
       font-weight: 500;
       margin: 24px 0 28px;
     }
-
     .recipe-card {
       background: white;
       border-radius: 20px;
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       margin-top: 16px;
-      transition: transform 0.3s;
+      transition: transform 0.3s ease;
     }
-
-    .recipe-card:hover { transform: translateY(-6px); }
-
+    .recipe-card:hover {
+      transform: translateY(-6px);
+    }
     .recipe-card img {
       width: 100%;
       height: 280px;
       object-fit: cover;
+      object-position: center;
       background: #f3f4f6;
     }
-
-    .recipe-info { padding: 24px 26px; }
-
+    .recipe-info {
+      padding: 24px 26px;
+    }
     .recipe-title {
       font-size: 1.85rem;
       font-weight: 700;
       color: #c2410c;
       margin-bottom: 10px;
     }
-
     .recipe-meta {
       color: #6b7280;
       font-size: 14.5px;
-      margin-bottom: 12px;
+      margin-bottom: 18px;
     }
-
-    .match-info {
-      font-size: 14px;
-      color: #555;
-      margin: 12px 0;
-      padding: 8px 12px;
-      background: #f3f4f6;
-      border-radius: 12px;
-    }
-
     .ing-tag {
       padding: 6px 12px;
       border-radius: 12px;
@@ -209,20 +209,10 @@
       margin: 4px 6px 4px 0;
       display: inline-block;
     }
-
-    .have {
-      background: rgba(16, 185, 129, 0.18);
-      color: #065f46;
-      font-weight: 600;
-    }
-
-    .missing {
-      background: rgba(239, 68, 68, 0.18);
-      color: #991b1b;
-      border: 1px solid #fca5a5;
-      font-weight: 600;
-    }
-
+    .have { background: rgba(16, 185, 129, 0.15); color: #065f46; font-weight: 600; }
+    .missing-essential { background: rgba(239, 68, 68, 0.15); color: #991b1b; border: 1px solid #fca5a5; font-weight: 600; }
+    .missing-important { background: rgba(249, 115, 22, 0.15); color: #c2410c; border: 1px solid #fdba74; font-weight: 500; }
+    .missing-extra { background: rgba(107, 114, 128, 0.12); color: #6b7280; font-weight: 400; }
     .steps-box {
       margin-top: 24px;
       padding-top: 18px;
@@ -231,7 +221,6 @@
       line-height: 1.7;
       color: #374151;
     }
-
     .error-msg {
       text-align: center;
       padding: 48px 20px;
@@ -239,9 +228,10 @@
       font-size: 16px;
       font-weight: 500;
     }
-
     @media (max-width: 480px) {
-      .ingredients-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+      .ingredients-grid, .category-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
       h1 { font-size: 2rem; }
       .recipe-card img { height: 240px; }
     }
@@ -251,23 +241,16 @@
 
 <div class="card">
   <button class="back-btn" onclick="window.history.back()">← НАЗАД</button>
-
   <h1>Что приготовить?</h1>
-
-  <div class="hint">
-    Выберите любые ингредиенты (от 1 шт.) — покажем рецепты, где есть хотя бы один из них
-  </div>
-
-  <div class="ingredients-grid" id="ingredientsList"></div>
-
+  <div id="ingredientsList"></div>
   <button class="main-btn" id="findBtn" disabled>Найти рецепт</button>
   <button class="refresh-btn" id="refreshBtn" style="display:none;">Другой вариант</button>
-
   <div class="counter" id="counter"></div>
   <div id="results"></div>
 </div>
 
 <script>
+// ────────────────────────────────────────────────
 const PHOTO_FOLDER = "pics";
 
 const CATEGORY_FILES = [
@@ -288,12 +271,14 @@ const INGREDIENTS_CATALOG = [
   { id: "lavash",             name: "Лаваш" },
   { id: "cheese",             name: "Твёрдый сыр" },
   { id: "tomato_cherry",      name: "Помидоры / черри" },
-  { id: "red_fish",           name: "Красная рыба" },
-  { id: "white_fish",         name: "Белая рыба" },
+  { id: "fish_trout",         name: "Форель / красная рыба" },
   { id: "yogurt_greek",       name: "Греческий йогурт" },
   { id: "spinach",            name: "Шпинат" },
   { id: "butter",             name: "Сливочное масло" },
-  { id: "meat",               name: "Мясо (любое)" },
+  { id: "beef",               name: "Говядина" },
+  { id: "pork",               name: "Свинина" },
+  { id: "chicken",            name: "Курица" },
+  { id: "fish",               name: "Рыба" },
   { id: "potato",             name: "Картофель" },
   { id: "carrot",             name: "Морковь" },
   { id: "cabbage",            name: "Капуста" },
@@ -302,7 +287,33 @@ const INGREDIENTS_CATALOG = [
   { id: "peas",               name: "Горох" },
   { id: "tomato_paste",       name: "Томатная паста" },
   { id: "vermicelli",         name: "Вермишель" },
-  // можно добавить ещё
+  { id: "eggplant",           name: "Баклажан" },
+  { id: "tomato",             name: "Помидор" },
+  { id: "sour_cream",         name: "Сметана" },
+  { id: "bell_pepper",        name: "Болгарский перец" },
+  { id: "ham",                name: "Ветчина" },
+  { id: "noodles",            name: "Лапша" },
+  { id: "pasta",              name: "Спагетти / паста" },
+  { id: "minced_meat",        name: "Фарш" },
+  { id: "lard",               name: "Сало" },
+  { id: "sausages",           name: "Сосиски" },
+  { id: "avocado",            name: "Авокадо" },
+  { id: "kefir",              name: "Кефир" },
+  { id: "banana",             name: "Банан" },
+  { id: "oat_flakes",         name: "Овсяные хлопья" },
+  { id: "cocoa",              name: "Какао-порошок" },
+  { id: "sugar",              name: "Сахар" },
+  { id: "baking_powder",      name: "Разрыхлитель" },
+  { id: "condensed_milk",     name: "Сгущённое молоко" },
+  { id: "cream",              name: "Сливки" },
+  { id: "honey",              name: "Мёд" },
+  { id: "peaches",            name: "Персики" },
+  { id: "biscuits",           name: "Печенье / крекеры" },
+  { id: "cream_cheese",       name: "Сливочный сыр" },
+  { id: "puff_pastry",        name: "Слоёное тесто" },
+  { id: "jam",                name: "Варенье" },
+  { id: "milk",               name: "Молоко" },
+  { id: "flour",              name: "Мука" }
 ];
 
 let selected = new Set();
@@ -310,17 +321,75 @@ let foundRecipes = [];
 let currentIndex = 0;
 
 function renderIngredients() {
-  const grid = document.getElementById("ingredientsList");
-  grid.innerHTML = INGREDIENTS_CATALOG.map(
-    (item) => `
-      <label class="ingredient-item">
+  const container = document.getElementById("ingredientsList");
+  container.innerHTML = "";
+
+  const categories = [
+    {
+      title: "Мясо и птица",
+      ids: ["beef", "pork", "chicken", "meat", "minced_meat", "ham", "sausages", "bacon"]
+    },
+    {
+      title: "Рыба и морепродукты",
+      ids: ["fish", "fish_trout", "red_fish", "white_fish"]
+    },
+    {
+      title: "Молочные продукты и яйца",
+      ids: ["eggs", "cottage_cheese", "cottage_cheese_soft", "cheese", "sour_cream", "butter", "yogurt_greek", "cream", "milk", "kefir", "condensed_milk", "cream_cheese"]
+    },
+    {
+      title: "Овощи",
+      ids: ["potato", "carrot", "onion", "cabbage", "beetroot", "tomato", "tomato_cherry", "bell_pepper", "eggplant", "cucumber", "spinach", "beans", "peas", "mushrooms", "avocado"]
+    },
+    {
+      title: "Крупы, макароны, тесто",
+      ids: ["vermicelli", "pasta", "noodles", "lavash", "flour", "bran", "oat_flakes", "puff_pastry"]
+    },
+    {
+      title: "Сладкое и консервы",
+      ids: ["tomato_paste", "honey", "sugar", "cocoa", "jam", "peaches", "banana", "biscuits"]
+    },
+    {
+      title: "Прочее",
+      ids: ["baking_powder", "lard"]
+    }
+  ];
+
+  categories.forEach(cat => {
+    const section = document.createElement("div");
+    section.className = "category";
+
+    const title = document.createElement("h3");
+    title.className = "category-title";
+    title.textContent = cat.title;
+    title.onclick = () => {
+      title.classList.toggle("open");
+      const grid = title.nextElementSibling;
+      grid.classList.toggle("open");
+    };
+
+    const grid = document.createElement("div");
+    grid.className = "category-grid";
+
+    cat.ids.forEach(id => {
+      const item = INGREDIENTS_CATALOG.find(i => i.id === id);
+      if (!item) return;
+
+      const label = document.createElement("label");
+      label.className = "ingredient-item";
+      label.innerHTML = `
         <input type="checkbox" value="${item.id}" onchange="toggleIng('${item.id}')" ${
           selected.has(item.id) ? "checked" : ""
         }>
         <span>${item.name}</span>
-      </label>
-    `
-  ).join("");
+      `;
+      grid.appendChild(label);
+    });
+
+    section.appendChild(title);
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
 }
 
 function toggleIng(id) {
@@ -328,60 +397,44 @@ function toggleIng(id) {
   else selected.add(id);
 
   document.getElementById("findBtn").disabled = selected.size === 0;
-
-  // очищаем результаты при каждом изменении выбора
-  document.getElementById("results").innerHTML = "";
-  document.getElementById("counter").textContent = "";
   document.getElementById("refreshBtn").style.display = "none";
+  document.getElementById("counter").textContent = "";
+  document.getElementById("results").innerHTML = "";
 }
 
 async function loadAllRecipes() {
   const promises = CATEGORY_FILES.map(async (file) => {
     try {
       const res = await fetch(file);
-      if (!res.ok) {
-        console.warn(`Не удалось загрузить ${file}: ${res.status}`);
-        return [];
-      }
+      if (!res.ok) return [];
       return await res.json();
-    } catch (err) {
-      console.error(`Ошибка загрузки ${file}:`, err);
+    } catch {
       return [];
     }
   });
-
   const arrays = await Promise.all(promises);
   return arrays.flat();
 }
 
 async function findRecipes() {
-  if (selected.size === 0) {
-    document.getElementById("results").innerHTML = 
-      '<p style="text-align:center; padding:48px 20px; color:#6b7280;">Выберите хотя бы один ингредиент</p>';
-    return;
-  }
-
   try {
     const allRecipes = await loadAllRecipes();
 
     foundRecipes = allRecipes
-      .filter(r => {
+      .filter((r) => {
         if (!r || !r.ingredients || !Array.isArray(r.ingredients)) return false;
-        // хотя бы один выбранный ингредиент есть в рецепте
-        return r.ingredients.some(ing => selected.has(ing.id));
+        const essentials = r.ingredients.filter((i) => i && i.essential === true);
+        if (essentials.length === 0) return false;
+        const matched = essentials.filter((i) => selected.has(i.id)).length;
+        return matched === essentials.length;
       })
-      .sort((a, b) => {
-        const countA = a.ingredients.filter(i => selected.has(i.id)).length;
-        const countB = b.ingredients.filter(i => selected.has(i.id)).length;
-        return countB - countA; // больше совпадений → выше в списке
-      });
+      .sort(() => Math.random() - 0.5);
 
     currentIndex = 0;
     updateView();
   } catch (err) {
-    console.error("Ошибка в findRecipes:", err);
-    document.getElementById("results").innerHTML = 
-      '<div class="error-msg">Не удалось загрузить рецепты</div>';
+    console.error("Ошибка поиска рецептов:", err);
+    document.getElementById("results").innerHTML = `<div class="error-msg">Не удалось загрузить рецепты</div>`;
   }
 }
 
@@ -401,30 +454,36 @@ function updateView() {
 
   const r = foundRecipes[currentIndex];
 
-  const matchedCount = r.ingredients.filter(ing => selected.has(ing.id)).length;
-  const totalIng = r.ingredients.length;
+  const tags = (r.ingredients || []).map((ing) => {
+    if (!ing || !ing.id) return "";
+    const has = selected.has(ing.id);
+    let cls = has ? "have" : "missing-extra";
+    let text = ing.name || ing.id;
+    let prefix = "";
 
-  const tags = r.ingredients
-    .map(ing => {
-      const has = selected.has(ing.id);
-      let cls = has ? "have" : "missing";
-      let prefix = has ? "✓ " : "✗ ";
-      let text = ing.name;
+    if (ing.essential) {
+      cls = has ? "have" : "missing-essential";
+      if (!has) {
+        prefix = "✗ ";
+        text += " (нет)";
+      }
+    } else if (ing.important) {
+      cls = has ? "have" : "missing-important";
+      if (!has) text += " (можно заменить или убрать)";
+    }
 
-      return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
-    })
-    .join(" ");
+    return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
+  }).filter(Boolean).join(" ");
 
   results.innerHTML = `
     <div class="recipe-card">
-      <img src="${PHOTO_FOLDER}/${r.photo || 'no-photo.webp'}" 
-           onerror="this.src='https://via.placeholder.com/620x280?text=Нет+фото'" 
-           alt="${r.title}">
+      <img src="${PHOTO_FOLDER}/${r.photo || 'no-photo.webp'}"
+           onerror="this.src='https://via.placeholder.com/620x280?text=Нет+фото'"
+           alt="${r.title || 'Рецепт'}">
       <div class="recipe-info">
         <div class="recipe-title">${r.title || 'Без названия'}</div>
         <div class="recipe-meta">⏱ ${r.time || '?'} · 🔥 ${r.calories || '?'} ккал/100 г</div>
-        <div class="match-info">У вас уже есть ${matchedCount} из ${totalIng} ингредиентов</div>
-        <div style="margin:16px 0; line-height:1.6;">${tags}</div>
+        <div style="margin:18px 0; line-height:1.6;">${tags}</div>
         <div class="steps-box">
           <strong>Как готовить:</strong><br><br>
           ${(r.steps || []).map((s, i) => `${i + 1}. ${s}`).join("<br><br>")}
