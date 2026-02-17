@@ -23,7 +23,6 @@
       --text-dark: #2d3436;
       --text-gray: #636e72;
       --category-bg: linear-gradient(135deg, rgba(255,245,238,0.9), rgba(255,235,220,0.7));
-      --search-bg: rgba(255, 255, 255, 0.9);
     }
 
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -78,47 +77,7 @@
       background: linear-gradient(90deg, #e67e22, #f39c12);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 24px;
-    }
-
-    .search-container {
-      position: relative;
-      margin-bottom: 32px;
-    }
-
-    .search-input {
-      width: 100%;
-      padding: 16px 20px 16px 52px;
-      font-size: 16px;
-      border: 2px solid rgba(230, 126, 34, 0.3);
-      border-radius: 999px;
-      background: var(--search-bg);
-      outline: none;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .search-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 6px 20px rgba(230, 126, 34, 0.18);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.3rem;
-      color: var(--accent);
-      pointer-events: none;
-    }
-
-    .no-results {
-      text-align: center;
-      color: var(--text-gray);
-      font-size: 15px;
-      padding: 20px;
-      display: none;
+      margin-bottom: 40px;
     }
 
     .category {
@@ -333,14 +292,7 @@
 
   <h1>Что приготовить?</h1>
 
-  <div class="search-container">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="searchInput" class="search-input" placeholder="Поиск по ингредиенту (например: курица, яйца, творог)" />
-  </div>
-
   <div id="ingredientsList"></div>
-
-  <div id="noResults" class="no-results">Ничего не найдено. Попробуйте изменить запрос.</div>
 
   <button class="main-btn" id="findBtn" disabled>Найти рецепт</button>
   <button class="refresh-btn" id="refreshBtn" style="display:none;">Другой вариант</button>
@@ -420,7 +372,6 @@ let selected = new Set();
 let foundRecipes = [];
 let currentIndex = 0;
 
-// ─── Рендер ингредиентов с категориями ────────────────────────
 function renderIngredients() {
   const container = document.getElementById("ingredientsList");
   container.innerHTML = "";
@@ -460,7 +411,6 @@ function renderIngredients() {
 
       const label = document.createElement("label");
       label.className = "ingredient-item";
-      label.dataset.name = item.name.toLowerCase(); // для поиска
       label.innerHTML = `
         <input type="checkbox" value="${item.id}" onchange="toggleIng('${item.id}')" ${
           selected.has(item.id) ? "checked" : ""
@@ -476,27 +426,6 @@ function renderIngredients() {
   });
 }
 
-// ─── Поиск по ингредиентам в реальном времени ──────────────────
-document.getElementById("searchInput").addEventListener("input", function(e) {
-  const query = e.target.value.toLowerCase().trim();
-  const noResults = document.getElementById("noResults");
-
-  let visibleCount = 0;
-
-  document.querySelectorAll(".ingredient-item").forEach(item => {
-    const name = item.dataset.name;
-    if (name.includes(query)) {
-      item.style.display = "flex";
-      visibleCount++;
-    } else {
-      item.style.display = "none";
-    }
-  });
-
-  noResults.style.display = visibleCount === 0 && query.length > 0 ? "block" : "none";
-});
-
-// ─── Остальные функции без изменений ──────────────────────────
 function toggleIng(id) {
   if (selected.has(id)) selected.delete(id);
   else selected.add(id);
@@ -598,6 +527,7 @@ function updateView() {
   `;
 }
 
+// ─── События ───────────────────────────────────────
 document.getElementById("findBtn").onclick = findRecipes;
 
 document.getElementById("refreshBtn").onclick = () => {
