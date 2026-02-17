@@ -17,21 +17,16 @@
       --shadow-hover: 0 16px 40px rgba(0,0,0,0.16);
       --accent-start: #f6d365;
       --accent-end: #fda085;
-      --success: #4caf50;
-      --danger: #e74c3c;
-      --warning: #f39c12;
+      --success: #10b981;
+      --danger: #ef4444;
       --text-dark: #1f2937;
       --text-gray: #4b5563;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin:0; padding:0; box-sizing:border-box; }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
       min-height: 100vh;
       color: var(--text-dark);
@@ -45,12 +40,10 @@
       margin: 0 auto;
       background: var(--card-bg);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border-radius: 28px;
       border: 1px solid var(--card-border);
       box-shadow: var(--shadow-soft);
       padding: 32px 24px;
-      overflow: hidden;
     }
 
     .back-btn {
@@ -65,29 +58,34 @@
       text-transform: uppercase;
       letter-spacing: 0.6px;
       cursor: pointer;
-      transition: all 0.28s ease;
-      box-shadow: 0 4px 12px rgba(191, 219, 254, 0.5);
+      transition: all 0.28s;
+      box-shadow: 0 4px 12px rgba(191,219,254,0.5);
       margin-bottom: 28px;
     }
 
-    .back-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(191, 219, 254, 0.7);
-    }
+    .back-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(191,219,254,0.7); }
 
     h1 {
       font-size: 2.3rem;
       font-weight: 700;
       text-align: center;
       color: #c2410c;
-      margin-bottom: 32px;
+      margin-bottom: 16px;
+    }
+
+    .hint {
+      text-align: center;
+      color: #555;
+      font-size: 15px;
+      font-weight: 500;
+      margin: 0 0 24px;
     }
 
     .ingredients-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: 12px;
-      margin-bottom: 36px;
+      margin-bottom: 32px;
     }
 
     .ingredient-item {
@@ -95,18 +93,17 @@
       align-items: center;
       gap: 10px;
       padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      background: rgba(255,255,255,0.75);
+      border: 1px solid rgba(255,255,255,0.5);
       border-radius: 16px;
       cursor: pointer;
-      transition: all 0.22s ease;
-      backdrop-filter: blur(8px);
+      transition: all 0.22s;
     }
 
     .ingredient-item:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(255,255,255,0.92);
     }
 
     .ingredient-item input {
@@ -122,8 +119,7 @@
       color: var(--text-dark);
     }
 
-    .main-btn,
-    .refresh-btn {
+    .main-btn, .refresh-btn {
       width: 100%;
       padding: 16px;
       border: none;
@@ -132,7 +128,7 @@
       font-weight: 700;
       color: white;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s;
       box-shadow: 0 6px 16px rgba(0,0,0,0.12);
       margin-bottom: 16px;
     }
@@ -151,8 +147,7 @@
       background: linear-gradient(90deg, #10b981, #34d399);
     }
 
-    .main-btn:hover:not(:disabled),
-    .refresh-btn:hover {
+    .main-btn:hover:not(:disabled), .refresh-btn:hover {
       transform: translateY(-3px);
       box-shadow: 0 12px 28px rgba(0,0,0,0.18);
     }
@@ -171,24 +166,19 @@
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       margin-top: 16px;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s;
     }
 
-    .recipe-card:hover {
-      transform: translateY(-6px);
-    }
+    .recipe-card:hover { transform: translateY(-6px); }
 
     .recipe-card img {
       width: 100%;
-      height: 280px;           /* ← увеличено с 200px до 280px */
+      height: 280px;
       object-fit: cover;
-      object-position: center;
       background: #f3f4f6;
     }
 
-    .recipe-info {
-      padding: 24px 26px;
-    }
+    .recipe-info { padding: 24px 26px; }
 
     .recipe-title {
       font-size: 1.85rem;
@@ -200,7 +190,16 @@
     .recipe-meta {
       color: #6b7280;
       font-size: 14.5px;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
+    }
+
+    .match-info {
+      font-size: 14px;
+      color: #555;
+      margin: 12px 0;
+      padding: 8px 12px;
+      background: #f3f4f6;
+      border-radius: 12px;
     }
 
     .ing-tag {
@@ -211,10 +210,18 @@
       display: inline-block;
     }
 
-    .have              { background: rgba(16, 185, 129, 0.15); color: #065f46; font-weight: 600; }
-    .missing-essential { background: rgba(239, 68, 68, 0.15); color: #991b1b; border: 1px solid #fca5a5; font-weight: 600; }
-    .missing-important { background: rgba(249, 115, 22, 0.15); color: #c2410c; border: 1px solid #fdba74; font-weight: 500; }
-    .missing-extra     { background: rgba(107, 114, 128, 0.12); color: #6b7280; font-weight: 400; }
+    .have {
+      background: rgba(16, 185, 129, 0.18);
+      color: #065f46;
+      font-weight: 600;
+    }
+
+    .missing {
+      background: rgba(239, 68, 68, 0.18);
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+      font-weight: 600;
+    }
 
     .steps-box {
       margin-top: 24px;
@@ -234,11 +241,9 @@
     }
 
     @media (max-width: 480px) {
-      .ingredients-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      }
+      .ingredients-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
       h1 { font-size: 2rem; }
-      .recipe-card img { height: 240px; }   /* чуть меньше на мобильных */
+      .recipe-card img { height: 240px; }
     }
   </style>
 </head>
@@ -248,6 +253,8 @@
   <button class="back-btn" onclick="window.history.back()">← НАЗАД</button>
 
   <h1>Что приготовить?</h1>
+
+  <div class="hint">Выберите минимум 3 ингредиента — покажем рецепты, в которых есть <b>ВСЕ</b> выбранные</div>
 
   <div class="ingredients-grid" id="ingredientsList"></div>
 
@@ -259,7 +266,6 @@
 </div>
 
 <script>
-// ────────────────────────────────────────────────
 const PHOTO_FOLDER = "pics";
 
 const CATEGORY_FILES = [
@@ -280,14 +286,12 @@ const INGREDIENTS_CATALOG = [
   { id: "lavash",             name: "Лаваш" },
   { id: "cheese",             name: "Твёрдый сыр" },
   { id: "tomato_cherry",      name: "Помидоры / черри" },
-  { id: "fish_trout",         name: "Форель / красная рыба" },
+  { id: "red_fish",           name: "Красная рыба" },
+  { id: "white_fish",         name: "Белая рыба" },
   { id: "yogurt_greek",       name: "Греческий йогурт" },
   { id: "spinach",            name: "Шпинат" },
   { id: "butter",             name: "Сливочное масло" },
-  { id: "beef",               name: "Говядина" },
-  { id: "pork",               name: "Свинина" },
-  { id: "chicken",            name: "Курица" },
-  { id: "fish",               name: "Рыба" },
+  { id: "meat",               name: "Мясо (любое)" },
   { id: "potato",             name: "Картофель" },
   { id: "carrot",             name: "Морковь" },
   { id: "cabbage",            name: "Капуста" },
@@ -295,7 +299,8 @@ const INGREDIENTS_CATALOG = [
   { id: "beans",              name: "Фасоль" },
   { id: "peas",               name: "Горох" },
   { id: "tomato_paste",       name: "Томатная паста" },
-  { id: "vermicelli",         name: "Вермишель" }
+  { id: "vermicelli",         name: "Вермишель" },
+  // добавляй новые по мере необходимости
 ];
 
 let selected = new Set();
@@ -320,50 +325,58 @@ function toggleIng(id) {
   if (selected.has(id)) selected.delete(id);
   else selected.add(id);
 
-  document.getElementById("findBtn").disabled = selected.size === 0;
-  document.getElementById("refreshBtn").style.display = "none";
-  document.getElementById("counter").textContent = "";
+  const btn = document.getElementById("findBtn");
+  btn.disabled = selected.size < 3;
+
   document.getElementById("results").innerHTML = "";
+  document.getElementById("counter").textContent = "";
+  document.getElementById("refreshBtn").style.display = "none";
 }
 
 async function loadAllRecipes() {
   const promises = CATEGORY_FILES.map(async (file) => {
     try {
       const res = await fetch(file);
-      if (!res.ok) {
-        console.warn(`Не удалось загрузить ${file}: ${res.status}`);
-        return [];
-      }
+      if (!res.ok) return [];
       return await res.json();
-    } catch (err) {
-      console.error(`Ошибка при загрузке ${file}:`, err);
+    } catch {
       return [];
     }
   });
-
   const arrays = await Promise.all(promises);
   return arrays.flat();
 }
 
 async function findRecipes() {
+  if (selected.size < 3) {
+    document.getElementById("results").innerHTML = 
+      '<p style="text-align:center; padding:48px 20px; color:#ef4444; font-weight:500;">' +
+      'Выберите минимум 3 ингредиента, чтобы увидеть подходящие рецепты</p>';
+    return;
+  }
+
   try {
     const allRecipes = await loadAllRecipes();
 
     foundRecipes = allRecipes
-      .filter((r) => {
-        if (!r || !r.ingredients || !Array.isArray(r.ingredients)) return false;
-        const essentials = r.ingredients.filter((i) => i && i.essential === true);
-        if (essentials.length === 0) return false;
-        const matched = essentials.filter((i) => selected.has(i.id)).length;
-        return matched === essentials.length;
+      .filter(r => {
+        if (!r || !r.ingredients) return false;
+        // Все выбранные ингредиенты должны быть в рецепте
+        return Array.from(selected).every(userId => 
+          r.ingredients.some(ing => ing.id === userId)
+        );
       })
-      .sort(() => Math.random() - 0.5);
+      .sort((a, b) => {
+        const matchesA = a.ingredients.filter(i => selected.has(i.id)).length;
+        const matchesB = b.ingredients.filter(i => selected.has(i.id)).length;
+        return matchesB - matchesA; // больше совпадений — выше
+      });
 
     currentIndex = 0;
     updateView();
   } catch (err) {
-    console.error("Ошибка поиска рецептов:", err);
-    document.getElementById("results").innerHTML = `<div class="error-msg">Не удалось загрузить рецепты</div>`;
+    document.getElementById("results").innerHTML = 
+      `<div class="error-msg">Не удалось загрузить рецепты</div>`;
   }
 }
 
@@ -383,36 +396,30 @@ function updateView() {
 
   const r = foundRecipes[currentIndex];
 
-  const tags = (r.ingredients || []).map((ing) => {
-    if (!ing || !ing.id) return "";
-    const has = selected.has(ing.id);
-    let cls = has ? "have" : "missing-extra";
-    let text = ing.name || ing.id;
-    let prefix = "";
+  const matchedCount = r.ingredients.filter(ing => selected.has(ing.id)).length;
+  const totalIng = r.ingredients.length;
 
-    if (ing.essential) {
-      cls = has ? "have" : "missing-essential";
-      if (!has) {
-        prefix = "✗ ";
-        text += " (нет)";
-      }
-    } else if (ing.important) {
-      cls = has ? "have" : "missing-important";
-      if (!has) text += " (можно заменить или убрать)";
-    }
+  const tags = r.ingredients
+    .map(ing => {
+      const has = selected.has(ing.id);
+      let cls = has ? "have" : "missing";
+      let prefix = has ? "✓ " : "✗ ";
+      let text = ing.name;
 
-    return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
-  }).filter(Boolean).join(" ");
+      return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
+    })
+    .join(" ");
 
   results.innerHTML = `
     <div class="recipe-card">
       <img src="${PHOTO_FOLDER}/${r.photo || 'no-photo.webp'}" 
            onerror="this.src='https://via.placeholder.com/620x280?text=Нет+фото'" 
-           alt="${r.title || 'Рецепт'}">
+           alt="${r.title}">
       <div class="recipe-info">
         <div class="recipe-title">${r.title || 'Без названия'}</div>
         <div class="recipe-meta">⏱ ${r.time || '?'} · 🔥 ${r.calories || '?'} ккал/100 г</div>
-        <div style="margin:18px 0; line-height:1.6;">${tags}</div>
+        <div class="match-info">У вас уже есть ${matchedCount} из ${totalIng} ингредиентов</div>
+        <div style="margin:16px 0; line-height:1.6;">${tags}</div>
         <div class="steps-box">
           <strong>Как готовить:</strong><br><br>
           ${(r.steps || []).map((s, i) => `${i + 1}. ${s}`).join("<br><br>")}
@@ -422,7 +429,6 @@ function updateView() {
   `;
 }
 
-// ─── События ───────────────────────────────────────
 document.getElementById("findBtn").onclick = findRecipes;
 
 document.getElementById("refreshBtn").onclick = () => {
