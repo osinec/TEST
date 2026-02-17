@@ -60,7 +60,7 @@
       cursor: pointer;
       transition: all 0.28s;
       box-shadow: 0 4px 12px rgba(191,219,254,0.5);
-      margin-bottom: 28px;
+      margin-bottom: 24px;
     }
 
     .back-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(191,219,254,0.7); }
@@ -70,7 +70,7 @@
       font-weight: 700;
       text-align: center;
       color: #c2410c;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .hint {
@@ -254,7 +254,9 @@
 
   <h1>Что приготовить?</h1>
 
-  <div class="hint">Выберите минимум 3 ингредиента — покажем рецепты, в которых есть <b>ВСЕ</b> выбранные</div>
+  <div class="hint">
+    Выберите любые ингредиенты (от 1 шт.) — покажем рецепты, где есть хотя бы один из них
+  </div>
 
   <div class="ingredients-grid" id="ingredientsList"></div>
 
@@ -300,7 +302,7 @@ const INGREDIENTS_CATALOG = [
   { id: "peas",               name: "Горох" },
   { id: "tomato_paste",       name: "Томатная паста" },
   { id: "vermicelli",         name: "Вермишель" },
-  // добавляй новые по мере необходимости
+  // можно добавить ещё
 ];
 
 let selected = new Set();
@@ -325,9 +327,9 @@ function toggleIng(id) {
   if (selected.has(id)) selected.delete(id);
   else selected.add(id);
 
-  const btn = document.getElementById("findBtn");
-  btn.disabled = selected.size < 3;
+  document.getElementById("findBtn").disabled = selected.size === 0;
 
+  // очищаем результаты при каждом изменении выбора
   document.getElementById("results").innerHTML = "";
   document.getElementById("counter").textContent = "";
   document.getElementById("refreshBtn").style.display = "none";
@@ -337,21 +339,25 @@ async function loadAllRecipes() {
   const promises = CATEGORY_FILES.map(async (file) => {
     try {
       const res = await fetch(file);
-      if (!res.ok) return [];
+      if (!res.ok) {
+        console.warn(`Не удалось загрузить ${file}: ${res.status}`);
+        return [];
+      }
       return await res.json();
-    } catch {
+    } catch (err) {
+      console.error(`Ошибка загрузки ${file}:`, err);
       return [];
     }
   });
+
   const arrays = await Promise.all(promises);
   return arrays.flat();
 }
 
 async function findRecipes() {
-  if (selected.size < 3) {
+  if (selected.size === 0) {
     document.getElementById("results").innerHTML = 
-      '<p style="text-align:center; padding:48px 20px; color:#ef4444; font-weight:500;">' +
-      'Выберите минимум 3 ингредиента, чтобы увидеть подходящие рецепты</p>';
+      '<p style="text-align:center; padding:48px 20px; color:#6b7280;">Выберите хотя бы один ингредиент</p>';
     return;
   }
 
@@ -360,23 +366,22 @@ async function findRecipes() {
 
     foundRecipes = allRecipes
       .filter(r => {
-        if (!r || !r.ingredients) return false;
-        // Все выбранные ингредиенты должны быть в рецепте
-        return Array.from(selected).every(userId => 
-          r.ingredients.some(ing => ing.id === userId)
-        );
+        if (!r || !r.ingredients || !Array.isArray(r.ingredients)) return false;
+        // хотя бы один выбранный ингредиент есть в рецепте
+        return r.ingredients.some(ing => selected.has(ing.id));
       })
       .sort((a, b) => {
-        const matchesA = a.ingredients.filter(i => selected.has(i.id)).length;
-        const matchesB = b.ingredients.filter(i => selected.has(i.id)).length;
-        return matchesB - matchesA; // больше совпадений — выше
+        const countA = a.ingredients.filter(i => selected.has(i.id)).length;
+        const countB = b.ingredients.filter(i => selected.has(i.id)).length;
+        return countB - countA; // больше совпадений → выше в списке
       });
 
     currentIndex = 0;
     updateView();
   } catch (err) {
+    console.error("Ошибка в findRecipes:", err);
     document.getElementById("results").innerHTML = 
-      `<div class="error-msg">Не удалось загрузить рецепты</div>`;
+      '<div class="error-msg">Не удалось загрузить рецепты</div>';
   }
 }
 
