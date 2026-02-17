@@ -10,230 +10,319 @@
 
   <style>
     :root {
-      --bg: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-      --card-bg: rgba(255, 255, 255, 0.88);
-      --card-border: rgba(255, 255, 255, 0.4);
-      --shadow-soft: 0 10px 30px rgba(0,0,0,0.10);
-      --shadow-hover: 0 16px 40px rgba(0,0,0,0.16);
-      --accent-start: #f6d365;
-      --accent-end: #fda085;
-      --success: #4caf50;
+      --bg: linear-gradient(135deg, #ffe8d6 0%, #ffd1b3 100%);
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --card-border: rgba(255, 220, 190, 0.6);
+      --shadow-soft: 0 12px 32px rgba(0,0,0,0.08);
+      --shadow-hover: 0 20px 48px rgba(0,0,0,0.14);
+      --accent: #e67e22;
+      --accent-dark: #d35400;
+      --accent-light: #f39c12;
+      --success: #27ae60;
       --danger: #e74c3c;
-      --warning: #f39c12;
-      --text-dark: #1f2937;
-      --text-gray: #4b5563;
+      --text-dark: #2d3436;
+      --text-gray: #636e72;
+      --category-bg: linear-gradient(135deg, rgba(255,245,238,0.9), rgba(255,235,220,0.7));
+      --search-bg: rgba(255, 255, 255, 0.9);
     }
+
     * { margin:0; padding:0; box-sizing:border-box; }
+
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
       min-height: 100vh;
       color: var(--text-dark);
-      padding: 16px 12px;
-      line-height: 1.5;
+      padding: 24px 16px;
+      line-height: 1.6;
     }
+
     .card {
       width: 100%;
-      max-width: 620px;
+      max-width: 680px;
       margin: 0 auto;
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-radius: 28px;
+      backdrop-filter: blur(20px);
+      border-radius: 36px;
       border: 1px solid var(--card-border);
       box-shadow: var(--shadow-soft);
-      padding: 32px 24px;
-      overflow: hidden;
+      padding: 40px 32px;
     }
+
     .back-btn {
       width: 100%;
-      padding: 14px;
-      background: linear-gradient(90deg, #bfdbfe, #dbeafe);
-      color: #1e40af;
+      padding: 16px 28px;
+      background: linear-gradient(90deg, #a5d8ff, #c0e0ff);
+      color: #1e3a5f;
       border: none;
       border-radius: 999px;
       font-size: 15px;
-      font-weight: 700;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.6px;
+      letter-spacing: 1px;
       cursor: pointer;
-      transition: all 0.28s ease;
-      box-shadow: 0 4px 12px rgba(191, 219, 254, 0.5);
-      margin-bottom: 28px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(165, 216, 255, 0.4);
+      margin-bottom: 36px;
     }
+
     .back-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(191, 219, 254, 0.7);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 32px rgba(165, 216, 255, 0.6);
     }
+
     h1 {
-      font-size: 2.3rem;
+      font-size: 2.6rem;
       font-weight: 700;
       text-align: center;
-      color: #c2410c;
+      background: linear-gradient(90deg, #e67e22, #f39c12);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
       margin-bottom: 24px;
     }
+
+    .search-container {
+      position: relative;
+      margin-bottom: 32px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 16px 20px 16px 52px;
+      font-size: 16px;
+      border: 2px solid rgba(230, 126, 34, 0.3);
+      border-radius: 999px;
+      background: var(--search-bg);
+      outline: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 6px 20px rgba(230, 126, 34, 0.18);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.3rem;
+      color: var(--accent);
+      pointer-events: none;
+    }
+
+    .no-results {
+      text-align: center;
+      color: var(--text-gray);
+      font-size: 15px;
+      padding: 20px;
+      display: none;
+    }
+
     .category {
       margin-bottom: 24px;
+      background: var(--category-bg);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+      transition: all 0.25s ease;
     }
+
     .category-title {
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #c2410c;
-      margin: 0 0 12px 0;
-      cursor: pointer;
-      user-select: none;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
+      padding: 18px 24px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.25s, color 0.25s;
+      border-bottom: 1px solid rgba(230, 126, 34, 0.15);
     }
-    .category-title::before {
-      content: '▼';
-      font-size: 0.9rem;
-      transition: transform 0.2s;
+
+    .category-title:hover {
+      background: rgba(230, 126, 34, 0.12);
+      color: var(--accent);
     }
-    .category-title.open::before {
+
+    .category-title .arrow {
+      font-size: 1.2rem;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--accent);
+    }
+
+    .category-title.open .arrow {
       transform: rotate(180deg);
     }
+
     .category-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 14px;
+      padding: 0 24px 0 24px;
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.3s ease;
+      transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s ease;
     }
+
     .category-grid.open {
-      max-height: 1000px; /* достаточно большой, чтобы вместить всё */
+      max-height: 1400px;
+      padding: 24px;
     }
+
     .ingredient-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      gap: 12px;
+      padding: 14px 18px;
+      background: white;
+      border: 1px solid rgba(230, 126, 34, 0.18);
       border-radius: 16px;
       cursor: pointer;
-      transition: all 0.22s ease;
-      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
     }
+
     .ingredient-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-      background: rgba(255, 255, 255, 0.92);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(230, 126, 34, 0.18);
+      border-color: rgba(230, 126, 34, 0.4);
     }
+
     .ingredient-item input {
-      accent-color: #f97316;
-      width: 20px;
-      height: 20px;
+      accent-color: var(--accent-light);
+      width: 22px;
+      height: 22px;
       flex-shrink: 0;
     }
+
     .ingredient-item span {
-      font-size: 15px;
+      font-size: 15.5px;
       font-weight: 500;
       color: var(--text-dark);
     }
+
     .main-btn,
     .refresh-btn {
       width: 100%;
-      padding: 16px;
+      padding: 18px;
       border: none;
       border-radius: 999px;
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 700;
       color: white;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-      margin-bottom: 16px;
+      transition: all 0.32s ease;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+      margin-bottom: 20px;
     }
+
     .main-btn {
-      background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
     }
+
     .main-btn:disabled {
-      opacity: 0.55;
+      opacity: 0.5;
       cursor: not-allowed;
       box-shadow: none;
     }
+
     .refresh-btn {
-      background: linear-gradient(90deg, #10b981, #34d399);
+      background: linear-gradient(90deg, #27ae60, #2ecc71);
     }
+
     .main-btn:hover:not(:disabled),
     .refresh-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.22);
     }
+
     .counter {
       text-align: center;
       color: var(--text-gray);
       font-size: 15px;
       font-weight: 500;
-      margin: 24px 0 28px;
+      margin: 28px 0 32px;
     }
+
     .recipe-card {
       background: white;
-      border-radius: 20px;
+      border-radius: 24px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      margin-top: 16px;
-      transition: transform 0.3s ease;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+      margin-top: 20px;
+      transition: transform 0.35s ease;
     }
+
     .recipe-card:hover {
-      transform: translateY(-6px);
+      transform: translateY(-8px);
     }
+
     .recipe-card img {
       width: 100%;
-      height: 280px;
+      height: 300px;
       object-fit: cover;
-      object-position: center;
-      background: #f3f4f6;
+      background: #f8f1eb;
     }
+
     .recipe-info {
-      padding: 24px 26px;
+      padding: 28px 32px;
     }
+
     .recipe-title {
-      font-size: 1.85rem;
+      font-size: 1.95rem;
       font-weight: 700;
-      color: #c2410c;
-      margin-bottom: 10px;
+      color: var(--accent-dark);
+      margin-bottom: 12px;
     }
+
     .recipe-meta {
-      color: #6b7280;
-      font-size: 14.5px;
-      margin-bottom: 18px;
+      color: #7f8c8d;
+      font-size: 15px;
+      margin-bottom: 20px;
     }
+
     .ing-tag {
-      padding: 6px 12px;
-      border-radius: 12px;
-      font-size: 13.5px;
-      margin: 4px 6px 4px 0;
+      padding: 7px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      margin: 5px 8px 5px 0;
       display: inline-block;
     }
-    .have { background: rgba(16, 185, 129, 0.15); color: #065f46; font-weight: 600; }
-    .missing-essential { background: rgba(239, 68, 68, 0.15); color: #991b1b; border: 1px solid #fca5a5; font-weight: 600; }
-    .missing-important { background: rgba(249, 115, 22, 0.15); color: #c2410c; border: 1px solid #fdba74; font-weight: 500; }
-    .missing-extra { background: rgba(107, 114, 128, 0.12); color: #6b7280; font-weight: 400; }
+
+    .have              { background: rgba(39, 174, 96, 0.18); color: #27ae60; font-weight: 600; }
+    .missing-essential { background: rgba(231, 76, 60, 0.18); color: #c0392b; border: 1px solid #e74c3c; font-weight: 600; }
+    .missing-important { background: rgba(243, 156, 18, 0.18); color: #e67e22; border: 1px solid #f1c40f; font-weight: 500; }
+    .missing-extra     { background: rgba(127, 140, 141, 0.12); color: #7f8c8d; font-weight: 400; }
+
     .steps-box {
-      margin-top: 24px;
-      padding-top: 18px;
-      border-top: 1px solid #e5e7eb;
-      font-size: 15px;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid #ecf0f1;
+      font-size: 15.5px;
       line-height: 1.7;
-      color: #374151;
+      color: #34495e;
     }
+
     .error-msg {
       text-align: center;
-      padding: 48px 20px;
+      padding: 60px 20px;
       color: var(--danger);
       font-size: 16px;
       font-weight: 500;
     }
+
     @media (max-width: 480px) {
-      .ingredients-grid, .category-grid {
+      .category-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
       }
-      h1 { font-size: 2rem; }
+      h1 { font-size: 2.1rem; }
       .recipe-card img { height: 240px; }
+      .card { padding: 28px 20px; }
     }
   </style>
 </head>
@@ -241,10 +330,21 @@
 
 <div class="card">
   <button class="back-btn" onclick="window.history.back()">← НАЗАД</button>
+
   <h1>Что приготовить?</h1>
+
+  <div class="search-container">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" class="search-input" placeholder="Поиск по ингредиенту (например: курица, яйца, творог)" />
+  </div>
+
   <div id="ingredientsList"></div>
+
+  <div id="noResults" class="no-results">Ничего не найдено. Попробуйте изменить запрос.</div>
+
   <button class="main-btn" id="findBtn" disabled>Найти рецепт</button>
   <button class="refresh-btn" id="refreshBtn" style="display:none;">Другой вариант</button>
+
   <div class="counter" id="counter"></div>
   <div id="results"></div>
 </div>
@@ -320,48 +420,31 @@ let selected = new Set();
 let foundRecipes = [];
 let currentIndex = 0;
 
+// ─── Рендер ингредиентов с категориями ────────────────────────
 function renderIngredients() {
   const container = document.getElementById("ingredientsList");
   container.innerHTML = "";
 
   const categories = [
-    {
-      title: "Мясо и птица",
-      ids: ["beef", "pork", "chicken", "meat", "minced_meat", "ham", "sausages", "bacon"]
-    },
-    {
-      title: "Рыба и морепродукты",
-      ids: ["fish", "fish_trout", "red_fish", "white_fish"]
-    },
-    {
-      title: "Молочные продукты и яйца",
-      ids: ["eggs", "cottage_cheese", "cottage_cheese_soft", "cheese", "sour_cream", "butter", "yogurt_greek", "cream", "milk", "kefir", "condensed_milk", "cream_cheese"]
-    },
-    {
-      title: "Овощи",
-      ids: ["potato", "carrot", "onion", "cabbage", "beetroot", "tomato", "tomato_cherry", "bell_pepper", "eggplant", "cucumber", "spinach", "beans", "peas", "mushrooms", "avocado"]
-    },
-    {
-      title: "Крупы, макароны, тесто",
-      ids: ["vermicelli", "pasta", "noodles", "lavash", "flour", "bran", "oat_flakes", "puff_pastry"]
-    },
-    {
-      title: "Сладкое и консервы",
-      ids: ["tomato_paste", "honey", "sugar", "cocoa", "jam", "peaches", "banana", "biscuits"]
-    },
-    {
-      title: "Прочее",
-      ids: ["baking_powder", "lard"]
-    }
+    { title: "Мясо и птица", ids: ["beef", "pork", "chicken", "meat", "minced_meat", "ham", "sausages", "bacon"] },
+    { title: "Рыба и морепродукты", ids: ["fish", "fish_trout"] },
+    { title: "Молочные продукты и яйца", ids: ["eggs", "cottage_cheese", "cottage_cheese_soft", "cheese", "sour_cream", "butter", "yogurt_greek", "cream", "milk", "kefir", "condensed_milk", "cream_cheese"] },
+    { title: "Овощи", ids: ["potato", "carrot", "onion", "cabbage", "beetroot", "tomato", "tomato_cherry", "bell_pepper", "eggplant", "cucumber", "spinach", "beans", "peas", "mushrooms", "avocado"] },
+    { title: "Крупы, макароны, тесто", ids: ["vermicelli", "pasta", "noodles", "lavash", "flour", "bran", "oat_flakes", "puff_pastry"] },
+    { title: "Сладкое и консервы", ids: ["tomato_paste", "honey", "sugar", "cocoa", "jam", "peaches", "banana", "biscuits"] },
+    { title: "Прочее", ids: ["baking_powder", "lard"] }
   ];
 
   categories.forEach(cat => {
     const section = document.createElement("div");
     section.className = "category";
 
-    const title = document.createElement("h3");
+    const title = document.createElement("div");
     title.className = "category-title";
-    title.textContent = cat.title;
+    title.innerHTML = `
+      <span class="arrow">▼</span>
+      <span>${cat.title}</span>
+    `;
     title.onclick = () => {
       title.classList.toggle("open");
       const grid = title.nextElementSibling;
@@ -377,6 +460,7 @@ function renderIngredients() {
 
       const label = document.createElement("label");
       label.className = "ingredient-item";
+      label.dataset.name = item.name.toLowerCase(); // для поиска
       label.innerHTML = `
         <input type="checkbox" value="${item.id}" onchange="toggleIng('${item.id}')" ${
           selected.has(item.id) ? "checked" : ""
@@ -392,6 +476,27 @@ function renderIngredients() {
   });
 }
 
+// ─── Поиск по ингредиентам в реальном времени ──────────────────
+document.getElementById("searchInput").addEventListener("input", function(e) {
+  const query = e.target.value.toLowerCase().trim();
+  const noResults = document.getElementById("noResults");
+
+  let visibleCount = 0;
+
+  document.querySelectorAll(".ingredient-item").forEach(item => {
+    const name = item.dataset.name;
+    if (name.includes(query)) {
+      item.style.display = "flex";
+      visibleCount++;
+    } else {
+      item.style.display = "none";
+    }
+  });
+
+  noResults.style.display = visibleCount === 0 && query.length > 0 ? "block" : "none";
+});
+
+// ─── Остальные функции без изменений ──────────────────────────
 function toggleIng(id) {
   if (selected.has(id)) selected.delete(id);
   else selected.add(id);
