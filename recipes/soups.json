@@ -7,11 +7,11 @@
     "ingredients": [
       { "id": "beef", "name": "Говядина — 500 г", "essential": true, "important": false },
       { "id": "potato", "name": "Картофель — 500 г", "essential": true, "important": false },
-      { "id": "cabbage", "name": "Капуста белокочанная — 500 г", "essential": false, "important": true },
-      { "id": "beetroot", "name": "Свёкла — 300 г", "essential": false, "important": true },
-      { "id": "carrot", "name": "Морковь — 300 г", "essential": false, "important": false },
-      { "id": "onion", "name": "Лук репчатый — 2 шт.", "essential": false, "important": false },
-      { "id": "tomato_paste", "name": "Томатная паста — 2 ст. л.", "essential": false, "important": false }
+      { "id": "cabbage", "name": "Капуста белокочанная — 500 г", "essential": true, "important": true },
+      { "id": "beetroot", "name": "Свёкла — 300 г", "essential": true, "important": true },
+      { "id": "carrot", "name": "Морковь — 300 г", "essential": true, "important": true },
+      { "id": "onion", "name": "Лук репчатый — 2 шт.", "essential": true, "important": true },
+      { "id": "tomato_paste", "name": "Томатная паста — 2 ст. л.", "essential": true, "important": false }
     ],
     "steps": [
       "Мясо нарезать, залить холодной водой, довести до кипения, снять пену и варить 1,5 часа на малом огне.",
@@ -29,11 +29,11 @@
     "ingredients": [
       { "id": "pork", "name": "Свинина — 500 г (рекомендуется на кости)", "essential": true, "important": false },
       { "id": "beans", "name": "Фасоль консервированная — 500 г", "essential": true, "important": false },
-      { "id": "potato", "name": "Картофель — 350 г", "essential": false, "important": true },
-      { "id": "carrot", "name": "Морковь — 120 г", "essential": false, "important": true },
+      { "id": "potato", "name": "Картофель — 350 г", "essential": true, "important": true },
+      { "id": "carrot", "name": "Морковь — 120 г", "essential": true, "important": true },
       { "id": "onion", "name": "Лук репчатый — 110 г", "essential": false, "important": false },
       { "id": "celery", "name": "Сельдерей стеблевой — 130 г", "essential": false, "important": false },
-      { "id": "tomato_paste", "name": "Томатная паста — 60 г", "essential": false, "important": false }
+      { "id": "tomato_paste", "name": "Томатная паста — 60 г", "essential": true, "important": true }
     ],
     "steps": [
       "Свинину с лавровым листом залить холодной водой, довести до кипения и варить 40–60 мин до мягкости.",
@@ -52,8 +52,8 @@
     "ingredients": [
       { "id": "peas", "name": "Горох сухой — 350 г", "essential": true, "important": false },
       { "id": "chicken", "name": "Куриный окорочок — 400 г", "essential": true, "important": false },
-      { "id": "potato", "name": "Картофель — 3 шт.", "essential": false, "important": true },
-      { "id": "carrot", "name": "Морковь — 1 шт.", "essential": false, "important": true },
+      { "id": "potato", "name": "Картофель — 3 шт.", "essential": true, "important": true },
+      { "id": "carrot", "name": "Морковь — 1 шт.", "essential": true, "important": true },
       { "id": "leek", "name": "Лук-порей — 80 г", "essential": false, "important": false }
     ],
     "steps": [
@@ -73,7 +73,7 @@
     "ingredients": [
       { "id": "fish", "name": "Рыба (судак) — 700 г (тушка + голова)", "essential": true, "important": false },
       { "id": "potato", "name": "Картофель — 4 шт.", "essential": true, "important": false },
-      { "id": "carrot", "name": "Морковь — 1 шт.", "essential": false, "important": true },
+      { "id": "carrot", "name": "Морковь — 1 шт.", "essential": true, "important": true },
       { "id": "onion", "name": "Лук репчатый — 1 шт.", "essential": false, "important": true },
       { "id": "greens", "name": "Укроп — 15 г", "essential": false, "important": false }
     ],
@@ -95,9 +95,9 @@
     "ingredients": [
       { "id": "beef", "name": "Говядина (грудинка или рёбра на кости) — 400 г", "essential": true, "important": false },
       { "id": "cabbage", "name": "Капуста белокочанная — 400 г", "essential": true, "important": false },
-      { "id": "potato", "name": "Картофель — 2 шт.", "essential": false, "important": true },
+      { "id": "potato", "name": "Картофель — 2 шт.", "essential": true, "important": true },
       { "id": "onion", "name": "Лук репчатый — 130 г (2 луковицы)", "essential": false, "important": true },
-      { "id": "carrot", "name": "Морковь — 100 г", "essential": false, "important": false }
+      { "id": "carrot", "name": "Морковь — 100 г", "essential": true, "important": true }
     ],
     "steps": [
       "Говядину залить холодной водой, довести до кипения, снять пену. Добавить лавровый лист, 1 луковицу, душистый перец, стебли зелени и соль. Варить до мягкости мяса (~2 часа).",
@@ -118,9 +118,9 @@
     "ingredients": [
       { "id": "chicken", "name": "Куриное филе — 300–350 г", "essential": true, "important": false },
       { "id": "beans", "name": "Фасоль консервированная — 200 г", "essential": true, "important": false },
-      { "id": "tomato", "name": "Помидоры в собственном соку — 400 г", "essential": false, "important": true },
-      { "id": "bell_pepper", "name": "Болгарский перец — 1 шт.", "essential": false, "important": true },
-      { "id": "carrot", "name": "Морковь — 1 шт.", "essential": false, "important": false }
+      { "id": "tomato", "name": "Помидоры в собственном соку — 400 г", "essential": true, "important": true },
+      { "id": "bell_pepper", "name": "Болгарский перец — 1 шт.", "essential": true, "important": true },
+      { "id": "carrot", "name": "Морковь — 1 шт.", "essential": true, "important": false }
     ],
     "steps": [
       "Куриное филе нарезать небольшими кусочками, обжарить в казанке/кастрюле с толстым дном на растительном масле 5–7 мин на большом огне.",
@@ -140,9 +140,9 @@
     "ingredients": [
       { "id": "beef", "name": "Говядина на кости — 800 г", "essential": true, "important": false },
       { "id": "smoked_sausage", "name": "Колбаса копчёная — 150 г", "essential": true, "important": false },
-      { "id": "sausages", "name": "Сосиски — 2–3 шт.", "essential": false, "important": true },
-      { "id": "pickles", "name": "Огурцы солёные — 150 г", "essential": false, "important": true },
-      { "id": "olives", "name": "Оливки без косточек — 100 г", "essential": false, "important": false }
+      { "id": "sausages", "name": "Сосиски — 2–3 шт.", "essential": true, "important": true },
+      { "id": "pickles", "name": "Огурцы солёные — 150 г", "essential": true, "important": true },
+      { "id": "olives", "name": "Оливки без косточек — 100 г", "essential": true, "important": true }
     ],
     "steps": [
       "Говядину залить холодной водой, довести до кипения, снять пену. Добавить целую очищенную луковицу, варить на медленном огне 2–2,5 часа до готовности мяса. За 20 мин до окончания добавить лавровый лист.",
@@ -163,8 +163,8 @@
     "ingredients": [
       { "id": "fish", "name": "Белая рыба (любая) — 3 кг", "essential": true, "important": false },
       { "id": "potato", "name": "Картофель — 4 шт.", "essential": true, "important": false },
-      { "id": "tomato", "name": "Помидоры свежие — 450 г", "essential": false, "important": true },
-      { "id": "onion", "name": "Лук репчатый — 2 шт.", "essential": false, "important": true },
+      { "id": "tomato", "name": "Помидоры свежие — 450 г", "essential": true, "important": true },
+      { "id": "onion", "name": "Лук репчатый — 2 шт.", "essential": false, "important": false },
       { "id": "leek", "name": "Лук-порей (белая часть) — 2 шт.", "essential": false, "important": false }
     ],
     "steps": [
@@ -186,8 +186,8 @@
       { "id": "chicken", "name": "Куриные голени (или другие части) — 300 г", "essential": true, "important": false },
       { "id": "potato", "name": "Картофель — 3 шт. (350 г)", "essential": true, "important": false },
       { "id": "onion", "name": "Лук репчатый — 1 шт.", "essential": false, "important": true },
-      { "id": "carrot", "name": "Морковь — ½ шт.", "essential": false, "important": true },
-      { "id": "eggs", "name": "Яйцо — 1 шт.", "essential": false, "important": false }
+      { "id": "carrot", "name": "Морковь — ½ шт.", "essential": true, "important": true },
+      { "id": "eggs", "name": "Яйцо — 1 шт.", "essential": true, "important": false }
     ],
     "steps": [
       "Курицу залить холодной водой, довести до кипения, убавить огонь и варить до готовности (~20 мин).",
@@ -210,9 +210,9 @@
     "ingredients": [
       { "id": "chicken", "name": "Куриное филе или куриный фарш — 400 г", "essential": true, "important": false },
       { "id": "potato", "name": "Картофель — 3–4 шт.", "essential": true, "important": false },
-      { "id": "carrot", "name": "Морковь — 1 шт.", "essential": false, "important": true },
-      { "id": "onion", "name": "Лук репчатый — 1 шт.", "essential": false, "important": true },
-      { "id": "vermicelli", "name": "Вермишель — 80 г", "essential": false, "important": false }
+      { "id": "carrot", "name": "Морковь — 1 шт.", "essential": true, "important": true },
+      { "id": "onion", "name": "Лук репчатый — 1 шт.", "essential": false, "important": false },
+      { "id": "vermicelli", "name": "Вермишель — 80 г", "essential": true, "important": true }
     ],
     "steps": [
       "Куриное филе нарезать кусочками и пропустить через мясорубку (или использовать готовый фарш).",
@@ -235,10 +235,10 @@
     "calories": 240,
     "ingredients": [
       { "id": "chicken", "name": "Куриное филе — 500 г (2 шт.)", "essential": true, "important": false },
-      { "id": "potato", "name": "Картофель — 2–3 шт.", "essential": true, "important": false },
-      { "id": "carrot", "name": "Морковь — 1 шт.", "essential": false, "important": true },
+      { "id": "potato", "name": "Картофель — 2–3 шт.", "essential": true, "important": true },
+      { "id": "carrot", "name": "Морковь — 1 шт.", "essential": true, "important": true },
       { "id": "onion", "name": "Лук репчатый — 1 шт.", "essential": false, "important": true },
-      { "id": "vermicelli", "name": "Вермишель — 100 г", "essential": false, "important": false }
+      { "id": "vermicelli", "name": "Вермишель — 100 г", "essential": true, "important": false }
     ],
     "steps": [
       "Бульон: Курицу залить холодной водой, довести до кипения, снять пену. Варить 15 мин, вынуть мясо.",
