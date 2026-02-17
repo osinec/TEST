@@ -100,7 +100,7 @@
     "time": "45 минут",
     "calories": 340,
     "ingredients": [
-      { "id": "potato", "name": "картофоль 600 г", "essential": true, "important": false },
+      { "id": "potato", "name": "картофель 600 г", "essential": true, "important": false },
       { "id": "mushrooms", "name": "шампиньоны 200 г", "essential": true, "important": true },
       { "id": "eggs", "name": "1 яйцо", "essential": true, "important": false },
       { "id": "flour", "name": "мука 150–210 г", "essential": false, "important": false },
