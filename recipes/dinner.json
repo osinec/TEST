@@ -7,7 +7,7 @@
     "ingredients": [
       { "id": "eggs", "name": "1 яйцо + 1 белок", "essential": true, "important": false },
       { "id": "crab_sticks", "name": "крабовые палочки 50-70 г", "essential": true, "important": true },
-      { "id": "tomato", "name": "помидор 1 шт. средний", "essential": false, "important": true },
+      { "id": "tomato", "name": "помидор 1 шт. средний", "essential": true, "important": true },
       { "id": "sour_cream", "name": "сметана 1-2 ст. л.", "essential": false, "important": true },
       { "id": "greens", "name": "зелень по вкусу", "essential": false, "important": false },
       { "id": "salt", "name": "соль и специи", "essential": false, "important": false }
@@ -28,7 +28,7 @@
     "calories": 210,
     "ingredients": [
       { "id": "squid", "name": "кальмар 150 г", "essential": true, "important": false },
-      { "id": "cucumber", "name": "огурец 1 шт.", "essential": false, "important": true },
+      { "id": "cucumber", "name": "огурец 1 шт.", "essential": true, "important": true },
       { "id": "eggs", "name": "яйцо 1 шт.", "essential": true, "important": false },
       { "id": "sour_cream", "name": "сметана 2 ст. л.", "essential": false, "important": true },
       { "id": "spices", "name": "специи по вкусу", "essential": false, "important": false }
@@ -71,7 +71,7 @@
       { "id": "broccoli", "name": "брокколи 150 г", "essential": true, "important": false },
       { "id": "pink_salmon", "name": "горбуша 150 г", "essential": true, "important": true },
       { "id": "sour_cream", "name": "сметана 10% 3-4 ст. л.", "essential": false, "important": true },
-      { "id": "eggs", "name": "яйцо 1 шт.", "essential": false, "important": true },
+      { "id": "eggs", "name": "яйцо 1 шт.", "essential": true, "important": true },
       { "id": "spices", "name": "специи по вкусу", "essential": false, "important": false }
     ],
     "steps": [
@@ -92,7 +92,7 @@
       { "id": "pasta", "name": "макароны из твёрдых сортов пшеницы 200 г", "essential": true, "important": true },
       { "id": "smoked_sausage", "name": "копчёные колбаски или копчёная колбаса 100 г", "essential": true, "important": true },
       { "id": "tomato", "name": "помидор 180 г (1 шт.)", "essential": true, "important": true },
-      { "id": "cream", "name": "сливки 20% 150 мл", "essential": false, "important": true },
+      { "id": "cream", "name": "сливки 20% 150 мл", "essential": true, "important": true },
       { "id": "cheese", "name": "твёрдый сыр 100 г", "essential": true, "important": true },
       { "id": "onion", "name": "фиолетовый лук 60 г (½ шт.)", "essential": false, "important": false }
     ],
@@ -206,7 +206,7 @@
       { "id": "bacon", "name": "бекон или свиная грудинка 180 г", "essential": true, "important": true },
       { "id": "eggs", "name": "яйца 2 шт.", "essential": true, "important": false },
       { "id": "cream", "name": "сливки 20–30% 110 мл", "essential": true, "important": true },
-      { "id": "parmesan", "name": "пармезан тёртый 40 г", "essential": true, "important": true }
+      { "id": "parmesan", "name": "пармезан тёртый 40 г", "essential": false, "important": true }
     ],
     "steps": [
       "Отварить спагетти в подсоленной воде, сохранить немного воды от варки",
