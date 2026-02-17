@@ -6,7 +6,7 @@
     "calories": 250,
     "ingredients": [
       { "id": "eggs",       "name": "2 яйца",               "essential": true,  "important": false },
-      { "id": "mushrooms",  "name": "шампиньоны 100-150 гр", "essential": false,  "important": true },
+      { "id": "mushrooms",  "name": "шампиньоны 100-150 гр", "essential": true,  "important": true },
       { "id": "onion",      "name": "лук 1/4",              "essential": false, "important": false  },
       { "id": "salt",       "name": "соль и специи",        "essential": false, "important": false }
     ],
@@ -45,7 +45,7 @@
       { "id": "eggs",       "name": "2 яйца (вареные) + 1 белок сырой", "essential": true,  "important": false },
       { "id": "onion",      "name": "зелёный лук — по вкусу",           "essential": false,  "important": true },
       { "id": "sour_cream", "name": "1 ст. ложка сметаны",              "essential": false, "important": true  },
-      { "id": "flour",      "name": "½ ст. ложки муки",                 "essential": true, "important": false }
+      { "id": "flour",      "name": "½ ст. ложки муки",                 "essential": false, "important": false }
     ],
     "steps": [
       "Нарежьте варёные яйца кубиками, смешайте с мелко нарезанным луком",
@@ -62,7 +62,7 @@
     "ingredients": [
       { "id": "flour", "name": "100 г муки",   "essential": true,  "important": false },
       { "id": "eggs",  "name": "1 яйцо",       "essential": true,  "important": false },
-      { "id": "milk",  "name": "100 мл молока","essential": false, "important": true  },
+      { "id": "milk",  "name": "100 мл молока","essential": true, "important": true  },
       { "id": "honey", "name": "мед",          "essential": false, "important": true }
     ],
     "steps": [
@@ -79,8 +79,8 @@
     "ingredients": [
       { "id": "cheese", "name": "100 г сыра (сулугуни + мягкий)", "essential": true,  "important": true },
       { "id": "eggs",   "name": "1 яйцо",                          "essential": true,  "important": false },
-      { "id": "kefir",  "name": "100 мл кефира",                   "essential": false, "important": true  },
-      { "id": "flour",  "name": "50 г муки",                       "essential": true, "important": false }
+      { "id": "kefir",  "name": "100 мл кефира",                   "essential": true, "important": true  },
+      { "id": "flour",  "name": "50 г муки",                       "essential": false, "important": false }
     ],
     "steps": [
       "Натрите сыр на тёрке, добавьте яйцо и кефир, перемешайте",
@@ -115,11 +115,11 @@
     "time": "10 минут",
     "calories": 220,
     "ingredients": [
-      { "id": "eggs",     "name": "4 яйца",               "essential": false,  "important": true },
+      { "id": "eggs",     "name": "4 яйца",               "essential": true,  "important": true },
       { "id": "avocado",  "name": "80 г авокадо",         "essential": false,  "important": true },
       { "id": "tomato",   "name": "1 помидор",            "essential": false, "important": true  },
-      { "id": "bread",    "name": "200 г цельнозернового хлеба", "essential": false, "important": true },
-      { "id": "ham",      "name": "ветчина по вкусу",     "essential": false, "important": true }
+      { "id": "bread",    "name": "200 г цельнозернового хлеба", "essential": true, "important": true },
+      { "id": "ham",      "name": "ветчина по вкусу",     "essential": true, "important": true }
     ],
     "steps": [
       "Помидоры черри обжарьте в масле, посолите, приправьте перцем",
@@ -135,9 +135,9 @@
     "calories": 210,
     "ingredients": [
       { "id": "eggs",       "name": "4 яйца",                 "essential": true,  "important": false },
-      { "id": "fish_trout", "name": "100 г слабосоленой форели","essential": false,  "important": true },
+      { "id": "fish_trout", "name": "100 г слабосоленой форели","essential": true,  "important": true },
       { "id": "tomato_cherry","name": "250 г помидоров черри", "essential": false, "important": true  },
-      { "id": "yogurt_greek","name": "100 г греческого йогурта","essential": false, "important": true },
+      { "id": "yogurt_greek","name": "100 г греческого йогурта","essential": true, "important": true },
       { "id": "spinach",    "name": "40 г шпината",           "essential": false, "important": false }
     ],
     "steps": [
@@ -155,7 +155,7 @@
     "ingredients": [
       { "id": "lavash",         "name": "2 лаваша",            "essential": true,  "important": false },
       { "id": "cottage_cheese", "name": "300 г творога",       "essential": true,  "important": false },
-      { "id": "cheese",         "name": "80 г твердого сыра",  "essential": false, "important": true  },
+      { "id": "cheese",         "name": "80 г твердого сыра",  "essential": true, "important": true  },
       { "id": "eggs",           "name": "1 яйцо",              "essential": false, "important": true  }
     ],
     "steps": [
@@ -173,7 +173,7 @@
     "ingredients": [
       { "id": "eggs",     "name": "4 яйца",             "essential": true,  "important": false },
       { "id": "spinach",  "name": "100 г шпината",      "essential": false,  "important": true },
-      { "id": "cheese",   "name": "50 г твердого сыра", "essential": false, "important": true  },
+      { "id": "cheese",   "name": "50 г твердого сыра", "essential": true, "important": true  },
       { "id": "sour_cream","name": "2 ст. л. сметаны",  "essential": false, "important": false }
     ],
     "steps": [
