@@ -6,7 +6,7 @@
     "calories": 250,
     "ingredients": [
       { "id": "eggs",       "name": "2 яйца",               "essential": true,  "important": false },
-      { "id": "mushrooms",  "name": "шампиньоны 100-150 гр", "essential": true,  "important": true },
+      { "id": "mushrooms",  "name": "шампиньоны 100-150 гр", "essential": false,  "important": true },
       { "id": "onion",      "name": "лук 1/4",              "essential": false, "important": false  },
       { "id": "salt",       "name": "соль и специи",        "essential": false, "important": false }
     ],
