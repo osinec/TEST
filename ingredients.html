@@ -398,7 +398,7 @@ function updateView() {
       }
     } else if (ing.important) {
       cls = has ? "have" : "missing-important";
-      if (!has) text += " (можно без)";
+      if (!has) text += " (можно заменить или убрать)";
     }
 
     return `<span class="ing-tag ${cls}">${prefix}${text}</span>`;
