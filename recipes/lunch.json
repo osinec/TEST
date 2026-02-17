@@ -7,7 +7,7 @@
     "ingredients": [
       { "id": "chicken", "name": "Куриное филе — 100 г", "essential": true, "important": true },
       { "id": "eggplant", "name": "Баклажан — 100 г", "essential": true, "important": true },
-      { "id": "tomato", "name": "Помидор — 1 шт.", "essential": false, "important": true },
+      { "id": "tomato", "name": "Помидор — 1 шт.", "essential": true, "important": true },
       { "id": "onion", "name": "Лук — 1 шт.", "essential": false, "important": true },
       { "id": "cheese", "name": "Сыр — 1 ст. л.", "essential": true, "important": false },
       { "id": "sour_cream", "name": "Сметана — 20 г", "essential": false, "important": true }
@@ -46,7 +46,7 @@
     "ingredients": [
       { "id": "chicken", "name": "Куриная грудка — 150 г", "essential": true, "important": false },
       { "id": "onion", "name": "Лук — ½ шт.", "essential": false, "important": false },
-      { "id": "eggs", "name": "Яйцо — 1 шт.", "essential": false, "important": true },
+      { "id": "eggs", "name": "Яйцо — 1 шт.", "essential": true, "important": true },
       { "id": "ham", "name": "Ветчина — 30–50 г", "essential": false, "important": true },
       { "id": "spices", "name": "Паприка/специи по вкусу", "essential": false, "important": false }
     ],
@@ -64,9 +64,9 @@
     "calories": 220,
     "ingredients": [
       { "id": "fish", "name": "Рыба (филе: палтус, минтай, горбуша) — 150–200 г", "essential": true, "important": false },
-      { "id": "sour_cream", "name": "Сметана — 1 ст. л.", "essential": true, "important": true },
+      { "id": "sour_cream", "name": "Сметана — 1 ст. л.", "essential": false, "important": true },
       { "id": "mustard", "name": "Горчица — 1 ст. л.", "essential": false, "important": true },
-      { "id": "cheese", "name": "Сыр — 10 г", "essential": false, "important": true }
+      { "id": "cheese", "name": "Сыр — 10 г", "essential": true, "important": true }
     ],
     "steps": [
       "Посолите рыбу, выложите в форму",
@@ -82,7 +82,7 @@
     "calories": 280,
     "ingredients": [
       { "id": "beef", "name": "Говядина (вырезка) — 150 г", "essential": true, "important": false },
-      { "id": "tomato", "name": "Помидор — 1 шт.", "essential": false, "important": true },
+      { "id": "tomato", "name": "Помидор — 1 шт.", "essential": true, "important": true },
       { "id": "bell_pepper", "name": "Болгарский перец — 1 шт.", "essential": false, "important": true },
       { "id": "onion", "name": "Лук — ½ шт.", "essential": false, "important": true },
       { "id": "tomato_paste", "name": "Томатная паста — 1 ст. л.", "essential": true, "important": true }
@@ -103,7 +103,7 @@
       { "id": "potato", "name": "картофоль 600 г", "essential": true, "important": false },
       { "id": "mushrooms", "name": "шампиньоны 200 г", "essential": true, "important": true },
       { "id": "eggs", "name": "1 яйцо", "essential": true, "important": false },
-      { "id": "flour", "name": "мука 150–210 г", "essential": true, "important": false },
+      { "id": "flour", "name": "мука 150–210 г", "essential": false, "important": false },
       { "id": "onion", "name": "лук 1 шт.", "essential": false, "important": true }
     ],
     "steps": [
@@ -167,9 +167,9 @@
     "ingredients": [
       { "id": "pasta", "name": "спагетти 200 г", "essential": true, "important": false },
       { "id": "chicken", "name": "куриное филе 300 г", "essential": true, "important": true },
-      { "id": "bell_pepper", "name": "сладкий перец 1–2 шт.", "essential": true, "important": true },
+      { "id": "bell_pepper", "name": "сладкий перец 1–2 шт.", "essential": false, "important": true },
       { "id": "onion", "name": "лук 1 шт.", "essential": false, "important": true },
-      { "id": "carrot", "name": "морковь 1 шт.", "essential": true, "important": true }
+      { "id": "carrot", "name": "морковь 1 шт.", "essential": false, "important": true }
     ],
     "steps": [
       "Курицу нарезать полосками, замариновать в соевом соусе со специями 30 минут",
@@ -189,9 +189,9 @@
     "ingredients": [
       { "id": "pork", "name": "свиная корейка 1 кг", "essential": true, "important": true },
       { "id": "potato", "name": "картофель 1 кг", "essential": true, "important": false },
-      { "id": "bell_pepper", "name": "болгарский перец 1–2 шт.", "essential": true, "important": true },
-      { "id": "carrot", "name": "морковь 2 шт.", "essential": true, "important": true },
-      { "id": "onion", "name": "лук 2 шт.", "essential": true, "important": true }
+      { "id": "bell_pepper", "name": "болгарский перец 1–2 шт.", "essential": false, "important": true },
+      { "id": "carrot", "name": "морковь 2 шт.", "essential": false, "important": true },
+      { "id": "onion", "name": "лук 2 шт.", "essential": false, "important": true }
     ],
     "steps": [
       "Сало растопить, обжарить на нём мясо крупными кусками до румяной корочки",
