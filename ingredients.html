@@ -254,7 +254,7 @@
 
   <h1>Что приготовить?</h1>
 
-  <div class="hint">Выберите минимум 3 ингредиента — покажем рецепты, в которых есть <b>ВСЕ</b> выбранные</div>
+  <div class="hint">Выберите любые ингредиенты (от 1 шт.) — покажем все рецепты, где есть хотя бы один из них</div>
 
   <div class="ingredients-grid" id="ingredientsList"></div>
 
@@ -326,8 +326,9 @@ function toggleIng(id) {
   else selected.add(id);
 
   const btn = document.getElementById("findBtn");
-  btn.disabled = selected.size < 3;
+  btn.disabled = selected.size === 0;
 
+  // сразу очищаем результаты при изменении выбора
   document.getElementById("results").innerHTML = "";
   document.getElementById("counter").textContent = "";
   document.getElementById("refreshBtn").style.display = "none";
@@ -348,10 +349,10 @@ async function loadAllRecipes() {
 }
 
 async function findRecipes() {
-  if (selected.size < 3) {
+  if (selected.size === 0) {
     document.getElementById("results").innerHTML = 
-      '<p style="text-align:center; padding:48px 20px; color:#ef4444; font-weight:500;">' +
-      'Выберите минимум 3 ингредиента, чтобы увидеть подходящие рецепты</p>';
+      '<p style="text-align:center; padding:48px 20px; color:#6b7280;">' +
+      'Выберите хотя бы 1 ингредиент</p>';
     return;
   }
 
@@ -361,10 +362,8 @@ async function findRecipes() {
     foundRecipes = allRecipes
       .filter(r => {
         if (!r || !r.ingredients) return false;
-        // Все выбранные ингредиенты должны быть в рецепте
-        return Array.from(selected).every(userId => 
-          r.ingredients.some(ing => ing.id === userId)
-        );
+        // хотя бы один выбранный ингредиент есть в рецепте
+        return r.ingredients.some(ing => selected.has(ing.id));
       })
       .sort((a, b) => {
         const matchesA = a.ingredients.filter(i => selected.has(i.id)).length;
