@@ -5,8 +5,8 @@
     "time": "1 час 20 минут",
     "calories": 380,
     "ingredients": [
-      { "id": "flour",          "name": "400 г муки",                  "essential": true,  "important": false },
-      { "id": "butter",         "name": "120 г сливочного масла",      "essential": true,  "important": false },
+      { "id": "flour",          "name": "400 г муки",                  "essential": false,  "important": false },
+      { "id": "butter",         "name": "120 г сливочного масла",      "essential": false,  "important": false },
       { "id": "cocoa",          "name": "50 г какао-порошка",          "essential": true, "important": true },
       { "id": "sugar",          "name": "80 г сахара",                 "essential": false, "important": true },
       { "id": "baking_powder",  "name": "2 ч. л. разрыхлителя",        "essential": false, "important": false },
@@ -31,7 +31,7 @@
     "time": "35 минут",
     "calories": 280,
     "ingredients": [
-      { "id": "flour",          "name": "150–175 г муки",              "essential": true,  "important": false },
+      { "id": "flour",          "name": "150–175 г муки",              "essential": false,  "important": false },
       { "id": "condensed_milk", "name": "100 г сгущённого молока",     "essential": true,  "important": false },
       { "id": "eggs",           "name": "1 яйцо",                      "essential": true, "important": true },
       { "id": "baking_powder",  "name": "0,5 ч. л. разрыхлителя",      "essential": false, "important": false },
