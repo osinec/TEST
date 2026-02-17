@@ -7,11 +7,11 @@
     "ingredients": [
       { "id": "flour",          "name": "400 г муки",                  "essential": true,  "important": false },
       { "id": "butter",         "name": "120 г сливочного масла",      "essential": true,  "important": false },
-      { "id": "cocoa",          "name": "50 г какао-порошка",          "essential": false, "important": true },
+      { "id": "cocoa",          "name": "50 г какао-порошка",          "essential": true, "important": true },
       { "id": "sugar",          "name": "80 г сахара",                 "essential": false, "important": true },
       { "id": "baking_powder",  "name": "2 ч. л. разрыхлителя",        "essential": false, "important": false },
-      { "id": "cottage_cheese", "name": "400 г творога",               "essential": false, "important": true },
-      { "id": "eggs",           "name": "4 яйца",                      "essential": false, "important": true },
+      { "id": "cottage_cheese", "name": "400 г творога",               "essential": true, "important": true },
+      { "id": "eggs",           "name": "4 яйца",                      "essential": true, "important": true },
       { "id": "starch",         "name": "2 ст. л. крахмала",           "essential": false, "important": false },
       { "id": "peaches",        "name": "4 персика",                   "essential": false, "important": false }
     ],
@@ -33,7 +33,7 @@
     "ingredients": [
       { "id": "flour",          "name": "150–175 г муки",              "essential": true,  "important": false },
       { "id": "condensed_milk", "name": "100 г сгущённого молока",     "essential": true,  "important": false },
-      { "id": "eggs",           "name": "1 яйцо",                      "essential": false, "important": true },
+      { "id": "eggs",           "name": "1 яйцо",                      "essential": true, "important": true },
       { "id": "baking_powder",  "name": "0,5 ч. л. разрыхлителя",      "essential": false, "important": false },
       { "id": "salt",           "name": "соль — 1 щепотка",            "essential": false, "important": false }
     ],
@@ -54,12 +54,12 @@
     "time": "2 часа 30 минут",
     "calories": 450,
     "ingredients": [
-      { "id": "biscuits",       "name": "200 г крекеров",              "essential": true,  "important": false },
+      { "id": "biscuits",       "name": "200 г крекеров",              "essential": true,  "important": true },
       { "id": "butter",         "name": "100 г сливочного масла",      "essential": true,  "important": false },
       { "id": "cream_cheese",   "name": "1 кг сливочного сыра",        "essential": true,  "important": false },
-      { "id": "eggs",           "name": "4 крупных яйца",              "essential": false, "important": true },
+      { "id": "eggs",           "name": "4 крупных яйца",              "essential": true, "important": true },
       { "id": "sugar",          "name": "1 стакан сахара",             "essential": false, "important": true },
-      { "id": "sour_cream",     "name": "200–250 г жирной сметаны",    "essential": false, "important": false }
+      { "id": "sour_cream",     "name": "200–250 г жирной сметаны",    "essential": true, "important": true }
     ],
     "steps": [
       "Разогреть духовку до 180°C. Смазать маслом разъёмную форму",
@@ -86,7 +86,7 @@
       { "id": "condensed_milk", "name": "5–6 ст. л. сгущённого молока","essential": true,  "important": false },
       { "id": "butter",         "name": "½ ч. л. сливочного масла",    "essential": false, "important": true },
       { "id": "coconut",        "name": "100 г кокосовой стружки",     "essential": false, "important": true },
-      { "id": "peanuts",        "name": "горсть арахиса",              "essential": false, "important": false }
+      { "id": "peanuts",        "name": "горсть арахиса",              "essential": false, "important": true }
     ],
     "steps": [
       "Перемолоть кукурузные палочки через мясорубку",
@@ -108,9 +108,9 @@
     "ingredients": [
       { "id": "chocolate",      "name": "180 г молочного шоколада",    "essential": true,  "important": false },
       { "id": "cottage_cheese", "name": "300 г творога",               "essential": true,  "important": false },
-      { "id": "butter",         "name": "40 г сливочного масла",       "essential": false, "important": true },
-      { "id": "sugar_powder",   "name": "3 ст. л. сахарной пудры",     "essential": false, "important": true },
-      { "id": "jam",            "name": "варенье (яблочное или другое) — 6 ч. л.", "essential": false, "important": false }
+      { "id": "butter",         "name": "40 г сливочного масла",       "essential": false, "important": false },
+      { "id": "sugar_powder",   "name": "3 ст. л. сахарной пудры",     "essential": false, "important": false },
+      { "id": "jam",            "name": "варенье (яблочное или другое) — 6 ч. л.", "essential": false, "important": truetrue }
     ],
     "steps": [
       "Соединить в блендере творог, сахарную пудру, соль, ванилин и мягкое сливочное масло",
@@ -135,9 +135,9 @@
     "ingredients": [
       { "id": "flour",          "name": "90 г муки",                   "essential": true,  "important": false },
       { "id": "eggs",           "name": "3 яйца",                      "essential": true,  "important": false },
-      { "id": "butter",         "name": "100 г сливочного масла",      "essential": false, "important": true },
-      { "id": "sugar",          "name": "100 г сахара",                "essential": false, "important": true },
-      { "id": "condensed_milk", "name": "варёная сгущёнка — 12 ст. л.", "essential": false, "important": true }
+      { "id": "butter",         "name": "100 г сливочного масла",      "essential": false, "important": false },
+      { "id": "sugar",          "name": "100 г сахара",                "essential": false, "important": false },
+      { "id": "condensed_milk", "name": "варёная сгущёнка — 12 ст. л.", "essential": true, "important": true }
     ],
     "steps": [
       "Взбить яйца с сахаром, солью и ванилином до пены",
@@ -157,11 +157,11 @@
     "calories": 420,
     "ingredients": [
       { "id": "flour",          "name": "150 г муки",                  "essential": true,  "important": false },
-      { "id": "butter",         "name": "120 г сливочного масла",      "essential": true,  "important": false },
-      { "id": "sugar_powder",   "name": "½ стакана сахарной пудры",    "essential": false, "important": true },
-      { "id": "cocoa",          "name": "¼ стакана какао-порошка",     "essential": false, "important": false },
-      { "id": "eggs",           "name": "3 крупных яйца",              "essential": false, "important": true },
-      { "id": "cream",          "name": "250 мл жирных сливок",        "essential": false, "important": true }
+      { "id": "butter",         "name": "120 г сливочного масла",      "essential": false,  "important": false },
+      { "id": "sugar_powder",   "name": "½ стакана сахарной пудры",    "essential": true, "important": true },
+      { "id": "cocoa",          "name": "¼ стакана какао-порошка",     "essential": true, "important": false },
+      { "id": "eggs",           "name": "3 крупных яйца",              "essential": true, "important": true },
+      { "id": "cream",          "name": "250 мл жирных сливок",        "essential": true, "important": true }
     ],
     "steps": [
       "Просеять муку с сахарной пудрой, какао и солью",
@@ -182,9 +182,9 @@
     "ingredients": [
       { "id": "puff_pastry",    "name": "450 г слоёного бездрожжевого теста", "essential": true,  "important": false },
       { "id": "jam",            "name": "160 г густого варенья",            "essential": true,  "important": false },
-      { "id": "flour",          "name": "30 г пшеничной муки (для подпыления)","essential": false, "important": false },
-      { "id": "milk",           "name": "20 мл молока",                     "essential": false, "important": false },
-      { "id": "eggs",           "name": "1 яйцо",                           "essential": false, "important": true }
+      { "id": "flour",          "name": "30 г пшеничной муки (для подпыления)","essential": false, "important": true },
+      { "id": "milk",           "name": "20 мл молока",                     "essential": false, "important": true },
+      { "id": "eggs",           "name": "1 яйцо",                           "essential": false, "important": false }
     ],
     "steps": [
       "Дать тесту немного согреться (не размораживать полностью)",
@@ -228,10 +228,10 @@
     "calories": 210,
     "ingredients": [
       { "id": "eggs",           "name": "2 яйца",                      "essential": true,  "important": false },
-      { "id": "sugar",          "name": "130 г сахара",                "essential": true,  "important": false },
-      { "id": "honey",          "name": "2 ст. л. мёда",               "essential": false, "important": true },
+      { "id": "sugar",          "name": "130 г сахара",                "essential": false,  "important": false },
+      { "id": "honey",          "name": "2 ст. л. мёда",               "essential": true, "important": true },
       { "id": "cinnamon",       "name": "1 ст. л. корицы",             "essential": false, "important": true },
-      { "id": "flour",          "name": "1,5 стакана муки",            "essential": false, "important": false }
+      { "id": "flour",          "name": "1,5 стакана муки",            "essential": true, "important": false }
     ],
     "steps": [
       "Подогреть мёд, смешать с сахаром, яйцами и содой",
